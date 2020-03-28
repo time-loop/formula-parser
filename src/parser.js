@@ -1,4 +1,5 @@
 import Emitter from 'tiny-emitter';
+import JSON5 from 'json5';
 import evaluateByOperator from './evaluate-by-operator/evaluate-by-operator';
 import {Parser as GrammarParser} from './grammar-parser/grammar-parser';
 import {trimEdges} from './helper/string';
@@ -23,6 +24,7 @@ class Parser extends Emitter {
       callFunction: (name, params) => this._callFunction(name, params),
       cellValue: (value) => this._callCellValue(value),
       rangeValue: (start, end) => this._callRangeValue(start, end),
+      parseArray: (string) => JSON5.parse(string),
     };
     this.variables = Object.create(null);
     this.functions = Object.create(null);

@@ -199,6 +199,7 @@ describe('.parse() statistical formulas', () => {
 
     expect(parser.parse('COUNTIF(foo, ">1")')).toMatchObject({error: null, result: 1});
     expect(parser.parse('COUNTIF(A1:C2, ">1")')).toMatchObject({error: null, result: 2});
+    expect(parser.parse('COUNTIF([0, 1, 0, 1, 0], 0)')).toMatchObject({error: null, result: 3});
   });
 
   it('COUNTIFS', () => {

@@ -72,6 +72,9 @@ expression
   | STRING {
       $$ = yy.trimEdges($1);
     }
+  | ARRAY {
+      $$ = yy.parseArray(yytext);
+    }
   | expression '&' expression {
       $$ = yy.evaluateByOperator('&', [$1, $3]);
     }
@@ -185,9 +188,6 @@ cell
 expseq
   : expression {
       $$ = [$1];
-    }
-  | ARRAY {
-      $$ = yy.trimEdges(yytext).split(',');
     }
   | expseq ';' expression {
       $1.push($3);
