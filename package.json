@@ -82,7 +82,7 @@
     "webpack": "^3.2.0"
   },
   "dependencies": {
-    "@handsontable/formulajs": "^2.0.2",
+    "@formulajs/formulajs": "^2.3.0",
     "json5": "^2.1.2",
     "tiny-emitter": "^2.1.0"
   },
