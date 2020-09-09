@@ -4600,7 +4600,8 @@ exports.WORKDAY.INTL = function(start_date, days, weekend, holidays) {
     // this is to stop our issue of passing in miliseconds 
     // as days number
     if (d === 365 || d >= 365) {
-      console.log(365);
+      console.log(days)
+      console.log(d);
       break;
     }
     console.log('looping');
