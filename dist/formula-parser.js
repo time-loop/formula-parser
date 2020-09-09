@@ -4558,10 +4558,11 @@ exports.WEEKNUM = function(serial_number, return_type) {
 };
 
 exports.WORKDAY = function(start_date, days, holidays) {
-  return this.WORKDAY.INTL(start_date, days, 1, holidays);
+    return this.WORKDAY.INTL(start_date, days, 1, holidays);
 };
 
 exports.WORKDAY.INTL = function(start_date, days, weekend, holidays) {
+  console.log('-------LOGGING-------');
   start_date = utils.parseDate(start_date);
   if (start_date instanceof Error) {
     return start_date;
@@ -4570,6 +4571,10 @@ exports.WORKDAY.INTL = function(start_date, days, weekend, holidays) {
   if (days instanceof Error) {
     return days;
   }
+
+  console.log(start_date);
+  console.log(days);
+  console.log(weekend);
   if (days < 0) {
     return error.num;
   }
@@ -4595,6 +4600,7 @@ exports.WORKDAY.INTL = function(start_date, days, weekend, holidays) {
   }
   var d = 0;
   while (d < days) {
+    console.log('looping');
     start_date.setDate(start_date.getDate() + 1);
     var day = start_date.getDay();
     if (day === weekend[0] || day === weekend[1]) {
