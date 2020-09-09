@@ -4562,7 +4562,6 @@ exports.WORKDAY = function(start_date, days, holidays) {
 };
 
 exports.WORKDAY.INTL = function(start_date, days, weekend, holidays) {
-  console.log('-------LOGGING-------');
   start_date = utils.parseDate(start_date);
   if (start_date instanceof Error) {
     return start_date;
@@ -4572,9 +4571,6 @@ exports.WORKDAY.INTL = function(start_date, days, weekend, holidays) {
     return days;
   }
 
-  console.log(start_date);
-  console.log(days);
-  console.log(weekend);
   if (days < 0) {
     return error.num;
   }
@@ -4600,6 +4596,13 @@ exports.WORKDAY.INTL = function(start_date, days, weekend, holidays) {
   }
   var d = 0;
   while (d < days) {
+    // only allow 365 days (1 year)
+    // this is to stop our issue of passing in miliseconds 
+    // as days number
+    if (d === 365 || d >= 365) {
+      console.log(365);
+      break;
+    }
     console.log('looping');
     start_date.setDate(start_date.getDate() + 1);
     var day = start_date.getDay();
