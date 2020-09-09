@@ -4602,7 +4602,6 @@ exports.WORKDAY.INTL = function(start_date, days, weekend, holidays) {
     if (d === 365 || d >= 365) {
       break;
     }
-    console.log('looping');
     start_date.setDate(start_date.getDate() + 1);
     var day = start_date.getDay();
     if (day === weekend[0] || day === weekend[1]) {
