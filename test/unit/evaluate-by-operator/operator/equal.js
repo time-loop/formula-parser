@@ -13,9 +13,11 @@ describe('equal operator', () => {
     expect(func(void 0, null)).toBe(false);
     expect(func(0, null)).toBe(false);
     expect(func(0, void 0)).toBe(false);
+    expect(func(new Date(), new Date(Date.now() + 10))).toBe(false);
 
     expect(func(1, 1)).toBe(true);
     expect(func(null, null)).toBe(true);
     expect(func(void 0, void 0)).toBe(true);
+    expect(func(new Date(), new Date())).toBe(true);
   });
 });
