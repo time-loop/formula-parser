@@ -70,7 +70,7 @@ return /******/ (function(modules) { // webpackBootstrap
 /******/ 	__webpack_require__.p = "";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 15);
+/******/ 	return __webpack_require__(__webpack_require__.s = 16);
 /******/ })
 /************************************************************************/
 /******/ ([
@@ -1660,11 +1660,11 @@ exports.TRUNC = function(number, digits) {
 
 var mathTrig = __webpack_require__(4);
 var text = __webpack_require__(6);
-var jStat = __webpack_require__(10);
+var jStat = __webpack_require__(11);
 var utils = __webpack_require__(1);
 var evalExpression = __webpack_require__(7);
 var error = __webpack_require__(0);
-var misc = __webpack_require__(11);
+var misc = __webpack_require__(12);
 
 var SQRT2PI = 2.5066282746310002;
 
@@ -4710,6 +4710,24 @@ function serial(date) {
 
 /***/ }),
 /* 10 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+exports.__esModule = true;
+exports.dateToNumber = dateToNumber;
+
+// eslint-disable-next-line import/prefer-default-export
+function dateToNumber(val) {
+  if (val instanceof Date) {
+    return val.getTime();
+  }
+  return val;
+}
+
+/***/ }),
+/* 11 */
 /***/ (function(module, exports, __webpack_require__) {
 
 (function (window, factory) {
@@ -9704,7 +9722,7 @@ jStat.extend({
 
 
 /***/ }),
-/* 11 */
+/* 12 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var utils = __webpack_require__(1);
@@ -9770,14 +9788,14 @@ exports.NUMBERS = function () {
 
 
 /***/ }),
-/* 12 */
+/* 13 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var error = __webpack_require__(0);
-var jStat = __webpack_require__(10);
+var jStat = __webpack_require__(11);
 var text = __webpack_require__(6);
 var utils = __webpack_require__(1);
-var bessel = __webpack_require__(27);
+var bessel = __webpack_require__(28);
 
 function isValidBinaryNumber(number) {
   return (/^[01]{1,10}$/).test(number);
@@ -11338,7 +11356,7 @@ exports.OCT2HEX = function(number, places) {
 
 
 /***/ }),
-/* 13 */
+/* 14 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -11350,7 +11368,7 @@ var SUPPORTED_FORMULAS = ['ABS', 'ACCRINT', 'ACOS', 'ACOSH', 'ACOT', 'ACOTH', 'A
 exports['default'] = SUPPORTED_FORMULAS;
 
 /***/ }),
-/* 14 */
+/* 15 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -11483,7 +11501,7 @@ function toLabel(row, column) {
 }
 
 /***/ }),
-/* 15 */
+/* 16 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -11492,11 +11510,11 @@ function toLabel(row, column) {
 exports.__esModule = true;
 exports.rowLabelToIndex = exports.rowIndexToLabel = exports.columnLabelToIndex = exports.columnIndexToLabel = exports.toLabel = exports.extractLabel = exports.error = exports.Parser = exports.ERROR_VALUE = exports.ERROR_REF = exports.ERROR_NUM = exports.ERROR_NULL = exports.ERROR_NOT_AVAILABLE = exports.ERROR_NAME = exports.ERROR_DIV_ZERO = exports.ERROR = exports.SUPPORTED_FORMULAS = undefined;
 
-var _parser = __webpack_require__(16);
+var _parser = __webpack_require__(17);
 
 var _parser2 = _interopRequireDefault(_parser);
 
-var _supportedFormulas = __webpack_require__(13);
+var _supportedFormulas = __webpack_require__(14);
 
 var _supportedFormulas2 = _interopRequireDefault(_supportedFormulas);
 
@@ -11504,7 +11522,7 @@ var _error = __webpack_require__(2);
 
 var _error2 = _interopRequireDefault(_error);
 
-var _cell = __webpack_require__(14);
+var _cell = __webpack_require__(15);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 
@@ -11527,7 +11545,7 @@ exports.rowIndexToLabel = _cell.rowIndexToLabel;
 exports.rowLabelToIndex = _cell.rowLabelToIndex;
 
 /***/ }),
-/* 16 */
+/* 17 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -11535,21 +11553,21 @@ exports.rowLabelToIndex = _cell.rowLabelToIndex;
 
 exports.__esModule = true;
 
-var _tinyEmitter = __webpack_require__(17);
+var _tinyEmitter = __webpack_require__(18);
 
 var _tinyEmitter2 = _interopRequireDefault(_tinyEmitter);
 
-var _json = __webpack_require__(18);
+var _json = __webpack_require__(19);
 
 var _json2 = _interopRequireDefault(_json);
 
-var _evaluateByOperator = __webpack_require__(19);
+var _evaluateByOperator = __webpack_require__(20);
 
 var _evaluateByOperator2 = _interopRequireDefault(_evaluateByOperator);
 
-var _grammarParser = __webpack_require__(40);
+var _grammarParser = __webpack_require__(41);
 
-var _string = __webpack_require__(41);
+var _string = __webpack_require__(42);
 
 var _number = __webpack_require__(3);
 
@@ -11557,7 +11575,7 @@ var _error = __webpack_require__(2);
 
 var _error2 = _interopRequireDefault(_error);
 
-var _cell = __webpack_require__(14);
+var _cell = __webpack_require__(15);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 
@@ -11860,7 +11878,7 @@ var Parser = function (_Emitter) {
 exports['default'] = Parser;
 
 /***/ }),
-/* 17 */
+/* 18 */
 /***/ (function(module, exports) {
 
 function E () {
@@ -11933,7 +11951,7 @@ module.exports.TinyEmitter = E;
 
 
 /***/ }),
-/* 18 */
+/* 19 */
 /***/ (function(module, exports, __webpack_require__) {
 
 (function (global, factory) {
@@ -13649,7 +13667,7 @@ module.exports.TinyEmitter = E;
 
 
 /***/ }),
-/* 19 */
+/* 20 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -13659,55 +13677,55 @@ exports.__esModule = true;
 exports['default'] = evaluateByOperator;
 exports.registerOperation = registerOperation;
 
-var _add = __webpack_require__(20);
+var _add = __webpack_require__(21);
 
 var _add2 = _interopRequireDefault(_add);
 
-var _ampersand = __webpack_require__(21);
+var _ampersand = __webpack_require__(22);
 
 var _ampersand2 = _interopRequireDefault(_ampersand);
 
-var _divide = __webpack_require__(22);
+var _divide = __webpack_require__(23);
 
 var _divide2 = _interopRequireDefault(_divide);
 
-var _equal = __webpack_require__(23);
+var _equal = __webpack_require__(24);
 
 var _equal2 = _interopRequireDefault(_equal);
 
-var _formulaFunction = __webpack_require__(24);
+var _formulaFunction = __webpack_require__(25);
 
 var _formulaFunction2 = _interopRequireDefault(_formulaFunction);
 
-var _greaterThan = __webpack_require__(32);
+var _greaterThan = __webpack_require__(33);
 
 var _greaterThan2 = _interopRequireDefault(_greaterThan);
 
-var _greaterThanOrEqual = __webpack_require__(33);
+var _greaterThanOrEqual = __webpack_require__(34);
 
 var _greaterThanOrEqual2 = _interopRequireDefault(_greaterThanOrEqual);
 
-var _lessThan = __webpack_require__(34);
+var _lessThan = __webpack_require__(35);
 
 var _lessThan2 = _interopRequireDefault(_lessThan);
 
-var _lessThanOrEqual = __webpack_require__(35);
+var _lessThanOrEqual = __webpack_require__(36);
 
 var _lessThanOrEqual2 = _interopRequireDefault(_lessThanOrEqual);
 
-var _minus = __webpack_require__(36);
+var _minus = __webpack_require__(37);
 
 var _minus2 = _interopRequireDefault(_minus);
 
-var _multiply = __webpack_require__(37);
+var _multiply = __webpack_require__(38);
 
 var _multiply2 = _interopRequireDefault(_multiply);
 
-var _notEqual = __webpack_require__(38);
+var _notEqual = __webpack_require__(39);
 
 var _notEqual2 = _interopRequireDefault(_notEqual);
 
-var _power = __webpack_require__(39);
+var _power = __webpack_require__(40);
 
 var _power2 = _interopRequireDefault(_power);
 
@@ -13771,7 +13789,7 @@ registerOperation(_notEqual2['default'].SYMBOL, _notEqual2['default']);
 registerOperation(_minus2['default'].SYMBOL, _minus2['default']);
 
 /***/ }),
-/* 20 */
+/* 21 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -13806,7 +13824,7 @@ function func(first) {
 func.SYMBOL = SYMBOL;
 
 /***/ }),
-/* 21 */
+/* 22 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -13829,7 +13847,7 @@ function func() {
 func.SYMBOL = SYMBOL;
 
 /***/ }),
-/* 22 */
+/* 23 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -13867,23 +13885,6 @@ function func(first) {
 func.SYMBOL = SYMBOL;
 
 /***/ }),
-/* 23 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-exports.__esModule = true;
-exports['default'] = func;
-var SYMBOL = exports.SYMBOL = '=';
-
-function func(exp1, exp2) {
-  return exp1 === exp2;
-}
-
-func.SYMBOL = SYMBOL;
-
-/***/ }),
 /* 24 */
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -13894,11 +13895,32 @@ exports.__esModule = true;
 exports.SYMBOL = undefined;
 exports['default'] = func;
 
-var _formulajs = __webpack_require__(25);
+var _date = __webpack_require__(10);
+
+var SYMBOL = exports.SYMBOL = '=';
+
+function func(exp1, exp2) {
+  return (0, _date.dateToNumber)(exp1) === (0, _date.dateToNumber)(exp2);
+}
+
+func.SYMBOL = SYMBOL;
+
+/***/ }),
+/* 25 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+exports.__esModule = true;
+exports.SYMBOL = undefined;
+exports['default'] = func;
+
+var _formulajs = __webpack_require__(26);
 
 var formulajs = _interopRequireWildcard(_formulajs);
 
-var _supportedFormulas = __webpack_require__(13);
+var _supportedFormulas = __webpack_require__(14);
 
 var _supportedFormulas2 = _interopRequireDefault(_supportedFormulas);
 
@@ -13955,22 +13977,22 @@ func.isFactory = true;
 func.SYMBOL = SYMBOL;
 
 /***/ }),
-/* 25 */
+/* 26 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var categories = [
-  __webpack_require__(26),
-  __webpack_require__(28),
-  __webpack_require__(12),
+  __webpack_require__(27),
   __webpack_require__(29),
+  __webpack_require__(13),
+  __webpack_require__(30),
   __webpack_require__(4),
   __webpack_require__(6),
   __webpack_require__(9),
-  __webpack_require__(30),
-  __webpack_require__(8),
   __webpack_require__(31),
+  __webpack_require__(8),
+  __webpack_require__(32),
   __webpack_require__(5),
-  __webpack_require__(11)
+  __webpack_require__(12)
 ];
 
 for (var c in categories) {
@@ -13982,12 +14004,12 @@ for (var c in categories) {
 
 
 /***/ }),
-/* 26 */
+/* 27 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var mathTrig = __webpack_require__(4);
 var statistical = __webpack_require__(5);
-var engineering = __webpack_require__(12);
+var engineering = __webpack_require__(13);
 var dateTime = __webpack_require__(9);
 
 function set(fn, root) {
@@ -14075,7 +14097,7 @@ exports.ZTEST = statistical.Z.TEST;
 
 
 /***/ }),
-/* 27 */
+/* 28 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /* bessel.js (C) 2013-present SheetJS -- http://sheetjs.com */
@@ -14327,7 +14349,7 @@ BESSEL.besselk = besselk;
 
 
 /***/ }),
-/* 28 */
+/* 29 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var error = __webpack_require__(0);
@@ -14732,7 +14754,7 @@ exports.DVARP = function(database, field, criteria) {
 
 
 /***/ }),
-/* 29 */
+/* 30 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var error = __webpack_require__(0);
@@ -14858,7 +14880,7 @@ exports.SWITCH = function () {
 
 
 /***/ }),
-/* 30 */
+/* 31 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var error = __webpack_require__(0);
@@ -15954,7 +15976,7 @@ exports.YIELDMAT = function() {
 
 
 /***/ }),
-/* 31 */
+/* 32 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var error = __webpack_require__(0);
@@ -16083,7 +16105,7 @@ exports.INDEX = function (cellRange, rowNumber, columnNumber) {
 
 
 /***/ }),
-/* 32 */
+/* 33 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -16100,7 +16122,7 @@ function func(exp1, exp2) {
 func.SYMBOL = SYMBOL;
 
 /***/ }),
-/* 33 */
+/* 34 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -16117,7 +16139,7 @@ function func(exp1, exp2) {
 func.SYMBOL = SYMBOL;
 
 /***/ }),
-/* 34 */
+/* 35 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -16134,7 +16156,7 @@ function func(exp1, exp2) {
 func.SYMBOL = SYMBOL;
 
 /***/ }),
-/* 35 */
+/* 36 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -16151,7 +16173,7 @@ function func(exp1, exp2) {
 func.SYMBOL = SYMBOL;
 
 /***/ }),
-/* 36 */
+/* 37 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -16186,7 +16208,7 @@ function func(first) {
 func.SYMBOL = SYMBOL;
 
 /***/ }),
-/* 37 */
+/* 38 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -16221,24 +16243,28 @@ function func(first) {
 func.SYMBOL = SYMBOL;
 
 /***/ }),
-/* 38 */
+/* 39 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 
 exports.__esModule = true;
+exports.SYMBOL = undefined;
 exports['default'] = func;
+
+var _date = __webpack_require__(10);
+
 var SYMBOL = exports.SYMBOL = '<>';
 
 function func(exp1, exp2) {
-  return exp1 !== exp2;
+  return (0, _date.dateToNumber)(exp1) !== (0, _date.dateToNumber)(exp2);
 }
 
 func.SYMBOL = SYMBOL;
 
 /***/ }),
-/* 39 */
+/* 40 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -16267,7 +16293,7 @@ function func(exp1, exp2) {
 func.SYMBOL = SYMBOL;
 
 /***/ }),
-/* 40 */
+/* 41 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /* parser generated by jison 0.4.18 */
@@ -17207,7 +17233,7 @@ exports.parse = function () { return grammarParser.parse.apply(grammarParser, ar
 
 
 /***/ }),
-/* 41 */
+/* 42 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
