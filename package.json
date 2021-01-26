@@ -1,6 +1,6 @@
 {
   "name": "@clickup/hot-formula-parser",
-  "version": "3.0.2",
+  "version": "3.0.3",
   "description": "Formula parser",
   "browser": "dist/formula-parser.js",
   "main": "lib/index.js",
