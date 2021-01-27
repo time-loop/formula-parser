@@ -466,11 +466,44 @@ function invertNumber(number) {
 /* 4 */
 /***/ (function(module, exports, __webpack_require__) {
 
+"use strict";
+
+
+exports.__esModule = true;
+exports.isDate = isDate;
+exports.dateToNumber = dateToNumber;
+exports.canCompareArgs = canCompareArgs;
+function isDate(val) {
+  return val instanceof Date;
+}
+
+function dateToNumber(val) {
+  if (isDate(val)) {
+    return val.getTime();
+  }
+  return val;
+}
+
+function isNullOrFalse(arg) {
+  return arg === null || arg === false;
+}
+
+function canCompareArgs(arg1, arg2) {
+  if (isDate(arg1) && isNullOrFalse(arg2) || isDate(arg2) && isNullOrFalse(arg1)) {
+    return false;
+  }
+  return true;
+}
+
+/***/ }),
+/* 5 */
+/***/ (function(module, exports, __webpack_require__) {
+
 var utils = __webpack_require__(1);
 var error = __webpack_require__(0);
-var statistical = __webpack_require__(5);
-var information = __webpack_require__(8);
-var evalExpression = __webpack_require__(7);
+var statistical = __webpack_require__(6);
+var information = __webpack_require__(9);
+var evalExpression = __webpack_require__(8);
 
 exports.ABS = function(number) {
   number = utils.parseNumber(number);
@@ -1655,14 +1688,14 @@ exports.TRUNC = function(number, digits) {
 
 
 /***/ }),
-/* 5 */
+/* 6 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var mathTrig = __webpack_require__(4);
-var text = __webpack_require__(6);
+var mathTrig = __webpack_require__(5);
+var text = __webpack_require__(7);
 var jStat = __webpack_require__(11);
 var utils = __webpack_require__(1);
-var evalExpression = __webpack_require__(7);
+var evalExpression = __webpack_require__(8);
 var error = __webpack_require__(0);
 var misc = __webpack_require__(12);
 
@@ -3506,7 +3539,7 @@ exports.Z.TEST = function(range, x, sd) {
 
 
 /***/ }),
-/* 6 */
+/* 7 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var utils = __webpack_require__(1);
@@ -3810,7 +3843,7 @@ exports.VALUE = function() {
 
 
 /***/ }),
-/* 7 */
+/* 8 */
 /***/ (function(module, exports) {
 
 var defaultOperator = '=';
@@ -4006,7 +4039,7 @@ exports.compute = computeExpression;
 
 
 /***/ }),
-/* 8 */
+/* 9 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var error = __webpack_require__(0);
@@ -4145,7 +4178,7 @@ exports.TYPE = function(value) {
 
 
 /***/ }),
-/* 9 */
+/* 10 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var error = __webpack_require__(0);
@@ -4707,24 +4740,6 @@ function serial(date) {
   return Math.ceil((date - d1900) / 86400000) + addOn;
 }
 
-
-/***/ }),
-/* 10 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-exports.__esModule = true;
-exports.dateToNumber = dateToNumber;
-
-// eslint-disable-next-line import/prefer-default-export
-function dateToNumber(val) {
-  if (val instanceof Date) {
-    return val.getTime();
-  }
-  return val;
-}
 
 /***/ }),
 /* 11 */
@@ -9793,7 +9808,7 @@ exports.NUMBERS = function () {
 
 var error = __webpack_require__(0);
 var jStat = __webpack_require__(11);
-var text = __webpack_require__(6);
+var text = __webpack_require__(7);
 var utils = __webpack_require__(1);
 var bessel = __webpack_require__(28);
 
@@ -13895,7 +13910,7 @@ exports.__esModule = true;
 exports.SYMBOL = undefined;
 exports['default'] = func;
 
-var _date = __webpack_require__(10);
+var _date = __webpack_require__(4);
 
 var SYMBOL = exports.SYMBOL = '=';
 
@@ -13985,13 +14000,13 @@ var categories = [
   __webpack_require__(29),
   __webpack_require__(13),
   __webpack_require__(30),
-  __webpack_require__(4),
-  __webpack_require__(6),
-  __webpack_require__(9),
-  __webpack_require__(31),
-  __webpack_require__(8),
-  __webpack_require__(32),
   __webpack_require__(5),
+  __webpack_require__(7),
+  __webpack_require__(10),
+  __webpack_require__(31),
+  __webpack_require__(9),
+  __webpack_require__(32),
+  __webpack_require__(6),
   __webpack_require__(12)
 ];
 
@@ -14007,10 +14022,10 @@ for (var c in categories) {
 /* 27 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var mathTrig = __webpack_require__(4);
-var statistical = __webpack_require__(5);
+var mathTrig = __webpack_require__(5);
+var statistical = __webpack_require__(6);
 var engineering = __webpack_require__(13);
-var dateTime = __webpack_require__(9);
+var dateTime = __webpack_require__(10);
 
 function set(fn, root) {
   if (root) {
@@ -14353,10 +14368,10 @@ BESSEL.besselk = besselk;
 /***/ (function(module, exports, __webpack_require__) {
 
 var error = __webpack_require__(0);
-var stats = __webpack_require__(5);
-var maths = __webpack_require__(4);
+var stats = __webpack_require__(6);
+var maths = __webpack_require__(5);
 var utils = __webpack_require__(1);
-var evalExpression = __webpack_require__(7);
+var evalExpression = __webpack_require__(8);
 
 function compact(array) {
   var result = [];
@@ -14759,7 +14774,7 @@ exports.DVARP = function(database, field, criteria) {
 
 var error = __webpack_require__(0);
 var utils = __webpack_require__(1);
-var information = __webpack_require__(8);
+var information = __webpack_require__(9);
 
 exports.AND = function() {
   var args = utils.flatten(arguments);
@@ -14884,7 +14899,7 @@ exports.SWITCH = function () {
 /***/ (function(module, exports, __webpack_require__) {
 
 var error = __webpack_require__(0);
-var dateTime = __webpack_require__(9);
+var dateTime = __webpack_require__(10);
 var utils = __webpack_require__(1);
 
 function validDate(d) {
@@ -16112,10 +16127,17 @@ exports.INDEX = function (cellRange, rowNumber, columnNumber) {
 
 
 exports.__esModule = true;
+exports.SYMBOL = undefined;
 exports['default'] = func;
+
+var _date = __webpack_require__(4);
+
 var SYMBOL = exports.SYMBOL = '>';
 
 function func(exp1, exp2) {
+  if (!(0, _date.canCompareArgs)(exp1, exp2)) {
+    return false;
+  }
   return exp1 > exp2;
 }
 
@@ -16129,10 +16151,17 @@ func.SYMBOL = SYMBOL;
 
 
 exports.__esModule = true;
+exports.SYMBOL = undefined;
 exports['default'] = func;
+
+var _date = __webpack_require__(4);
+
 var SYMBOL = exports.SYMBOL = '>=';
 
 function func(exp1, exp2) {
+  if (!(0, _date.canCompareArgs)(exp1, exp2)) {
+    return false;
+  }
   return exp1 >= exp2;
 }
 
@@ -16146,10 +16175,17 @@ func.SYMBOL = SYMBOL;
 
 
 exports.__esModule = true;
+exports.SYMBOL = undefined;
 exports['default'] = func;
+
+var _date = __webpack_require__(4);
+
 var SYMBOL = exports.SYMBOL = '<';
 
 function func(exp1, exp2) {
+  if (!(0, _date.canCompareArgs)(exp1, exp2)) {
+    return false;
+  }
   return exp1 < exp2;
 }
 
@@ -16163,10 +16199,17 @@ func.SYMBOL = SYMBOL;
 
 
 exports.__esModule = true;
+exports.SYMBOL = undefined;
 exports['default'] = func;
+
+var _date = __webpack_require__(4);
+
 var SYMBOL = exports.SYMBOL = '<=';
 
 function func(exp1, exp2) {
+  if (!(0, _date.canCompareArgs)(exp1, exp2)) {
+    return false;
+  }
   return exp1 <= exp2;
 }
 
@@ -16253,7 +16296,7 @@ exports.__esModule = true;
 exports.SYMBOL = undefined;
 exports['default'] = func;
 
-var _date = __webpack_require__(10);
+var _date = __webpack_require__(4);
 
 var SYMBOL = exports.SYMBOL = '<>';
 

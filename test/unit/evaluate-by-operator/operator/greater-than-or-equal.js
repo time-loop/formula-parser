@@ -11,6 +11,10 @@ describe('greater than or equal operator', () => {
     expect(func('2', 8.8)).toBe(false);
     expect(func(void 0, null)).toBe(false);
     expect(func(0, void 0)).toBe(false);
+    expect(func(new Date(), null)).toBe(false);
+    expect(func(null, new Date())).toBe(false);
+    expect(func(new Date(), false)).toBe(false);
+    expect(func(false, new Date())).toBe(false);
 
     expect(func(0, null)).toBe(true); // JS natively
     expect(func(1, '1')).toBe(true);

@@ -14,6 +14,10 @@ describe('less than operator', () => {
     expect(func(void 0, null)).toBe(false);
     expect(func(0, null)).toBe(false);
     expect(func(0, void 0)).toBe(false);
+    expect(func(new Date(), null)).toBe(false);
+    expect(func(null, new Date())).toBe(false);
+    expect(func(new Date(), false)).toBe(false);
+    expect(func(false, new Date())).toBe(false);
 
     expect(func('2', 8.8)).toBe(true);
     expect(func(2, 8.8)).toBe(true);
