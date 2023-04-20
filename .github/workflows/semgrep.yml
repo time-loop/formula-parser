@@ -3,7 +3,7 @@ name: Semgrep
 
 on:
     pull_request:
-        branches: ['master', 'main']
+        branches: ['develop']
 
     # Schedule the CI job (this method uses cron syntax):
     schedule:
