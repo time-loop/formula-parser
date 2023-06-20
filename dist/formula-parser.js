@@ -12283,11 +12283,11 @@ module.exports.TinyEmitter = E;
 
 	var util = {
 	    isSpaceSeparator: function isSpaceSeparator (c) {
-	        return unicode.Space_Separator.test(c)
+	        return typeof c === 'string' && unicode.Space_Separator.test(c)
 	    },
 
 	    isIdStartChar: function isIdStartChar (c) {
-	        return (
+	        return typeof c === 'string' && (
 	            (c >= 'a' && c <= 'z') ||
 	        (c >= 'A' && c <= 'Z') ||
 	        (c === '$') || (c === '_') ||
@@ -12296,7 +12296,7 @@ module.exports.TinyEmitter = E;
 	    },
 
 	    isIdContinueChar: function isIdContinueChar (c) {
-	        return (
+	        return typeof c === 'string' && (
 	            (c >= 'a' && c <= 'z') ||
 	        (c >= 'A' && c <= 'Z') ||
 	        (c >= '0' && c <= '9') ||
@@ -12307,11 +12307,11 @@ module.exports.TinyEmitter = E;
 	    },
 
 	    isDigit: function isDigit (c) {
-	        return /[0-9]/.test(c)
+	        return typeof c === 'string' && /[0-9]/.test(c)
 	    },
 
 	    isHexDigit: function isHexDigit (c) {
-	        return /[0-9A-Fa-f]/.test(c)
+	        return typeof c === 'string' && /[0-9A-Fa-f]/.test(c)
 	    },
 	};
 
@@ -12357,12 +12357,34 @@ module.exports.TinyEmitter = E;
 	function internalize (holder, name, reviver) {
 	    var value = holder[name];
 	    if (value != null && typeof value === 'object') {
-	        for (var key in value) {
-	            var replacement = internalize(value, key, reviver);
-	            if (replacement === undefined) {
-	                delete value[key];
-	            } else {
-	                value[key] = replacement;
+	        if (Array.isArray(value)) {
+	            for (var i = 0; i < value.length; i++) {
+	                var key = String(i);
+	                var replacement = internalize(value, key, reviver);
+	                if (replacement === undefined) {
+	                    delete value[key];
+	                } else {
+	                    Object.defineProperty(value, key, {
+	                        value: replacement,
+	                        writable: true,
+	                        enumerable: true,
+	                        configurable: true,
+	                    });
+	                }
+	            }
+	        } else {
+	            for (var key$1 in value) {
+	                var replacement$1 = internalize(value, key$1, reviver);
+	                if (replacement$1 === undefined) {
+	                    delete value[key$1];
+	                } else {
+	                    Object.defineProperty(value, key$1, {
+	                        value: replacement$1,
+	                        writable: true,
+	                        enumerable: true,
+	                        configurable: true,
+	                    });
+	                }
 	            }
 	        }
 	    }
@@ -13290,7 +13312,12 @@ module.exports.TinyEmitter = E;
 	        if (Array.isArray(parent)) {
 	            parent.push(value);
 	        } else {
-	            parent[key] = value;
+	            Object.defineProperty(parent, key, {
+	                value: value,
+	                writable: true,
+	                enumerable: true,
+	                configurable: true,
+	            });
 	        }
 	    }
 
