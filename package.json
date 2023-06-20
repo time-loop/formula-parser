@@ -86,7 +86,7 @@
   },
   "dependencies": {
     "@formulajs/formulajs": "^2.3.0",
-    "json5": "^2.1.2",
+    "json5": "^2.2.3",
     "tiny-emitter": "^2.1.0"
   },
   "jest": {
