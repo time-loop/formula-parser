@@ -3,9 +3,11 @@ import JSON5 from 'json5';
 import evaluateByOperator from './evaluate-by-operator/evaluate-by-operator';
 import {Parser as GrammarParser} from './grammar-parser/grammar-parser';
 import {trimEdges} from './helper/string';
-import {toNumber, invertNumber} from './helper/number';
-import errorParser, {isValidStrict as isErrorValid, ERROR, ERROR_NAME} from './error';
+import {invertNumber, toNumber} from './helper/number';
+import errorParser, {ERROR, ERROR_NAME, isValidStrict as isErrorValid} from './error';
 import {extractLabel, toLabel} from './helper/cell';
+import rules from './clickup-parser/rules';
+import ClickUpParser from './clickup-parser/clickup-parser';
 
 /**
  * @class Parser
@@ -28,6 +30,7 @@ class Parser extends Emitter {
     };
     this.variables = Object.create(null);
     this.functions = Object.create(null);
+    this.cuParser = new ClickUpParser(rules);
 
     this
       .setVariable('TRUE', true)
@@ -44,6 +47,12 @@ class Parser extends Emitter {
   parse(expression) {
     let result = null;
     let error = null;
+
+    if (this.getVariable('USE_CLICKUP_PARSER')) {
+      this.setClickUpParser();
+      expression = this.cuParser.parse(expression);
+      console.log(expression);
+    }
 
     try {
       if (expression === '') {
@@ -244,6 +253,12 @@ class Parser extends Emitter {
     }
 
     throw Error(ERROR);
+  }
+
+  setClickUpParser() {
+    if (!this.clickUpParser) {
+      this.clickUpParser = new ClickUpParser(rules);
+    }
   }
 }
 
