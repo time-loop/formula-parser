@@ -1,20 +1,36 @@
+import * as formulajs from '@formulajs/formulajs';
+import splitFormula from './formula';
+import {getNumberOfDaysSinceEpoch, isDate} from './date';
+import {ClickUpConfiguration} from '../parser';
+
+const AcceptedFormulaJSConversions = ['DATE('];
+
 /**
  * Convert value into number.
  *
- * @param {String|Number} number
+ * @param {String|Number} value
  * @returns {*}
  */
-export function toNumber(number) {
-  let result;
-
-  if (typeof number === 'number') {
-    result = number;
-
-  } else if (typeof number === 'string') {
-    result = number.indexOf('.') > -1 ? parseFloat(number) : parseInt(number, 10);
+export function toNumber(value) {
+  if (typeof value === 'number') {
+    return value;
   }
 
-  return result;
+  if (typeof value === 'string') {
+    const shouldBeParsed = AcceptedFormulaJSConversions.some((conversion) => value.startsWith(conversion));
+    if (shouldBeParsed && ClickUpConfiguration.UseNumericOverrides) {
+      const {name, args} = splitFormula(value);
+      return toNumber(formulajs[name](...args));
+    }
+
+    return value.indexOf('.') > -1 ? parseFloat(value) : parseInt(value, 10);
+  }
+
+  if (isDate(value) && ClickUpConfiguration.UseNumericOverrides) {
+    return getNumberOfDaysSinceEpoch(value);
+  }
+
+  return NaN;
 }
 
 /**

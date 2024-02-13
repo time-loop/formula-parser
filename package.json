@@ -10,7 +10,7 @@
     "clean": "rimraf lib dist es coverage",
     "lint": "eslint src test",
     "check": "npm run lint && npm run test",
-    "test": "cross-env BABEL_ENV=commonjs jest",
+    "test": "cross-env BABEL_ENV=commonjs jest --detectOpenHandles",
     "coverage": "cross-env BABEL_ENV=commonjs jest --coverage",
     "build": "npm run build:commonjs && npm run build:es && npm run build:umd && npm run build:umd:min",
     "build:commonjs": "cross-env BABEL_ENV=commonjs babel src --out-dir lib",

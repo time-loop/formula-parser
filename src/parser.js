@@ -3,9 +3,13 @@ import JSON5 from 'json5';
 import evaluateByOperator from './evaluate-by-operator/evaluate-by-operator';
 import {Parser as GrammarParser} from './grammar-parser/grammar-parser';
 import {trimEdges} from './helper/string';
-import {toNumber, invertNumber} from './helper/number';
-import errorParser, {isValidStrict as isErrorValid, ERROR, ERROR_NAME} from './error';
+import {invertNumber, toNumber} from './helper/number';
+import errorParser, {ERROR, ERROR_NAME, isValidStrict as isErrorValid} from './error';
 import {extractLabel, toLabel} from './helper/cell';
+
+export const ClickUpConfiguration = {
+  UseNumericOverrides: false,
+};
 
 /**
  * @class Parser
@@ -44,6 +48,10 @@ class Parser extends Emitter {
   parse(expression) {
     let result = null;
     let error = null;
+
+    Object.assign({
+      UseNumericOverrides: this.getVariable('USE_NUMERIC_OVERRIDES'),
+    });
 
     try {
       if (expression === '') {
