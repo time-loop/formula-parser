@@ -16,7 +16,7 @@ function filterEmptyArguments(el) {
  *
  * @examples
  * splitFormula(DATE(2024, 1, 1)) -> {name: 'DATE', args: [2024, 1, 1]}
- * splitFormula(MEDIAN([0,1,2])) -> {name: 'MEDIAN', args: [[0, 1, 2]]}
+ * splitFormula(TODAY()) -> {name: 'TODAY', args: []}
  */
 export default function splitFormula(formula) {
   const [name, argsString] = formula.split('(');
