@@ -1,7 +1,8 @@
 import * as formulajs from '@formulajs/formulajs';
 import splitFormula from './formula';
 import {getNumberOfDaysSinceEpoch, isDate} from './date';
-import {ClickUpConfiguration} from '../parser';
+
+import ClickUpConfiguration from '../clickup.config';
 
 const AcceptedFormulaJSConversions = ['DATE('];
 

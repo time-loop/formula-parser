@@ -6,10 +6,7 @@ import {trimEdges} from './helper/string';
 import {invertNumber, toNumber} from './helper/number';
 import errorParser, {ERROR, ERROR_NAME, isValidStrict as isErrorValid} from './error';
 import {extractLabel, toLabel} from './helper/cell';
-
-export const ClickUpConfiguration = {
-  UseNumericOverrides: false,
-};
+import ClickUpConfiguration from './clickup.config';
 
 /**
  * @class Parser
@@ -49,7 +46,7 @@ class Parser extends Emitter {
     let result = null;
     let error = null;
 
-    Object.assign({
+    Object.assign(ClickUpConfiguration, {
       UseNumericOverrides: this.getVariable('USE_NUMERIC_OVERRIDES'),
     });
 

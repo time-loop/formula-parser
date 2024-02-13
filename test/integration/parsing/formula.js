@@ -28,7 +28,7 @@ describe('.parse()', () => {
     expect(parser.parse('sum(2, 3, Rank.eq(2, foo))')).toMatchObject({error: null, result: 9});
   });
 
-  describe.only('ClickUp Overrides', () => {
+  describe('ClickUp Overrides', () => {
     const dateTestCases = [
       [
         'SUM(DATE(2021,1,1) - 2)',

@@ -1,5 +1,6 @@
 /* eslint-disable import/no-named-as-default-member */
 import func from '../../../../src/evaluate-by-operator/operator/minus';
+import ClickUpConfiguration from '../../../../src/clickup.config';
 
 describe('minus operator', () => {
   it('should set SYMBOL const', () => {
@@ -15,8 +16,19 @@ describe('minus operator', () => {
     expect(() => func('foo', 2)).toThrow('VALUE');
   });
 
-  // DATE(YEAR, MONTH, DAY)
-  describe.only('Dates subtraction', () => {
+  describe('Dates subtraction', () => {
+    beforeAll(() => {
+      Object.assign(ClickUpConfiguration, {
+        UseNumericOverrides: true,
+      });
+    });
+
+    afterAll(() => {
+      Object.assign(ClickUpConfiguration, {
+        UseNumericOverrides: false,
+      });
+    });
+
     const testCases = [
       // simple formulas
       [0, 'DATE(2023,1,1)', 'DATE(2023,1,1)'],
