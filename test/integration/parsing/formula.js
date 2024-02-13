@@ -46,6 +46,10 @@ describe('.parse()', () => {
         'CONCATENATE(DATE(2022,1,1) - DATE(2021,1,1))',
         '365',
       ],
+      [
+        'DATE(YEAR(EOMONTH(\'1/1/11\', -3)), MONTH(EOMONTH(\'1/1/11\', -3)), DAY(EOMONTH(\'1/1/11\', -3))) - DATE(2010,10,30)',
+        1,
+      ],
     ];
 
     it.each(dateTestCases)('if the flag "USE_NUMERIC_OVERRIDES" is off, it should not calculate date subtraction', (formula, expectedResult) => {
