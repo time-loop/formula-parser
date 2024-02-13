@@ -1,3 +1,5 @@
+const MillisecondsInADay = 24 * 60 * 60 * 1000;
+
 export function isDate(val) {
   return val instanceof Date;
 }
@@ -19,6 +21,5 @@ export function canCompareArgs(arg1, arg2) {
 }
 
 export function getNumberOfDaysSinceEpoch(date) {
-  const millisecondsInADay = 8.64e7;
-  return Math.floor(dateToNumber(date) / millisecondsInADay);
+  return Math.floor(dateToNumber(date) / MillisecondsInADay);
 }

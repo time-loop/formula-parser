@@ -19,13 +19,15 @@ describe('minus operator', () => {
   describe('Dates subtraction', () => {
     beforeAll(() => {
       Object.assign(ClickUpConfiguration, {
-        UseNumericOverrides: true,
+        ConvertDatesToNumbers: true,
+        ConvertFormulasInNumbers: true,
       });
     });
 
     afterAll(() => {
       Object.assign(ClickUpConfiguration, {
-        UseNumericOverrides: false,
+        ConvertDatesToNumbers: false,
+        ConvertFormulasInNumbers: false,
       });
     });
 

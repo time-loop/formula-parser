@@ -52,12 +52,16 @@ describe('.parse()', () => {
       ],
     ];
 
-    it.each(dateTestCases)('if the flag "USE_NUMERIC_OVERRIDES" is off, it should not calculate date subtraction', (formula, expectedResult) => {
-      expect(parser.parse(formula)).toMatchObject({ error: '#VALUE!', result: null});
-    });
+    // eslint-disable-next-line max-len
+    it.each(dateTestCases)(
+      'if flags "CONVERT_FORMULAS_IN_NUMBERS" and "CONVERT_DATES_TO_NUMBERS" are off, it should not calculate date subtraction',
+      (formula) => {
+        expect(parser.parse(formula)).toMatchObject({ error: '#VALUE!', result: null});
+      });
 
     it.each(dateTestCases)('should calculate date subtraction', (formula, expectedResult) => {
-      parser.setVariable('USE_NUMERIC_OVERRIDES', true);
+      parser.setVariable('', true).setVariable('CONVERT_DATES_TO_NUMBERS', true);
+
       expect(parser.parse(formula)).toMatchObject({ error: null, result: expectedResult});
     });
   });

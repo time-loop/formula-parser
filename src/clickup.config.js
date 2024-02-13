@@ -1,5 +1,6 @@
 const ClickUpConfiguration = {
-  UseNumericOverrides: false,
+  ConvertDatesToNumbers: false,
+  ConvertFormulasInNumbers: false,
 };
 
 export default ClickUpConfiguration;

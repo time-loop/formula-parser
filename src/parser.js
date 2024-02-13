@@ -47,7 +47,8 @@ class Parser extends Emitter {
     let error = null;
 
     Object.assign(ClickUpConfiguration, {
-      UseNumericOverrides: this.getVariable('USE_NUMERIC_OVERRIDES'),
+      ConvertFormulasInNumbers: this.getVariable('CONVERT_FORMULAS_IN_NUMBERS'),
+      ConvertDatesToNumbers: this.getVariable('CONVERT_DATES_TO_NUMBERS'),
     });
 
     try {
