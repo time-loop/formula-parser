@@ -3,9 +3,10 @@ import JSON5 from 'json5';
 import evaluateByOperator from './evaluate-by-operator/evaluate-by-operator';
 import {Parser as GrammarParser} from './grammar-parser/grammar-parser';
 import {trimEdges} from './helper/string';
-import {toNumber, invertNumber} from './helper/number';
-import errorParser, {isValidStrict as isErrorValid, ERROR, ERROR_NAME} from './error';
+import {invertNumber, toNumber} from './helper/number';
+import errorParser, {ERROR, ERROR_NAME, isValidStrict as isErrorValid} from './error';
 import {extractLabel, toLabel} from './helper/cell';
+import ClickUpConfiguration from './clickup.config';
 
 /**
  * @class Parser
@@ -44,6 +45,11 @@ class Parser extends Emitter {
   parse(expression) {
     let result = null;
     let error = null;
+
+    Object.assign(ClickUpConfiguration, {
+      ConvertFormulasInNumbers: this.getVariable('CONVERT_FORMULAS_IN_NUMBERS'),
+      ConvertDatesToNumbers: this.getVariable('CONVERT_DATES_TO_NUMBERS'),
+    });
 
     try {
       if (expression === '') {

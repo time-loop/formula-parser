@@ -1,20 +1,39 @@
+import * as formulajs from '@formulajs/formulajs';
+import splitFormula from './formula';
+import {getNumberOfDaysSinceEpoch, isDate} from './date';
+
+const AcceptedFormulaJSConversions = ['DATE('];
+
 /**
  * Convert value into number.
  *
- * @param {String|Number} number
+ * @param {String|Number} value
+ * @param {Object} config
  * @returns {*}
  */
-export function toNumber(number) {
-  let result;
-
-  if (typeof number === 'number') {
-    result = number;
-
-  } else if (typeof number === 'string') {
-    result = number.indexOf('.') > -1 ? parseFloat(number) : parseInt(number, 10);
+export function toNumber(value, config = {
+  convertDatesToNumbers: false,
+  convertFormulasInNumbers: false,
+}) {
+  if (typeof value === 'number') {
+    return value;
   }
 
-  return result;
+  if (typeof value === 'string') {
+    const shouldBeParsed = AcceptedFormulaJSConversions.some((conversion) => value.startsWith(conversion));
+    if (shouldBeParsed && Boolean(config.convertFormulasInNumbers)) {
+      const {name, args} = splitFormula(value);
+      return toNumber(formulajs[name](...args), config);
+    }
+
+    return value.indexOf('.') > -1 ? parseFloat(value) : parseInt(value, 10);
+  }
+
+  if (isDate(value) && Boolean(config.convertDatesToNumbers)) {
+    return getNumberOfDaysSinceEpoch(value);
+  }
+
+  return undefined;
 }
 
 /**

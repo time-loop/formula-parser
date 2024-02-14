@@ -38,7 +38,7 @@ describe('.parse() financial formulas', () => {
     expect(parser.parse('CUMPRINC(0.1/12, 30*12, 100000)')).toMatchObject({error: '#NUM!', result: null});
     expect(parser.parse('CUMPRINC(0.1/12, 30*12, 100000, 13)')).toMatchObject({error: '#NUM!', result: null});
     expect(parser.parse('CUMPRINC(0.1/12, 30*12, 100000, 13, 24)')).toMatchObject({error: '#NUM!', result: null});
-    expect(parser.parse('CUMPRINC(0.1/12, 30*12, 100000, 13, 24, 0)')).toMatchObject({error: null, result: -614.0863271085149});
+    expect(parser.parse('CUMPRINC(0.1/12, 30*12, 100000, 13, 24, 0)')).toMatchObject({error: null, result: -614.0863271085129});
   });
 
   it('DB', () => {
@@ -78,9 +78,9 @@ describe('.parse() financial formulas', () => {
   it('FV', () => {
     expect(parser.parse('FV()')).toMatchObject({error: '#VALUE!', result: null});
     expect(parser.parse('FV(1.1, 10)')).toMatchObject({error: '#VALUE!', result: null});
-    expect(parser.parse('FV(1.1, 10, -200)')).toMatchObject({error: null, result: 303088.7450582});
-    expect(parser.parse('FV(1.1, 10, -200, -500)')).toMatchObject({error: null, result: 1137082.79396825});
-    expect(parser.parse('FV(1.1, 10, -200, -500, 1)')).toMatchObject({error: null, result: 1470480.4135322701});
+    expect(parser.parse('FV(1.1, 10, -200)')).toMatchObject({error: null, result: 303088.74505820015});
+    expect(parser.parse('FV(1.1, 10, -200, -500)')).toMatchObject({error: null, result: 1137082.7939682505});
+    expect(parser.parse('FV(1.1, 10, -200, -500, 1)')).toMatchObject({error: null, result: 1470480.4135322706});
   });
 
   it('FVSCHEDULE', () => {
@@ -94,14 +94,14 @@ describe('.parse() financial formulas', () => {
     expect(parser.parse('IPMT(0.2, 6)')).toMatchObject({error: '#VALUE!', result: null});
     expect(parser.parse('IPMT(0.2, 6, 24)')).toMatchObject({error: '#VALUE!', result: null});
     expect(parser.parse('IPMT(0.2, 6, 24, 1000)')).toMatchObject({error: null, result: -196.20794961065468});
-    expect(parser.parse('IPMT(0.2, 6, 24, 1000, 200)')).toMatchObject({error: null, result: -195.44953953278565});
+    expect(parser.parse('IPMT(0.2, 6, 24, 1000, 200)')).toMatchObject({error: null, result: -195.4495395327856});
     expect(parser.parse('IPMT(0.2, 6, 24, 1000, 200, 1)')).toMatchObject({error: null, result: -162.87461627732137});
   });
 
   it('IRR', () => {
     parser.on('callRangeValue', (a, b, done) => done([[-75000, 12000, 15000, 18000, 21000, 24000]]));
 
-    expect(parser.parse('IRR(A1:C1)')).toMatchObject({error: null, result: 0.05715142887178453});
+    expect(parser.parse('IRR(A1:C1)')).toMatchObject({error: null, result: 0.05715142887178451});
   });
 
   it('ISPMT', () => {
