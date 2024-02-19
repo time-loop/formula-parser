@@ -70,7 +70,7 @@ return /******/ (function(modules) { // webpackBootstrap
 /******/ 	__webpack_require__.p = "";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 16);
+/******/ 	return __webpack_require__(__webpack_require__.s = 18);
 /******/ })
 /************************************************************************/
 /******/ ([
@@ -197,14 +197,31 @@ exports.parseBool = function(bool) {
 };
 
 exports.parseNumber = function(string) {
-  if (string === undefined || string === '') {
-    return error.value;
+  if (string instanceof Error) {
+    return string;
+  }
+  if (string === undefined || string === null || string === '') {
+    return 0;
+  }
+  if (typeof string === "boolean") {
+    string = +string;
   }
   if (!isNaN(string)) {
     return parseFloat(string);
   }
 
   return error.value;
+};
+
+exports.parseString = function(string) {
+  if (string instanceof Error) {
+    return string;
+  }
+  if (string === undefined || string === null) {
+    return '';
+  }
+
+  return string.toString();
 };
 
 exports.parseNumberArray = function(arr) {
@@ -217,8 +234,11 @@ exports.parseNumberArray = function(arr) {
   var parsed;
 
   while (len--) {
+    if (arr[len] instanceof Error) {
+      return arr[len];
+    }
     parsed = exports.parseNumber(arr[len]);
-    if (parsed === error.value) {
+    if (parsed instanceof Error) {
       return parsed;
     }
     arr[len] = parsed;
@@ -247,20 +267,45 @@ exports.parseMatrix = function(matrix) {
   return matrix;
 };
 
-var d1900 = new Date(Date.UTC(1900, 0, 1));
-exports.parseDate = function(date) {
+function serialNumberToDate(serial) {
+  if (serial < 60) {
+    serial += 1;
+  }
+  var utc_days = Math.floor(serial - 25569);
+  var utc_value = utc_days * 86400;
+  var date_info = new Date(utc_value * 1000);
+
+  var fractional_day = serial - Math.floor(serial) + 0.0000001;
+
+  var total_seconds = Math.floor(86400 * fractional_day);
+
+  var seconds = total_seconds % 60;
+
+  total_seconds -= seconds;
+
+  var hours = Math.floor(total_seconds / (60 * 60));
+  var minutes = Math.floor(total_seconds / 60) % 60;
+  var days = date_info.getDate();
+  var month = date_info.getMonth();
+
+  if (serial >= 60 && serial < 61) {
+    var days = 29;
+    var month = 1;
+  }
+
+  return new Date(date_info.getFullYear(), month, days, hours, minutes, seconds);
+}
+
+exports.parseDate = function (date) {
   if (!isNaN(date)) {
     if (date instanceof Date) {
       return new Date(date);
     }
-    var d = parseInt(date, 10);
-    if (d < 0) {
+    var d = parseFloat(date);
+    if (d < 0 || d >= 2958466) {
       return error.num;
     }
-    if (d <= 60) {
-      return new Date(d1900.getTime() + (d - 1) * 86400000);
-    }
-    return new Date(d1900.getTime() + (d - 2) * 86400000);
+    return serialNumberToDate(d);
   }
   if (typeof date === 'string') {
     date = new Date(date);
@@ -284,10 +329,33 @@ exports.parseDateArray = function(arr) {
   return arr;
 };
 
+exports.anyError = function() {
+  for (var n = 0; n < arguments.length; n++) {
+    if (arguments[n] instanceof Error) {
+      return arguments[n];
+    }
+  }
+  return undefined;
+};
+
+exports.isDefined = function (arg) {
+  return arg !== undefined && arg !== null;
+};
+
 exports.anyIsError = function() {
   var n = arguments.length;
   while (n--) {
     if (arguments[n] instanceof Error) {
+      return true;
+    }
+  }
+  return false;
+};
+
+exports.anyIsString = function() {
+  var n = arguments.length;
+  while (n--) {
+    if (typeof arguments[n] === 'string') {
       return true;
     }
   }
@@ -432,34 +500,34 @@ function isValidStrict(type) {
 
 
 exports.__esModule = true;
-exports.toNumber = toNumber;
-exports.invertNumber = invertNumber;
-/**
- * Convert value into number.
- *
- * @param {String|Number} number
- * @returns {*}
- */
-function toNumber(number) {
-  var result = void 0;
+exports.isDate = isDate;
+exports.dateToNumber = dateToNumber;
+exports.canCompareArgs = canCompareArgs;
+exports.getNumberOfDaysSinceEpoch = getNumberOfDaysSinceEpoch;
+var MillisecondsInADay = 24 * 60 * 60 * 1000;
 
-  if (typeof number === 'number') {
-    result = number;
-  } else if (typeof number === 'string') {
-    result = number.indexOf('.') > -1 ? parseFloat(number) : parseInt(number, 10);
-  }
-
-  return result;
+function isDate(val) {
+  return val instanceof Date;
 }
 
-/**
- * Invert provided number.
- *
- * @param {Number} number
- * @returns {Number} Returns inverted number.
- */
-function invertNumber(number) {
-  return -1 * toNumber(number);
+function dateToNumber(val) {
+  if (isDate(val)) {
+    return val.getTime();
+  }
+
+  return val;
+}
+
+function isNullOrFalse(arg) {
+  return arg === null || arg === false;
+}
+
+function canCompareArgs(arg1, arg2) {
+  return !(isDate(arg1) && isNullOrFalse(arg2) || isDate(arg2) && isNullOrFalse(arg1));
+}
+
+function getNumberOfDaysSinceEpoch(date) {
+  return Math.floor(dateToNumber(date) / MillisecondsInADay);
 }
 
 /***/ }),
@@ -470,29 +538,72 @@ function invertNumber(number) {
 
 
 exports.__esModule = true;
-exports.isDate = isDate;
-exports.dateToNumber = dateToNumber;
-exports.canCompareArgs = canCompareArgs;
-function isDate(val) {
-  return val instanceof Date;
-}
+exports.toNumber = toNumber;
+exports.invertNumber = invertNumber;
 
-function dateToNumber(val) {
-  if (isDate(val)) {
-    return val.getTime();
+var _formulajs = __webpack_require__(11);
+
+var formulajs = _interopRequireWildcard(_formulajs);
+
+var _formula = __webpack_require__(30);
+
+var _formula2 = _interopRequireDefault(_formula);
+
+var _date = __webpack_require__(3);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj['default'] = obj; return newObj; } }
+
+var AcceptedFormulaJSConversions = ['DATE('];
+
+/**
+ * Convert value into number.
+ *
+ * @param {String|Number} value
+ * @param {Object} config
+ * @returns {*}
+ */
+function toNumber(value) {
+  var config = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {
+    convertDatesToNumbers: false,
+    convertFormulasInNumbers: false
+  };
+
+  if (typeof value === 'number') {
+    return value;
   }
-  return val;
-}
 
-function isNullOrFalse(arg) {
-  return arg === null || arg === false;
-}
+  if (typeof value === 'string') {
+    var shouldBeParsed = AcceptedFormulaJSConversions.some(function (conversion) {
+      return value.startsWith(conversion);
+    });
+    if (shouldBeParsed && Boolean(config.convertFormulasInNumbers)) {
+      var _splitFormula = (0, _formula2['default'])(value),
+          name = _splitFormula.name,
+          args = _splitFormula.args;
 
-function canCompareArgs(arg1, arg2) {
-  if (isDate(arg1) && isNullOrFalse(arg2) || isDate(arg2) && isNullOrFalse(arg1)) {
-    return false;
+      return toNumber(formulajs[name].apply(formulajs, args), config);
+    }
+
+    return value.indexOf('.') > -1 ? parseFloat(value) : parseInt(value, 10);
   }
-  return true;
+
+  if ((0, _date.isDate)(value) && Boolean(config.convertDatesToNumbers)) {
+    return (0, _date.getNumberOfDaysSinceEpoch)(value);
+  }
+
+  return undefined;
+}
+
+/**
+ * Invert provided number.
+ *
+ * @param {Number} number
+ * @returns {Number} Returns inverted number.
+ */
+function invertNumber(number) {
+  return -1 * toNumber(number);
 }
 
 /***/ }),
@@ -617,6 +728,12 @@ exports.AGGREGATE = function(function_num, options, ref1, ref2) {
 };
 
 exports.ARABIC = function(text) {
+  if (text === undefined || text === null) {
+    return 0;
+  }
+  if (text instanceof Error) {
+    return text;
+  }
   // Credits: Rafa? Kukawski
   if (!/^M*(?:D?C{0,3}|C[MD])(?:L?X{0,3}|X[CL])(?:V?I{0,3}|I[XV])$/.test(text)) {
     return error.value;
@@ -675,8 +792,9 @@ exports.ATAN = function(number) {
 exports.ATAN2 = function(number_x, number_y) {
   number_x = utils.parseNumber(number_x);
   number_y = utils.parseNumber(number_y);
-  if (utils.anyIsError(number_x, number_y)) {
-    return error.value;
+  var anyError = utils.anyError(number_x, number_y);
+  if (anyError) {
+    return anyError;
   }
   return Math.atan2(number_x, number_y);
 };
@@ -696,32 +814,32 @@ exports.ATANH = function(number) {
 };
 
 exports.BASE = function(number, radix, min_length) {
-  min_length = min_length || 0;
-
   number = utils.parseNumber(number);
   radix = utils.parseNumber(radix);
   min_length = utils.parseNumber(min_length);
-  if (utils.anyIsError(number, radix, min_length)) {
-    return error.value;
+  var anyError = utils.anyError(number, radix, min_length);
+  if (anyError) {
+    return anyError;
   }
-  min_length = (min_length === undefined) ? 0 : min_length;
+  if (radix === 0) {
+    return error.num;
+  }
   var result = number.toString(radix);
   return new Array(Math.max(min_length + 1 - result.length, 0)).join('0') + result;
 };
 
 exports.CEILING = function(number, significance, mode) {
-  significance = (significance === undefined) ? 1 : Math.abs(significance);
-  mode = mode || 0;
-
   number = utils.parseNumber(number);
   significance = utils.parseNumber(significance);
   mode = utils.parseNumber(mode);
-  if (utils.anyIsError(number, significance, mode)) {
-    return error.value;
+  var anyError = utils.anyError(number, significance, mode);
+  if (anyError) {
+    return anyError;
   }
   if (significance === 0) {
     return 0;
   }
+  significance = Math.abs(significance);
   var precision = -Math.floor(Math.log(significance) / Math.log(10));
   if (number >= 0) {
     return exports.ROUND(Math.ceil(number / significance) * significance, precision);
@@ -741,8 +859,12 @@ exports.CEILING.PRECISE = exports.CEILING;
 exports.COMBIN = function(number, number_chosen) {
   number = utils.parseNumber(number);
   number_chosen = utils.parseNumber(number_chosen);
-  if (utils.anyIsError(number, number_chosen)) {
-    return error.value;
+  var anyError = utils.anyError(number, number_chosen);
+  if (anyError) {
+    return anyError;
+  }
+  if (number < number_chosen) {
+    return error.num;
   }
   return exports.FACT(number) / (exports.FACT(number_chosen) * exports.FACT(number - number_chosen));
 };
@@ -750,8 +872,12 @@ exports.COMBIN = function(number, number_chosen) {
 exports.COMBINA = function(number, number_chosen) {
   number = utils.parseNumber(number);
   number_chosen = utils.parseNumber(number_chosen);
-  if (utils.anyIsError(number, number_chosen)) {
-    return error.value;
+  var anyError = utils.anyError(number, number_chosen);
+  if (anyError) {
+    return anyError;
+  }
+  if (number < number_chosen) {
+    return error.num;
   }
   return (number === 0 && number_chosen === 0) ? 1 : exports.COMBIN(number + number_chosen - 1, number - 1);
 };
@@ -777,6 +903,9 @@ exports.COT = function(number) {
   if (number instanceof Error) {
     return number;
   }
+  if (number === 0) {
+    return error.div0;
+  }
   return 1 / Math.tan(number);
 };
 
@@ -784,6 +913,9 @@ exports.COTH = function(number) {
   number = utils.parseNumber(number);
   if (number instanceof Error) {
     return number;
+  }
+  if (number === 0) {
+    return error.div0;
   }
   var e2 = Math.exp(2 * number);
   return (e2 + 1) / (e2 - 1);
@@ -794,6 +926,9 @@ exports.CSC = function(number) {
   if (number instanceof Error) {
     return number;
   }
+  if (number === 0) {
+    return error.div0;
+  }
   return 1 / Math.sin(number);
 };
 
@@ -802,12 +937,25 @@ exports.CSCH = function(number) {
   if (number instanceof Error) {
     return number;
   }
+  if (number === 0) {
+    return error.div0;
+  }
   return 2 / (Math.exp(number) - Math.exp(-number));
 };
 
 exports.DECIMAL = function(number, radix) {
   if (arguments.length < 1) {
     return error.value;
+  }
+
+  number = utils.parseNumber(number);
+  radix = utils.parseNumber(radix);
+  var anyError = utils.anyError(number, radix);
+  if (anyError) {
+    return anyError;
+  }
+  if (radix === 0) {
+    return error.num;
   }
 
   return parseInt(number, radix);
@@ -833,8 +981,13 @@ exports.EXP = function(number) {
   if (arguments.length < 1) {
     return error.na;
   }
-  if (typeof number !== 'number' || arguments.length > 1) {
+  if (arguments.length > 1) {
     return error.error;
+  }
+
+  number = utils.parseNumber(number);
+  if (number instanceof Error) {
+    return number;
   }
 
   number = Math.exp(number);
@@ -875,14 +1028,15 @@ exports.FACTDOUBLE = function(number) {
 exports.FLOOR = function(number, significance) {
   number = utils.parseNumber(number);
   significance = utils.parseNumber(significance);
-  if (utils.anyIsError(number, significance)) {
-    return error.value;
+  var anyError = utils.anyError(number, significance);
+  if (anyError) {
+    return anyError;
   }
   if (significance === 0) {
     return 0;
   }
 
-  if (!(number > 0 && significance > 0) && !(number < 0 && significance < 0)) {
+  if (!(number >= 0 && significance > 0) && !(number <= 0 && significance < 0)) {
     return error.num;
   }
 
@@ -897,14 +1051,17 @@ exports.FLOOR = function(number, significance) {
 
 //TODO: Verify
 exports.FLOOR.MATH = function(number, significance, mode) {
-  significance = (significance === undefined) ? 1 : significance;
-  mode = (mode === undefined) ? 0 : mode;
+  if (significance instanceof Error) {
+    return significance;
+  }
+  significance = (significance === undefined) ? 0 : significance;
 
   number = utils.parseNumber(number);
   significance = utils.parseNumber(significance);
   mode = utils.parseNumber(mode);
-  if (utils.anyIsError(number, significance, mode)) {
-    return error.value;
+  var anyError = utils.anyError(number, significance, mode);
+  if (anyError) {
+    return anyError;
   }
   if (significance === 0) {
     return 0;
@@ -969,6 +1126,9 @@ exports.LCM = function() {
   }
   for (var i, j, n, d, r = 1;
        (n = o.pop()) !== undefined;) {
+    if (n === 0) {
+      return 0;
+    }
     while (n > 1) {
       if (n % 2) {
         for (i = 3, j = Math.floor(Math.sqrt(n)); i <= j && n % i; i += 2) {
@@ -992,6 +1152,9 @@ exports.LN = function(number) {
   if (number instanceof Error) {
     return number;
   }
+  if (number === 0) {
+    return error.num;
+  }
   return Math.log(number);
 };
 
@@ -1014,10 +1177,13 @@ exports.LOG2E = function() {
 exports.LOG = function(number, base) {
   number = utils.parseNumber(number);
   base = utils.parseNumber(base);
-  if (utils.anyIsError(number, base)) {
-    return error.value;
+  var anyError = utils.anyError(number, base);
+  if (anyError) {
+    return anyError;
   }
-  base = (base === undefined) ? 10 : base;
+  if (number === 0 || base === 0) {
+    return error.num;
+  }
   return Math.log(number) / Math.log(base);
 };
 
@@ -1026,27 +1192,36 @@ exports.LOG10 = function(number) {
   if (number instanceof Error) {
     return number;
   }
+  if (number === 0) {
+    return error.num;
+  }
   return Math.log(number) / Math.log(10);
 };
 
 exports.MOD = function(dividend, divisor) {
   dividend = utils.parseNumber(dividend);
   divisor = utils.parseNumber(divisor);
-  if (utils.anyIsError(dividend, divisor)) {
-    return error.value;
+  var anyError = utils.anyError(dividend, divisor);
+  if (anyError) {
+    return anyError;
   }
   if (divisor === 0) {
     return error.div0;
   }
   var modulus = Math.abs(dividend % divisor);
+  modulus = dividend < 0 ? divisor - modulus : modulus;
   return (divisor > 0) ? modulus : -modulus;
 };
 
 exports.MROUND = function(number, multiple) {
   number = utils.parseNumber(number);
   multiple = utils.parseNumber(multiple);
-  if (utils.anyIsError(number, multiple)) {
-    return error.value;
+  var anyError = utils.anyError(number, multiple);
+  if (anyError) {
+    return anyError;
+  }
+  if (number * multiple === 0) {
+    return 0;
   }
   if (number * multiple < 0) {
     return error.num;
@@ -1076,7 +1251,7 @@ exports.ODD = function(number) {
   }
   var temp = Math.ceil(Math.abs(number));
   temp = (temp & 1) ? temp : temp + 1;
-  return (number > 0) ? temp : -temp;
+  return (number >= 0) ? temp : -temp;
 };
 
 exports.PI = function() {
@@ -1090,8 +1265,12 @@ exports.E = function() {
 exports.POWER = function(number, power) {
   number = utils.parseNumber(number);
   power = utils.parseNumber(power);
-  if (utils.anyIsError(number, power)) {
-    return error.value;
+  var anyError = utils.anyError(number, power);
+  if (anyError) {
+    return anyError;
+  }
+  if (number === 0 && power === 0) {
+    return error.num;
   }
   var result = Math.pow(number, power);
   if (isNaN(result)) {
@@ -1102,7 +1281,12 @@ exports.POWER = function(number, power) {
 };
 
 exports.PRODUCT = function() {
-  var args = utils.parseNumberArray(utils.flatten(arguments));
+  var flatArguments = utils.flatten(arguments);
+  var flatArgumentsDefined = flatArguments.filter(function (arg) { return arg !== undefined && arg !== null; });
+  if (flatArgumentsDefined.length === 0) {
+    return 0;
+  }
+  var args = utils.parseNumberArray(flatArgumentsDefined);
   if (args instanceof Error) {
     return args;
   }
@@ -1116,8 +1300,9 @@ exports.PRODUCT = function() {
 exports.QUOTIENT = function(numerator, denominator) {
   numerator = utils.parseNumber(numerator);
   denominator = utils.parseNumber(denominator);
-  if (utils.anyIsError(numerator, denominator)) {
-    return error.value;
+  var anyError = utils.anyError(numerator, denominator);
+  if (anyError) {
+    return anyError;
   }
   return parseInt(numerator / denominator, 10);
 };
@@ -1137,8 +1322,9 @@ exports.RAND = function() {
 exports.RANDBETWEEN = function(bottom, top) {
   bottom = utils.parseNumber(bottom);
   top = utils.parseNumber(top);
-  if (utils.anyIsError(bottom, top)) {
-    return error.value;
+  var anyError = utils.anyError(bottom, top);
+  if (anyError) {
+    return anyError;
   }
   // Creative Commons Attribution 3.0 License
   // Copyright (c) 2012 eqcode
@@ -1166,8 +1352,9 @@ exports.ROMAN = function(number) {
 exports.ROUND = function(number, digits) {
   number = utils.parseNumber(number);
   digits = utils.parseNumber(digits);
-  if (utils.anyIsError(number, digits)) {
-    return error.value;
+  var anyError = utils.anyError(number, digits);
+  if (anyError) {
+    return anyError;
   }
   return Math.round(number * Math.pow(10, digits)) / Math.pow(10, digits);
 };
@@ -1175,8 +1362,9 @@ exports.ROUND = function(number, digits) {
 exports.ROUNDDOWN = function(number, digits) {
   number = utils.parseNumber(number);
   digits = utils.parseNumber(digits);
-  if (utils.anyIsError(number, digits)) {
-    return error.value;
+  var anyError = utils.anyError(number, digits);
+  if (anyError) {
+    return anyError;
   }
   var sign = (number > 0) ? 1 : -1;
   return sign * (Math.floor(Math.abs(number) * Math.pow(10, digits))) / Math.pow(10, digits);
@@ -1185,8 +1373,9 @@ exports.ROUNDDOWN = function(number, digits) {
 exports.ROUNDUP = function(number, digits) {
   number = utils.parseNumber(number);
   digits = utils.parseNumber(digits);
-  if (utils.anyIsError(number, digits)) {
-    return error.value;
+  var anyError = utils.anyError(number, digits);
+  if (anyError) {
+    return anyError;
   }
   var sign = (number > 0) ? 1 : -1;
   return sign * (Math.ceil(Math.abs(number) * Math.pow(10, digits))) / Math.pow(10, digits);
@@ -1342,8 +1531,9 @@ exports.ADD = function (num1, num2) {
 
   num1 = utils.parseNumber(num1);
   num2 = utils.parseNumber(num2);
-  if (utils.anyIsError(num1, num2)) {
-    return error.value;
+  var anyError = utils.anyError(num1, num2);
+  if (anyError) {
+    return anyError;
   }
 
   return num1 + num2;
@@ -1356,8 +1546,9 @@ exports.MINUS = function (num1, num2) {
 
   num1 = utils.parseNumber(num1);
   num2 = utils.parseNumber(num2);
-  if (utils.anyIsError(num1, num2)) {
-    return error.value;
+  var anyError = utils.anyError(num1, num2);
+  if (anyError) {
+    return anyError;
   }
 
   return num1 - num2;
@@ -1370,8 +1561,9 @@ exports.DIVIDE = function (dividend, divisor) {
 
   dividend = utils.parseNumber(dividend);
   divisor = utils.parseNumber(divisor);
-  if (utils.anyIsError(dividend, divisor)) {
-    return error.value;
+  var anyError = utils.anyError(dividend, divisor);
+  if (anyError) {
+    return anyError;
   }
 
   if (divisor === 0) {
@@ -1388,11 +1580,38 @@ exports.MULTIPLY = function (factor1, factor2) {
 
   factor1 = utils.parseNumber(factor1);
   factor2 = utils.parseNumber(factor2);
-  if (utils.anyIsError(factor1, factor2)) {
-    return error.value;
+  var anyError = utils.anyError(factor1, factor2);
+  if (anyError) {
+    return anyError;
   }
 
   return factor1 * factor2;
+};
+
+exports.GT = function (num1, num2) {
+  if (arguments.length !== 2) {
+    return error.na;
+  }
+  if (num1 instanceof Error) {
+    return num1;
+  }
+  if (num2 instanceof Error) {
+    return num2;
+  }
+
+  if (utils.anyIsString(num1, num2)) {
+    num1 = utils.parseString(num1);
+    num2 = utils.parseString(num2);
+  } else {
+    num1 = utils.parseNumber(num1);
+    num2 = utils.parseNumber(num2);
+  }
+  var anyError = utils.anyError(num1, num2);
+  if (anyError) {
+    return anyError;
+  }
+
+  return num1 > num2;
 };
 
 exports.GTE = function (num1, num2) {
@@ -1400,10 +1619,16 @@ exports.GTE = function (num1, num2) {
     return error.na;
   }
 
-  num1 = utils.parseNumber(num1);
-  num2 = utils.parseNumber(num2);
-  if (utils.anyIsError(num1, num2)) {
-    return error.error;
+  if (utils.anyIsString(num1, num2)) {
+    num1 = utils.parseString(num1);
+    num2 = utils.parseString(num2);
+  } else {
+    num1 = utils.parseNumber(num1);
+    num2 = utils.parseNumber(num2);
+  }
+  var anyError = utils.anyError(num1, num2);
+  if (anyError) {
+    return anyError;
   }
 
   return num1 >= num2;
@@ -1414,10 +1639,16 @@ exports.LT = function (num1, num2) {
     return error.na;
   }
 
-  num1 = utils.parseNumber(num1);
-  num2 = utils.parseNumber(num2);
-  if (utils.anyIsError(num1, num2)) {
-    return error.error;
+  if (utils.anyIsString(num1, num2)) {
+    num1 = utils.parseString(num1);
+    num2 = utils.parseString(num2);
+  } else {
+    num1 = utils.parseNumber(num1);
+    num2 = utils.parseNumber(num2);
+  }
+  var anyError = utils.anyError(num1, num2);
+  if (anyError) {
+    return anyError;
   }
 
   return num1 < num2;
@@ -1429,10 +1660,16 @@ exports.LTE = function (num1, num2) {
     return error.na;
   }
 
-  num1 = utils.parseNumber(num1);
-  num2 = utils.parseNumber(num2);
-  if (utils.anyIsError(num1, num2)) {
-    return error.error;
+  if (utils.anyIsString(num1, num2)) {
+    num1 = utils.parseString(num1);
+    num2 = utils.parseString(num2);
+  } else {
+    num1 = utils.parseNumber(num1);
+    num2 = utils.parseNumber(num2);
+  }
+  var anyError = utils.anyError(num1, num2);
+  if (anyError) {
+    return anyError;
   }
 
   return num1 <= num2;
@@ -1442,6 +1679,18 @@ exports.EQ = function (value1, value2) {
   if (arguments.length !== 2) {
     return error.na;
   }
+  if (value1 instanceof Error) {
+    return value1;
+  }
+  if (value2 instanceof Error) {
+    return value2;
+  }
+  if (value1 === null) {
+    value1 = undefined;
+  }
+  if (value2 === null) {
+    value2 = undefined;
+  }
 
   return value1 === value2;
 };
@@ -1449,6 +1698,18 @@ exports.EQ = function (value1, value2) {
 exports.NE = function (value1, value2) {
   if (arguments.length !== 2) {
     return error.na;
+  }
+  if (value1 instanceof Error) {
+    return value1;
+  }
+  if (value2 instanceof Error) {
+    return value2;
+  }
+  if (value1 === null) {
+    value1 = undefined;
+  }
+  if (value2 === null) {
+    value2 = undefined;
   }
 
   return value1 !== value2;
@@ -1459,12 +1720,6 @@ exports.POW = function (base, exponent) {
     return error.na;
   }
 
-  base = utils.parseNumber(base);
-  exponent = utils.parseNumber(exponent);
-  if (utils.anyIsError(base, exponent)) {
-    return error.error;
-  }
-
   return exports.POWER(base, exponent);
 };
 
@@ -1472,7 +1727,11 @@ exports.SUM = function() {
   var result = 0;
 
   utils.arrayEach(utils.argsToArray(arguments), function(value) {
-    if (typeof value === 'number') {
+    if (result instanceof Error) {
+      return false;
+    } else if (value instanceof Error) {
+      result = value;
+    } else if (typeof value === 'number') {
       result += value;
 
     } else if (typeof value === 'string') {
@@ -1481,7 +1740,12 @@ exports.SUM = function() {
       !isNaN(parsed) && (result += parsed);
 
     } else if (Array.isArray(value)) {
-      result += exports.SUM.apply(null, value);
+      var inner_result = exports.SUM.apply(null, value);
+      if (inner_result instanceof Error) {
+        result = inner_result;
+      } else {
+        result += inner_result;
+      }
     }
   });
 
@@ -1498,8 +1762,11 @@ exports.SUMIF = function (range, criteria, sumRange) {
   if (range instanceof Error) {
     return range;
   }
+  if (criteria === undefined || criteria === null || criteria instanceof Error) {
+    return 0;
+  }
   var result = 0;
-  var isWildcard = criteria === void 0 || criteria === '*';
+  var isWildcard = criteria === '*';
   var tokenizedCriteria = isWildcard ? null : evalExpression.parse(criteria + '');
   for (var i = 0; i < range.length; i++) {
     var value = range[i];
@@ -1510,7 +1777,7 @@ exports.SUMIF = function (range, criteria, sumRange) {
     } else {
       var tokens = [evalExpression.createToken(value, evalExpression.TOKEN_TYPE_LITERAL)].concat(tokenizedCriteria);
 
-      result += (evalExpression.compute(tokens) ? sumValue : 0);
+      result += evalExpression.compute(tokens) ? sumValue : 0;
     }
   }
 
@@ -1524,17 +1791,22 @@ exports.SUMIFS = function() {
   if (range instanceof Error) {
     return range;
   }
+
   var criterias = args;
-  var n_range_elements = range.length;
-  var criteriaLength = criterias.length;
+  var criteriaLength = criterias.length / 2;
+
+  for (var i = 0; i < criteriaLength; i++) {
+    criterias[i * 2] = utils.flatten(criterias[i * 2]);
+  }
+
   var result = 0;
 
-  for (var i = 0; i < n_range_elements; i++) {
-    var value = range[i];
+  for (var i = 0; i < range.length; i++) {
     var isMeetCondition = false;
 
     for (var j = 0; j < criteriaLength; j++) {
-      var criteria = criterias[j];
+      var valueToTest = criterias[j * 2][i];
+      var criteria = criterias[j * 2 + 1];
       var isWildcard = criteria === void 0 || criteria === '*';
       var computedResult = false;
 
@@ -1542,7 +1814,7 @@ exports.SUMIFS = function() {
         computedResult = true;
       } else {
         var tokenizedCriteria = evalExpression.parse(criteria + '');
-        var tokens = [evalExpression.createToken(value, evalExpression.TOKEN_TYPE_LITERAL)].concat(tokenizedCriteria);
+        var tokens = [evalExpression.createToken(valueToTest, evalExpression.TOKEN_TYPE_LITERAL)].concat(tokenizedCriteria);
 
         computedResult = evalExpression.compute(tokens);
       }
@@ -1557,7 +1829,7 @@ exports.SUMIFS = function() {
     }
 
     if (isMeetCondition) {
-      result += value;
+      result += range[i];
     }
   }
 
@@ -1578,7 +1850,11 @@ exports.SUMPRODUCT = function() {
     if (!(arguments[0][i] instanceof Array)) {
       product = 1;
       for (k = 1; k < arrays; k++) {
-        _i = utils.parseNumber(arguments[k - 1][i]);
+        var _i_arg = arguments[k - 1][i];
+        if (_i_arg instanceof Error) {
+          return _i_arg;
+        }
+        _i = utils.parseNumber(_i_arg);
         if (_i instanceof Error) {
           return _i;
         }
@@ -1589,7 +1865,11 @@ exports.SUMPRODUCT = function() {
       for (var j = 0; j < arguments[0][i].length; j++) {
         product = 1;
         for (k = 1; k < arrays; k++) {
-          _ij = utils.parseNumber(arguments[k - 1][i][j]);
+          var _ij_arg = arguments[k - 1][i][j];
+          if (_ij_arg instanceof Error) {
+            return _ij_arg;
+          }
+          _ij = utils.parseNumber(_ij_arg);
           if (_ij instanceof Error) {
             return _ij;
           }
@@ -1676,11 +1956,11 @@ exports.TANH = function(number) {
 };
 
 exports.TRUNC = function(number, digits) {
-  digits = (digits === undefined) ? 0 : digits;
   number = utils.parseNumber(number);
   digits = utils.parseNumber(digits);
-  if (utils.anyIsError(number, digits)) {
-    return error.value;
+  var anyError = utils.anyError(number, digits);
+  if (anyError) {
+    return anyError;
   }
   var sign = (number > 0) ? 1 : -1;
   return sign * (Math.floor(Math.abs(number) * Math.pow(10, digits))) / Math.pow(10, digits);
@@ -1693,16 +1973,21 @@ exports.TRUNC = function(number, digits) {
 
 var mathTrig = __webpack_require__(5);
 var text = __webpack_require__(7);
-var jStat = __webpack_require__(11);
+var jStat = __webpack_require__(12);
 var utils = __webpack_require__(1);
 var evalExpression = __webpack_require__(8);
 var error = __webpack_require__(0);
-var misc = __webpack_require__(12);
+var misc = __webpack_require__(13);
 
 var SQRT2PI = 2.5066282746310002;
 
 exports.AVEDEV = function() {
-  var range = utils.parseNumberArray(utils.flatten(arguments));
+  var flatArguments = utils.flatten(arguments);
+  var flatArgumentsDefined = flatArguments.filter(utils.isDefined);
+  if (flatArgumentsDefined.length === 0) {
+    return error.num;
+  }
+  var range = utils.parseNumberArray(flatArgumentsDefined);
   if (range instanceof Error) {
     return range;
   }
@@ -1710,7 +1995,16 @@ exports.AVEDEV = function() {
 };
 
 exports.AVERAGE = function() {
-  var range = utils.numbers(utils.flatten(arguments));
+  var flatArguments = utils.flatten(arguments);
+  var flatArgumentsDefined = flatArguments.filter(utils.isDefined);
+  if (flatArgumentsDefined.length === 0) {
+    return error.div0;
+  }
+  var someError = utils.anyError.apply(undefined, flatArgumentsDefined);
+  if (someError) {
+    return someError;
+  }
+  var range = utils.numbers(flatArgumentsDefined);
   var n = range.length;
   var sum = 0;
   var count = 0;
@@ -1730,7 +2024,16 @@ exports.AVERAGE = function() {
 };
 
 exports.AVERAGEA = function() {
-  var range = utils.flatten(arguments);
+  var flatArguments = utils.flatten(arguments);
+  var flatArgumentsDefined = flatArguments.filter(utils.isDefined);
+  if (flatArgumentsDefined.length === 0) {
+    return error.div0;
+  }
+  var someError = utils.anyError.apply(undefined, flatArgumentsDefined);
+  if (someError) {
+    return someError;
+  }
+  var range = flatArgumentsDefined;
   var n = range.length;
   var sum = 0;
   var count = 0;
@@ -1761,8 +2064,11 @@ exports.AVERAGEIF = function(range, criteria, average_range) {
     return error.na;
   }
   average_range = average_range || range;
+  var flatAverageRange = utils.flatten(average_range);
+  var flatAverageRangeDefined = flatAverageRange.filter(utils.isDefined);
+  average_range = utils.parseNumberArray(flatAverageRangeDefined);
+
   range = utils.flatten(range);
-  average_range = utils.parseNumberArray(utils.flatten(average_range));
 
   if (average_range instanceof Error) {
     return average_range;
@@ -1793,7 +2099,7 @@ exports.AVERAGEIF = function(range, criteria, average_range) {
 
 exports.AVERAGEIFS = function() {
   // Does not work with multi dimensional ranges yet!
-  //http://office.microsoft.com/en-001/excel-help/averageifs-function-HA010047493.aspx
+  // http://office.microsoft.com/en-001/excel-help/averageifs-function-HA010047493.aspx
   var args = utils.argsToArray(arguments);
   var criteriaLength = (args.length - 1) / 2;
   var range = utils.flatten(args[0]);
@@ -2120,12 +2426,13 @@ exports.CORREL = function(array1, array2) {
 };
 
 exports.COUNT = function() {
-  return utils.numbers(utils.flatten(arguments)).length;
+  var flatArguments = utils.flatten(arguments);
+  return utils.numbers(flatArguments).length;
 };
 
 exports.COUNTA = function() {
-  var range = utils.flatten(arguments);
-  return range.length - exports.COUNTBLANK(range);
+  var flatArguments = utils.flatten(arguments);
+  return flatArguments.length - exports.COUNTBLANK(flatArguments);
 };
 
 exports.COUNTIN = function (range, value) {
@@ -2148,7 +2455,7 @@ exports.COUNTBLANK = function() {
   var element;
   for (var i = 0; i < range.length; i++) {
     element = range[i];
-    if (element === null || element === '') {
+    if (element === undefined || element === null || element === '') {
       blanks++;
     }
   }
@@ -2656,6 +2963,11 @@ exports.LARGE = function(range, k) {
   if (utils.anyIsError(range, k)) {
     return range;
   }
+
+  if(k < 0 || range.length < k){
+    return error.value;
+  }
+
   return range.sort(function(a, b) {
     return b - a;
   })[k - 1];
@@ -2724,17 +3036,33 @@ exports.LOGNORM.INV = function(probability, mean, sd) {
 };
 
 exports.MAX = function() {
-  var range = utils.numbers(utils.flatten(arguments));
+  var flatArguments = utils.flatten(arguments);
+  var someError = utils.anyError.apply(undefined, flatArguments);
+  if (someError) {
+    return someError;
+  }
+  var range = utils.numbers(flatArguments);
   return (range.length === 0) ? 0 : Math.max.apply(Math, range);
 };
 
 exports.MAXA = function() {
-  var range = utils.arrayValuesToNumbers(utils.flatten(arguments));
+  var flatArguments = utils.flatten(arguments);
+  var someError = utils.anyError.apply(undefined, flatArguments);
+  if (someError) {
+    return someError;
+  }
+  var range = utils.arrayValuesToNumbers(flatArguments);
+  range = range.map(function (value) { return (value === undefined || value === null) ? 0 : value; });
   return (range.length === 0) ? 0 : Math.max.apply(Math, range);
 };
 
 exports.MEDIAN = function() {
-  var range = utils.arrayValuesToNumbers(utils.flatten(arguments));
+  var flatArguments = utils.flatten(arguments);
+  var someError = utils.anyError.apply(undefined, flatArguments);
+  if (someError) {
+    return someError;
+  }
+  var range = utils.arrayValuesToNumbers(flatArguments);
   var result = jStat.median(range);
 
   if (isNaN(result)) {
@@ -2745,12 +3073,23 @@ exports.MEDIAN = function() {
 };
 
 exports.MIN = function() {
-  var range = utils.numbers(utils.flatten(arguments));
+  var flatArguments = utils.flatten(arguments);
+  var someError = utils.anyError.apply(undefined, flatArguments);
+  if (someError) {
+    return someError;
+  }
+  var range = utils.numbers(flatArguments);
   return (range.length === 0) ? 0 : Math.min.apply(Math, range);
 };
 
 exports.MINA = function() {
-  var range = utils.arrayValuesToNumbers(utils.flatten(arguments));
+  var flatArguments = utils.flatten(arguments);
+  var someError = utils.anyError.apply(undefined, flatArguments);
+  if (someError) {
+    return someError;
+  }
+  var range = utils.arrayValuesToNumbers(flatArguments);
+  range = range.map(function (value) { return (value === undefined || value === null) ? 0 : value; });
   return (range.length === 0) ? 0 : Math.min.apply(Math, range);
 };
 
@@ -3304,13 +3643,12 @@ exports.TRANSPOSE = function(matrix) {
 
 exports.T = text.T;
 
-exports.T.DIST = function(x, df, cumulative) {
-  x = utils.parseNumber(x);
-  df = utils.parseNumber(df);
-  if (utils.anyIsError(x, df)) {
-    return error.value;
+exports.T.DIST = function (x, df, tails) {
+  if (tails !== 1 && tails !== 2) {
+    return error.num;
   }
-  return (cumulative) ? jStat.studentt.cdf(x, df) : jStat.studentt.pdf(x, df);
+
+  return (tails === 1) ? exports.T.DIST.RT(x, df) : exports.T.DIST['2T'](x, df);
 };
 
 exports.T.DIST['2T'] = function(x, df) {
@@ -3557,6 +3895,9 @@ exports.BAHTTEXT = function() {
 
 exports.CHAR = function(number) {
   number = utils.parseNumber(number);
+  if (number === 0) {
+    return error.value;
+  }
   if (number instanceof Error) {
     return number;
   }
@@ -3564,24 +3905,33 @@ exports.CHAR = function(number) {
 };
 
 exports.CLEAN = function(text) {
+  if (utils.anyIsError(text)) {
+    return text;
+  }
   text = text || '';
   var re = /[\0-\x1F]/g;
   return text.replace(re, "");
 };
 
 exports.CODE = function(text) {
+  if (utils.anyIsError(text)) {
+    return text;
+  }
   text = text || '';
   var result = text.charCodeAt(0);
 
   if (isNaN(result)) {
-    result = error.na;
+    result = error.value;
   }
   return result;
 };
 
 exports.CONCATENATE = function() {
   var args = utils.flatten(arguments);
-
+  var someError = utils.anyError.apply(undefined, args);
+  if (someError) {
+    return someError;
+  }
   var trueFound = 0;
   while ((trueFound = args.indexOf(true)) > -1) {
     args[trueFound] = 'TRUE';
@@ -3594,6 +3944,8 @@ exports.CONCATENATE = function() {
 
   return args.join('');
 };
+
+exports.CONCAT = exports.CONCATENATE;
 
 //TODO
 exports.DBCS = function() {
@@ -3609,6 +3961,12 @@ exports.EXACT = function(text1, text2) {
   if (arguments.length !== 2) {
     return error.na;
   }
+  var someError = utils.anyError(text1, text2);
+  if (someError) {
+    return someError;
+  }
+  text1 = utils.parseString(text1);
+  text2 = utils.parseString(text2);
   return text1 === text2;
 };
 
@@ -3616,8 +3974,14 @@ exports.FIND = function(find_text, within_text, position) {
   if (arguments.length < 2) {
     return error.na;
   }
+  find_text = utils.parseString(find_text);
+  within_text = utils.parseString(within_text);
   position = (position === undefined) ? 0 : position;
-  return within_text ? within_text.indexOf(find_text, position - 1) + 1 : null;
+  var found_index = within_text.indexOf(find_text, position - 1);
+  if (found_index === -1) {
+    return error.value;
+  }
+  return found_index + 1;
 };
 
 //TODO
@@ -3626,6 +3990,9 @@ exports.FIXED = function() {
 };
 
 exports.HTML2TEXT = function (value) {
+  if (utils.anyIsError(value)) {
+    return value;
+  }
   var result = '';
 
   if (value) {
@@ -3645,12 +4012,17 @@ exports.HTML2TEXT = function (value) {
 };
 
 exports.LEFT = function(text, number) {
+  var someError = utils.anyError(text, number);
+  if (someError) {
+    return someError;
+  }
+  text = utils.parseString(text);
   number = (number === undefined) ? 1 : number;
   number = utils.parseNumber(number);
   if (number instanceof Error || typeof text !== 'string') {
     return error.value;
   }
-  return text ? text.substring(0, number) : null;
+  return text.substring(0, number);
 };
 
 exports.LEN = function(text) {
@@ -3658,25 +4030,33 @@ exports.LEN = function(text) {
     return error.error;
   }
 
-  if (typeof text === 'string') {
-    return text ? text.length : 0;
+  if (text instanceof Error) {
+    return text;
   }
 
-  if (text.length) {
-    return text.length;
+  if (Array.isArray(text)) {
+    return error.value;
   }
 
-  return error.value;
+  var textAsString = utils.parseString(text);
+  return textAsString.length;
 };
 
 exports.LOWER = function(text) {
-  if (typeof text !== 'string') {
+  if (arguments.length !== 1) {
     return error.value;
   }
-  return text ? text.toLowerCase() : text;
+  text = utils.parseString(text);
+  if (utils.anyIsError(text)) {
+    return text;
+  }
+  return text.toLowerCase();
 };
 
 exports.MID = function(text, start, number) {
+  if (start === undefined || start === null) {
+    return error.value;
+  }
   start = utils.parseNumber(start);
   number = utils.parseNumber(number);
   if (utils.anyIsError(start, number) || typeof text !== 'string') {
@@ -3702,21 +4082,13 @@ exports.PRONETIC = function() {
 };
 
 exports.PROPER = function(text) {
-  if (text === undefined || text.length === 0) {
-    return error.value;
-  }
-  if (text === true) {
-    text = 'TRUE';
-  }
-  if (text === false) {
-    text = 'FALSE';
+  if (utils.anyIsError(text)) {
+    return text;
   }
   if (isNaN(text) && typeof text === 'number') {
     return error.value;
   }
-  if (typeof text === 'number') {
-    text = '' + text;
-  }
+  text = utils.parseString(text);
 
   return text.replace(/\w\S*/g, function(txt) {
     return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();
@@ -3758,6 +4130,11 @@ exports.REPLACE = function(text, position, length, new_text) {
 };
 
 exports.REPT = function(text, number) {
+  var someError = utils.anyError(text, number);
+  if (someError) {
+    return someError;
+  }
+  text = utils.parseString(text);
   number = utils.parseNumber(number);
   if (number instanceof Error) {
     return number;
@@ -3766,12 +4143,17 @@ exports.REPT = function(text, number) {
 };
 
 exports.RIGHT = function(text, number) {
+  var someError = utils.anyError(text, number);
+  if (someError) {
+    return someError;
+  }
+  text = utils.parseString(text);
   number = (number === undefined) ? 1 : number;
   number = utils.parseNumber(number);
   if (number instanceof Error) {
     return number;
   }
-  return text ? text.substring(text.length - number) : error.na;
+  return text.substring(text.length - number);
 };
 
 exports.SEARCH = function(find_text, within_text, position) {
@@ -3789,27 +4171,35 @@ exports.SPLIT = function (text, separator) {
 };
 
 exports.SUBSTITUTE = function(text, old_text, new_text, occurrence) {
-  if (arguments.length < 2) {
+  if (arguments.length < 3) {
     return error.na;
   }
-  if (!text || !old_text || !new_text) {
+  if (!text || !old_text) {
     return text;
   } else if (occurrence === undefined) {
-    return text.replace(new RegExp(old_text, 'g'), new_text);
+    return text.split(old_text).join(new_text);
   } else {
+    occurrence = Math.floor(Number(occurrence));
+    if (Number.isNaN(occurrence) || occurrence <= 0) {
+      return error.value;
+    }
     var index = 0;
     var i = 0;
-    while (text.indexOf(old_text, index) > 0) {
+    while (index > -1 && text.indexOf(old_text, index) > -1) {
       index = text.indexOf(old_text, index + 1);
       i++;
-      if (i === occurrence) {
+      if (index > -1 && i === occurrence) {
         return text.substring(0, index) + new_text + text.substring(index + old_text.length);
       }
     }
+    return text;
   }
 };
 
 exports.T = function(value) {
+  if (value instanceof Error) {
+    return value;
+  }
   return (typeof value === "string") ? value : '';
 };
 
@@ -3819,10 +4209,11 @@ exports.TEXT = function() {
 };
 
 exports.TRIM = function(text) {
-  if (typeof text !== 'string') {
-    return error.value;
+  text = utils.parseString(text);
+  if (text instanceof Error) {
+    return text;
   }
-  return text.replace(/ +/g, ' ').trim();
+  return text.replace(/\s+/g, ' ').trim();
 };
 
 exports.UNICHAR = exports.CHAR;
@@ -3830,15 +4221,45 @@ exports.UNICHAR = exports.CHAR;
 exports.UNICODE = exports.CODE;
 
 exports.UPPER = function(text) {
-  if (typeof text !== 'string') {
-    return error.value;
+  text = utils.parseString(text);
+  if (text instanceof Error) {
+    return text;
   }
   return text.toUpperCase();
 };
 
-//TODO
-exports.VALUE = function() {
-  throw new Error('VALUE is not implemented');
+exports.VALUE = function(num) {
+  var anyError = utils.anyError(num);
+  if (anyError) {
+    return anyError;
+  }
+
+  if (typeof num !== 'string') {
+    return error.value;
+  }
+
+  var isPercent = /(%)$/.test(num) || /^(%)/.test(num);
+  num = num.replace(/^[^0-9-]{0,3}/, '');
+  num = num.replace(/[^0-9]{0,3}$/, '');
+  num = num.replace(/[\ ,]/g,'');
+
+  if(num ===''){
+    return error.value;
+  }
+
+  var output =  Number(num);
+
+  if(isNaN(output)){
+    return error.value;
+  }
+
+  output = output || 0;
+
+  if(isPercent) {
+    output = output * 0.01;
+  }
+
+  return output;
 };
 
 
@@ -4246,7 +4667,7 @@ var WEEKEND_TYPES = [
   [6, 6]
 ];
 
-exports.DATE = function(year, month, day) {
+exports.DATE = function (year, month, day) {
   var result;
 
   year = utils.parseNumber(year);
@@ -4256,38 +4677,92 @@ exports.DATE = function(year, month, day) {
   if (utils.anyIsError(year, month, day)) {
     result = error.value;
 
-  } else if (year < 0 || month < 0 || day < 0) {
-    result = error.num;
-
   } else {
     result = new Date(year, month - 1, day);
+    if (result.getFullYear() < 0) {
+      result = error.num;
+    }
   }
 
   return result;
 };
 
-exports.DATEVALUE = function(date_text) {
-  var modifier = 2;
-  var date;
+exports.DATEDIF = function (start_date, end_date, unit) {
+  unit = unit.toUpperCase();
+  start_date = utils.parseDate(start_date);
+  end_date = utils.parseDate(end_date);
 
+  var start_date_year = start_date.getFullYear();
+  var start_date_month = start_date.getMonth();
+  var start_date_day = start_date.getDate();
+  var end_date_year = end_date.getFullYear();
+  var end_date_month = end_date.getMonth();
+  var end_date_day = end_date.getDate();
+
+  var result;
+  switch (unit) {
+    case 'Y':
+      result = Math.floor(exports.YEARFRAC(start_date, end_date));
+      break;
+    case 'D':
+      result = exports.DAYS(end_date, start_date);
+      break;
+    case 'M':
+      result = end_date_month - start_date_month + 12 * (end_date_year - start_date_year);
+      if (end_date_day < start_date_day) {
+        result--;
+      }
+      break;
+    case 'MD':
+      if (start_date_day <= end_date_day) {
+        result = end_date_day - start_date_day;
+      } else {
+        if (end_date_month === 0) {
+          start_date.setFullYear(end_date_year - 1);
+          start_date.setMonth(12);
+        } else {
+          start_date.setFullYear(end_date_year);
+          start_date.setMonth(end_date_month - 1);
+        }
+        result = exports.DAYS(end_date, start_date);
+      }
+      break;
+    case 'YM':
+      result = end_date_month - start_date_month + 12 * (end_date_year - start_date_year);
+      if (end_date_day < start_date_day) {
+        result--;
+      }
+      result = result % 12;
+      break;
+    case 'YD':
+      if (end_date_month > start_date_month || (end_date_month === start_date_month && end_date_day < start_date_day)) {
+        start_date.setFullYear(end_date_year);
+      } else {
+        start_date.setFullYear(end_date_year - 1);
+      }
+
+      result = exports.DAYS(end_date, start_date);
+      break;
+  }
+
+  return result;
+};
+
+exports.DATEVALUE = function (date_text) {
   if (typeof date_text !== 'string') {
     return error.value;
   }
 
-  date = Date.parse(date_text);
+  var date = Date.parse(date_text);
 
   if (isNaN(date)) {
     return error.value;
   }
 
-  if (date <= -2203891200000) {
-    modifier = 1;
-  }
-
-  return Math.ceil((date - d1900) / 86400000) + modifier;
+  return new Date(date_text);
 };
 
-exports.DAY = function(serial_number) {
+exports.DAY = function (serial_number) {
   var date = utils.parseDate(serial_number);
   if (date instanceof Error) {
     return date;
@@ -4296,7 +4771,13 @@ exports.DAY = function(serial_number) {
   return date.getDate();
 };
 
-exports.DAYS = function(end_date, start_date) {
+function startOfDay(date) {
+  var newDate = new Date(date);
+  newDate.setHours(0, 0, 0, 0);
+  return newDate;
+}
+
+exports.DAYS = function (end_date, start_date) {
   end_date = utils.parseDate(end_date);
   start_date = utils.parseDate(start_date);
 
@@ -4307,11 +4788,11 @@ exports.DAYS = function(end_date, start_date) {
     return start_date;
   }
 
-  return serial(end_date) - serial(start_date);
+  return serial(startOfDay(end_date)) - serial(startOfDay(start_date));
 };
 
-exports.DAYS360 = function(start_date, end_date, method) {
-  method = utils.parseBool(method);
+exports.DAYS360 = function (start_date, end_date, method) {
+  method = utils.parseBool(method || 'false');
   start_date = utils.parseDate(start_date);
   end_date = utils.parseDate(end_date);
 
@@ -4351,7 +4832,7 @@ exports.DAYS360 = function(start_date, end_date, method) {
     30 * (em - sm) + (ed - sd);
 };
 
-exports.EDATE = function(start_date, months) {
+exports.EDATE = function (start_date, months) {
   start_date = utils.parseDate(start_date);
 
   if (start_date instanceof Error) {
@@ -4363,10 +4844,10 @@ exports.EDATE = function(start_date, months) {
   months = parseInt(months, 10);
   start_date.setMonth(start_date.getMonth() + months);
 
-  return serial(start_date);
+  return start_date;
 };
 
-exports.EOMONTH = function(start_date, months) {
+exports.EOMONTH = function (start_date, months) {
   start_date = utils.parseDate(start_date);
 
   if (start_date instanceof Error) {
@@ -4377,10 +4858,10 @@ exports.EOMONTH = function(start_date, months) {
   }
   months = parseInt(months, 10);
 
-  return serial(new Date(start_date.getFullYear(), start_date.getMonth() + months + 1, 0));
+  return new Date(start_date.getFullYear(), start_date.getMonth() + months + 1, 0);
 };
 
-exports.HOUR = function(serial_number) {
+exports.HOUR = function (serial_number) {
   serial_number = utils.parseDate(serial_number);
 
   if (serial_number instanceof Error) {
@@ -4397,44 +4878,44 @@ exports.INTERVAL = function (second) {
     second = parseInt(second, 10);
   }
 
-  var year  = Math.floor(second/946080000);
-  second    = second%946080000;
-  var month = Math.floor(second/2592000);
-  second    = second%2592000;
-  var day   = Math.floor(second/86400);
-  second    = second%86400;
+  var year = Math.floor(second / 946080000);
+  second = second % 946080000;
+  var month = Math.floor(second / 2592000);
+  second = second % 2592000;
+  var day = Math.floor(second / 86400);
+  second = second % 86400;
 
-  var hour  = Math.floor(second/3600);
-  second    = second%3600;
-  var min   = Math.floor(second/60);
-  second    = second%60;
-  var sec   = second;
+  var hour = Math.floor(second / 3600);
+  second = second % 3600;
+  var min = Math.floor(second / 60);
+  second = second % 60;
+  var sec = second;
 
-  year  = (year  > 0) ? year  + 'Y' : '';
+  year = (year > 0) ? year + 'Y' : '';
   month = (month > 0) ? month + 'M' : '';
-  day   = (day   > 0) ? day   + 'D' : '';
-  hour  = (hour  > 0) ? hour  + 'H' : '';
-  min   = (min   > 0) ? min   + 'M' : '';
-  sec   = (sec   > 0) ? sec   + 'S' : '';
+  day = (day > 0) ? day + 'D' : '';
+  hour = (hour > 0) ? hour + 'H' : '';
+  min = (min > 0) ? min + 'M' : '';
+  sec = (sec > 0) ? sec + 'S' : '';
 
   return 'P' + year + month + day + 'T' + hour + min + sec;
 };
 
-exports.ISOWEEKNUM = function(date) {
+exports.ISOWEEKNUM = function (date) {
   date = utils.parseDate(date);
 
   if (date instanceof Error) {
     return date;
   }
 
-  date.setHours(0, 0, 0);
+  date = startOfDay(date);
   date.setDate(date.getDate() + 4 - (date.getDay() || 7));
   var yearStart = new Date(date.getFullYear(), 0, 1);
 
   return Math.ceil((((date - yearStart) / 86400000) + 1) / 7);
 };
 
-exports.MINUTE = function(serial_number) {
+exports.MINUTE = function (serial_number) {
   serial_number = utils.parseDate(serial_number);
 
   if (serial_number instanceof Error) {
@@ -4444,7 +4925,7 @@ exports.MINUTE = function(serial_number) {
   return serial_number.getMinutes();
 };
 
-exports.MONTH = function(serial_number) {
+exports.MONTH = function (serial_number) {
   serial_number = utils.parseDate(serial_number);
 
   if (serial_number instanceof Error) {
@@ -4454,11 +4935,11 @@ exports.MONTH = function(serial_number) {
   return serial_number.getMonth() + 1;
 };
 
-exports.NETWORKDAYS = function(start_date, end_date, holidays) {
+exports.NETWORKDAYS = function (start_date, end_date, holidays) {
   return this.NETWORKDAYS.INTL(start_date, end_date, 1, holidays);
 };
 
-exports.NETWORKDAYS.INTL = function(start_date, end_date, weekend, holidays) {
+exports.NETWORKDAYS.INTL = function (start_date, end_date, weekend, holidays) {
   start_date = utils.parseDate(start_date);
 
   if (start_date instanceof Error) {
@@ -4469,8 +4950,22 @@ exports.NETWORKDAYS.INTL = function(start_date, end_date, weekend, holidays) {
   if (end_date instanceof Error) {
     return end_date;
   }
+
+  var isMask = false;
+  var maskDays = [];
+  var maskIndex = [1, 2, 3, 4, 5, 6, 0];
+  var maskRegex = new RegExp('^[0|1]{7}$');
+
   if (weekend === undefined) {
     weekend = WEEKEND_TYPES[1];
+  } else if (typeof weekend === 'string' && maskRegex.test(weekend)) {
+    isMask = true;
+    weekend = weekend.split('');
+    for (i = 0; i < weekend.length; i++) {
+      if (weekend[i] === '1') {
+        maskDays.push(maskIndex[i]);
+      }
+    }
   } else {
     weekend = WEEKEND_TYPES[weekend];
   }
@@ -4490,15 +4985,12 @@ exports.NETWORKDAYS.INTL = function(start_date, end_date, weekend, holidays) {
     }
     holidays[i] = h;
   }
-  var days = (end_date - start_date) / (1000 * 60 * 60 * 24) + 1;
+  var days = Math.round((end_date - start_date) / (1000 * 60 * 60 * 24)) + 1;
   var total = days;
   var day = start_date;
   for (i = 0; i < days; i++) {
     var d = (new Date().getTimezoneOffset() > 0) ? day.getUTCDay() : day.getDay();
-    var dec = false;
-    if (d === weekend[0] || d === weekend[1]) {
-      dec = true;
-    }
+    var dec = isMask ? maskDays.includes(d) : (d === weekend[0] || d === weekend[1]);
     for (var j = 0; j < holidays.length; j++) {
       var holiday = holidays[j];
       if (holiday.getDate() === day.getDate() &&
@@ -4517,11 +5009,11 @@ exports.NETWORKDAYS.INTL = function(start_date, end_date, weekend, holidays) {
   return total;
 };
 
-exports.NOW = function() {
+exports.NOW = function () {
   return new Date();
 };
 
-exports.SECOND = function(serial_number) {
+exports.SECOND = function (serial_number) {
   serial_number = utils.parseDate(serial_number);
   if (serial_number instanceof Error) {
     return serial_number;
@@ -4530,7 +5022,7 @@ exports.SECOND = function(serial_number) {
   return serial_number.getSeconds();
 };
 
-exports.TIME = function(hour, minute, second) {
+exports.TIME = function (hour, minute, second) {
   hour = utils.parseNumber(hour);
   minute = utils.parseNumber(minute);
   second = utils.parseNumber(second);
@@ -4544,7 +5036,7 @@ exports.TIME = function(hour, minute, second) {
   return (3600 * hour + 60 * minute + second) / 86400;
 };
 
-exports.TIMEVALUE = function(time_text) {
+exports.TIMEVALUE = function (time_text) {
   time_text = utils.parseDate(time_text);
 
   if (time_text instanceof Error) {
@@ -4554,11 +5046,11 @@ exports.TIMEVALUE = function(time_text) {
   return (3600 * time_text.getHours() + 60 * time_text.getMinutes() + time_text.getSeconds()) / 86400;
 };
 
-exports.TODAY = function() {
-  return new Date();
+exports.TODAY = function () {
+  return startOfDay(new Date());
 };
 
-exports.WEEKDAY = function(serial_number, return_type) {
+exports.WEEKDAY = function (serial_number, return_type) {
   serial_number = utils.parseDate(serial_number);
   if (serial_number instanceof Error) {
     return serial_number;
@@ -4571,7 +5063,7 @@ exports.WEEKDAY = function(serial_number, return_type) {
   return WEEK_TYPES[return_type][day];
 };
 
-exports.WEEKNUM = function(serial_number, return_type) {
+exports.WEEKNUM = function (serial_number, return_type) {
   serial_number = utils.parseDate(serial_number);
   if (serial_number instanceof Error) {
     return serial_number;
@@ -4590,11 +5082,11 @@ exports.WEEKNUM = function(serial_number, return_type) {
   return Math.floor(((serial_number - jan) / (1000 * 60 * 60 * 24)) / 7 + 1) + inc;
 };
 
-exports.WORKDAY = function(start_date, days, holidays) {
+exports.WORKDAY = function (start_date, days, holidays) {
   return this.WORKDAY.INTL(start_date, days, 1, holidays);
 };
 
-exports.WORKDAY.INTL = function(start_date, days, weekend, holidays) {
+exports.WORKDAY.INTL = function (start_date, days, weekend, holidays) {
   start_date = utils.parseDate(start_date);
   if (start_date instanceof Error) {
     return start_date;
@@ -4648,7 +5140,7 @@ exports.WORKDAY.INTL = function(start_date, days, weekend, holidays) {
   return start_date;
 };
 
-exports.YEAR = function(serial_number) {
+exports.YEAR = function (serial_number) {
   serial_number = utils.parseDate(serial_number);
 
   if (serial_number instanceof Error) {
@@ -4667,7 +5159,7 @@ function daysBetween(start_date, end_date) {
   return Math.ceil((end_date - start_date) / 1000 / 60 / 60 / 24);
 }
 
-exports.YEARFRAC = function(start_date, end_date, basis) {
+exports.YEARFRAC = function (start_date, end_date, basis) {
   start_date = utils.parseDate(start_date);
   if (start_date instanceof Error) {
     return start_date;
@@ -4699,7 +5191,7 @@ exports.YEARFRAC = function(start_date, end_date, basis) {
       return ((ed + em * 30 + ey * 360) - (sd + sm * 30 + sy * 360)) / 360;
     case 1:
       // Actual/actual
-      var feb29Between = function(date1, date2) {
+      var feb29Between = function (date1, date2) {
         var year1 = date1.getFullYear();
         var mar1year1 = new Date(year1, 2, 1);
         if (isLeapYear(year1) && date1 < mar1year1 && date2 >= mar1year1) {
@@ -4743,6 +5235,36 @@ function serial(date) {
 
 /***/ }),
 /* 11 */
+/***/ (function(module, exports, __webpack_require__) {
+
+var categories = [
+  __webpack_require__(24),
+  __webpack_require__(26),
+  __webpack_require__(14),
+  __webpack_require__(27),
+  __webpack_require__(5),
+  __webpack_require__(7),
+  __webpack_require__(10),
+  __webpack_require__(28),
+  __webpack_require__(9),
+  __webpack_require__(29),
+  __webpack_require__(6),
+  __webpack_require__(13)
+];
+
+for (var c in categories) {
+  var category = categories[c];
+  for (var f in category) {
+    exports[f] = exports[f] || category[f];
+  }
+}
+exports.utils = {
+  errors: __webpack_require__(0)
+};
+
+
+/***/ }),
+/* 12 */
 /***/ (function(module, exports, __webpack_require__) {
 
 (function (window, factory) {
@@ -5552,7 +6074,9 @@ jStat.meansqerr = function meansqerr(arr) {
 
 // geometric mean of an array
 jStat.geomean = function geomean(arr) {
-  return Math.pow(jStat.product(arr), 1 / arr.length);
+  var logs = arr.map(Math.log)
+  var meanOfLogs = jStat.mean(logs)
+  return Math.exp(meanOfLogs)
 };
 
 
@@ -5592,21 +6116,35 @@ jStat.diff = function diff(arr) {
 
 // ranks of an array
 jStat.rank = function (arr) {
-  var arrlen = arr.length;
-  var sorted = arr.slice().sort(ascNum);
-  var ranks = new Array(arrlen);
-  var val;
-  for (var i = 0; i < arrlen; i++) {
-    var first = sorted.indexOf(arr[i]);
-    var last = sorted.lastIndexOf(arr[i]);
-    if (first === last) {
-      val = first;
+  var i;
+  var distinctNumbers = [];
+  var numberCounts = {};
+  for (i = 0; i < arr.length; i++) {
+    var number = arr[i];
+    if (numberCounts[number]) {
+      numberCounts[number]++;
     } else {
-      val = (first + last) / 2;
+      numberCounts[number] = 1;
+      distinctNumbers.push(number);
     }
-    ranks[i] = val + 1;
   }
-  return ranks;
+
+  var sortedDistinctNumbers = distinctNumbers.sort(ascNum);
+  var numberRanks = {};
+  var currentRank = 1;
+  for (i = 0; i < sortedDistinctNumbers.length; i++) {
+    var number = sortedDistinctNumbers[i];
+    var count = numberCounts[number];
+    var first = currentRank;
+    var last = currentRank + count - 1;
+    var rank = (first + last) / 2;
+    numberRanks[number] = rank;
+    currentRank += count;
+  }
+
+  return arr.map(function (number) {
+    return numberRanks[number];
+  });
 };
 
 
@@ -6063,6 +6601,9 @@ jStat.gammafn = function gammafn(x) {
   var xnum = 0;
   var y = x;
   var i, z, yi, res;
+  if (x > 171.6243769536076) {
+    return Infinity;
+  }
   if (y <= 0) {
     res = y % 1 + 3.6e-16;
     if (res) {
@@ -6502,9 +7043,9 @@ jStat.randg = function randg(shape, n, m) {
 (function(list) {
   for (var i = 0; i < list.length; i++) (function(func) {
     // distribution instance method
-    jStat[func] = function(a, b, c) {
-      if (!(this instanceof arguments.callee))
-        return new arguments.callee(a, b, c);
+    jStat[func] = function f(a, b, c) {
+      if (!(this instanceof f))
+        return new f(a, b, c);
       this._a = a;
       this._b = b;
       this._c = c;
@@ -8275,40 +8816,31 @@ jStat.extend({
 
   // calculate the determinant of a matrix
   det: function det(a) {
-    var alen = a.length,
-    alend = alen * 2,
-    vals = new Array(alend),
-    rowshift = alen - 1,
-    colshift = alend - 1,
-    mrow = rowshift - alen + 1,
-    mcol = colshift,
-    i = 0,
-    result = 0,
-    j;
-    // check for special 2x2 case
-    if (alen === 2) {
+    if (a.length === 2) {
       return a[0][0] * a[1][1] - a[0][1] * a[1][0];
     }
-    for (; i < alend; i++) {
-      vals[i] = 1;
-    }
-    for (i = 0; i < alen; i++) {
-      for (j = 0; j < alen; j++) {
-        vals[(mrow < 0) ? mrow + alen : mrow ] *= a[i][j];
-        vals[(mcol < alen) ? mcol + alen : mcol ] *= a[i][j];
-        mrow++;
-        mcol--;
+
+    var determinant = 0;
+    for (var i = 0; i < a.length; i++) {
+      // build a sub matrix without column `i`
+      var submatrix = [];
+      for (var row = 1; row < a.length; row++) {
+        submatrix[row - 1] = [];
+        for (var col = 0; col < a.length; col++) {
+          if (col < i) {
+            submatrix[row - 1][col] = a[row][col];
+          } else if (col > i) {
+            submatrix[row - 1][col - 1] = a[row][col];
+          }
+        }
       }
-      mrow = --rowshift - alen + 1;
-      mcol = --colshift;
+
+      // alternate between + and - between determinants
+      var sign = i % 2 ? -1 : 1;
+      determinant += det(submatrix) * a[0][i] * sign;
     }
-    for (i = 0; i < alen; i++) {
-      result += vals[i];
-    }
-    for (; i < alend; i++) {
-      result -= vals[i];
-    }
-    return result;
+
+    return determinant
   },
 
   gauss_elimination: function gauss_elimination(a, b) {
@@ -9737,7 +10269,7 @@ jStat.extend({
 
 
 /***/ }),
-/* 12 */
+/* 13 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var utils = __webpack_require__(1);
@@ -9803,14 +10335,14 @@ exports.NUMBERS = function () {
 
 
 /***/ }),
-/* 13 */
+/* 14 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var error = __webpack_require__(0);
-var jStat = __webpack_require__(11);
+var jStat = __webpack_require__(12);
 var text = __webpack_require__(7);
 var utils = __webpack_require__(1);
-var bessel = __webpack_require__(28);
+var bessel = __webpack_require__(25);
 
 function isValidBinaryNumber(number) {
   return (/^[01]{1,10}$/).test(number);
@@ -10716,6 +11248,9 @@ exports.IMAGINARY = function(inumber) {
     return 1;
   }
 
+  // Force string type
+  inumber = inumber + '';
+
   // Normalize imaginary coefficient
   inumber = inumber.replace('+i', '+1i').replace('-i', '-1i').replace('+j', '+1j').replace('-j', '-1j');
 
@@ -11032,6 +11567,9 @@ exports.IMREAL = function(inumber) {
   if (['i', '+i', '1i', '+1i', '-i', '-1i', 'j', '+j', '1j', '+1j', '-j', '-1j'].indexOf(inumber) >= 0) {
     return 0;
   }
+
+  // Force String type
+  inumber = inumber + '';
 
   // Lookup sign
   var plus = inumber.indexOf('+');
@@ -11371,7 +11909,7 @@ exports.OCT2HEX = function(number, places) {
 
 
 /***/ }),
-/* 14 */
+/* 15 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -11383,7 +11921,22 @@ var SUPPORTED_FORMULAS = ['ABS', 'ACCRINT', 'ACOS', 'ACOSH', 'ACOT', 'ACOTH', 'A
 exports['default'] = SUPPORTED_FORMULAS;
 
 /***/ }),
-/* 15 */
+/* 16 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+exports.__esModule = true;
+var ClickUpConfiguration = {
+  ConvertDatesToNumbers: false,
+  ConvertFormulasInNumbers: false
+};
+
+exports["default"] = ClickUpConfiguration;
+
+/***/ }),
+/* 17 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -11516,7 +12069,7 @@ function toLabel(row, column) {
 }
 
 /***/ }),
-/* 16 */
+/* 18 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -11525,11 +12078,11 @@ function toLabel(row, column) {
 exports.__esModule = true;
 exports.rowLabelToIndex = exports.rowIndexToLabel = exports.columnLabelToIndex = exports.columnIndexToLabel = exports.toLabel = exports.extractLabel = exports.error = exports.Parser = exports.ERROR_VALUE = exports.ERROR_REF = exports.ERROR_NUM = exports.ERROR_NULL = exports.ERROR_NOT_AVAILABLE = exports.ERROR_NAME = exports.ERROR_DIV_ZERO = exports.ERROR = exports.SUPPORTED_FORMULAS = undefined;
 
-var _parser = __webpack_require__(17);
+var _parser = __webpack_require__(19);
 
 var _parser2 = _interopRequireDefault(_parser);
 
-var _supportedFormulas = __webpack_require__(14);
+var _supportedFormulas = __webpack_require__(15);
 
 var _supportedFormulas2 = _interopRequireDefault(_supportedFormulas);
 
@@ -11537,7 +12090,7 @@ var _error = __webpack_require__(2);
 
 var _error2 = _interopRequireDefault(_error);
 
-var _cell = __webpack_require__(15);
+var _cell = __webpack_require__(17);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 
@@ -11560,7 +12113,7 @@ exports.rowIndexToLabel = _cell.rowIndexToLabel;
 exports.rowLabelToIndex = _cell.rowLabelToIndex;
 
 /***/ }),
-/* 17 */
+/* 19 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -11568,29 +12121,33 @@ exports.rowLabelToIndex = _cell.rowLabelToIndex;
 
 exports.__esModule = true;
 
-var _tinyEmitter = __webpack_require__(18);
+var _tinyEmitter = __webpack_require__(20);
 
 var _tinyEmitter2 = _interopRequireDefault(_tinyEmitter);
 
-var _json = __webpack_require__(19);
+var _json = __webpack_require__(21);
 
 var _json2 = _interopRequireDefault(_json);
 
-var _evaluateByOperator = __webpack_require__(20);
+var _evaluateByOperator = __webpack_require__(22);
 
 var _evaluateByOperator2 = _interopRequireDefault(_evaluateByOperator);
 
-var _grammarParser = __webpack_require__(41);
+var _grammarParser = __webpack_require__(43);
 
-var _string = __webpack_require__(42);
+var _string = __webpack_require__(44);
 
-var _number = __webpack_require__(3);
+var _number = __webpack_require__(4);
 
 var _error = __webpack_require__(2);
 
 var _error2 = _interopRequireDefault(_error);
 
-var _cell = __webpack_require__(15);
+var _cell = __webpack_require__(17);
+
+var _clickup = __webpack_require__(16);
+
+var _clickup2 = _interopRequireDefault(_clickup);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 
@@ -11654,6 +12211,11 @@ var Parser = function (_Emitter) {
   Parser.prototype.parse = function parse(expression) {
     var result = null;
     var error = null;
+
+    Object.assign(_clickup2['default'], {
+      ConvertFormulasInNumbers: this.getVariable('CONVERT_FORMULAS_IN_NUMBERS'),
+      ConvertDatesToNumbers: this.getVariable('CONVERT_DATES_TO_NUMBERS')
+    });
 
     try {
       if (expression === '') {
@@ -11893,7 +12455,7 @@ var Parser = function (_Emitter) {
 exports['default'] = Parser;
 
 /***/ }),
-/* 18 */
+/* 20 */
 /***/ (function(module, exports) {
 
 function E () {
@@ -11966,7 +12528,7 @@ module.exports.TinyEmitter = E;
 
 
 /***/ }),
-/* 19 */
+/* 21 */
 /***/ (function(module, exports, __webpack_require__) {
 
 (function (global, factory) {
@@ -13709,7 +14271,7 @@ module.exports.TinyEmitter = E;
 
 
 /***/ }),
-/* 20 */
+/* 22 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -13719,55 +14281,55 @@ exports.__esModule = true;
 exports['default'] = evaluateByOperator;
 exports.registerOperation = registerOperation;
 
-var _add = __webpack_require__(21);
+var _add = __webpack_require__(23);
 
 var _add2 = _interopRequireDefault(_add);
 
-var _ampersand = __webpack_require__(22);
+var _ampersand = __webpack_require__(31);
 
 var _ampersand2 = _interopRequireDefault(_ampersand);
 
-var _divide = __webpack_require__(23);
+var _divide = __webpack_require__(32);
 
 var _divide2 = _interopRequireDefault(_divide);
 
-var _equal = __webpack_require__(24);
+var _equal = __webpack_require__(33);
 
 var _equal2 = _interopRequireDefault(_equal);
 
-var _formulaFunction = __webpack_require__(25);
+var _formulaFunction = __webpack_require__(34);
 
 var _formulaFunction2 = _interopRequireDefault(_formulaFunction);
 
-var _greaterThan = __webpack_require__(33);
+var _greaterThan = __webpack_require__(35);
 
 var _greaterThan2 = _interopRequireDefault(_greaterThan);
 
-var _greaterThanOrEqual = __webpack_require__(34);
+var _greaterThanOrEqual = __webpack_require__(36);
 
 var _greaterThanOrEqual2 = _interopRequireDefault(_greaterThanOrEqual);
 
-var _lessThan = __webpack_require__(35);
+var _lessThan = __webpack_require__(37);
 
 var _lessThan2 = _interopRequireDefault(_lessThan);
 
-var _lessThanOrEqual = __webpack_require__(36);
+var _lessThanOrEqual = __webpack_require__(38);
 
 var _lessThanOrEqual2 = _interopRequireDefault(_lessThanOrEqual);
 
-var _minus = __webpack_require__(37);
+var _minus = __webpack_require__(39);
 
 var _minus2 = _interopRequireDefault(_minus);
 
-var _multiply = __webpack_require__(38);
+var _multiply = __webpack_require__(40);
 
 var _multiply2 = _interopRequireDefault(_multiply);
 
-var _notEqual = __webpack_require__(39);
+var _notEqual = __webpack_require__(41);
 
 var _notEqual2 = _interopRequireDefault(_notEqual);
 
-var _power = __webpack_require__(40);
+var _power = __webpack_require__(42);
 
 var _power2 = _interopRequireDefault(_power);
 
@@ -13831,7 +14393,7 @@ registerOperation(_notEqual2['default'].SYMBOL, _notEqual2['default']);
 registerOperation(_minus2['default'].SYMBOL, _minus2['default']);
 
 /***/ }),
-/* 21 */
+/* 23 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -13841,7 +14403,7 @@ exports.__esModule = true;
 exports.SYMBOL = undefined;
 exports['default'] = func;
 
-var _number = __webpack_require__(3);
+var _number = __webpack_require__(4);
 
 var _error = __webpack_require__(2);
 
@@ -13866,192 +14428,12 @@ function func(first) {
 func.SYMBOL = SYMBOL;
 
 /***/ }),
-/* 22 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-exports.__esModule = true;
-exports['default'] = func;
-var SYMBOL = exports.SYMBOL = '&';
-
-function func() {
-  for (var _len = arguments.length, params = Array(_len), _key = 0; _key < _len; _key++) {
-    params[_key] = arguments[_key];
-  }
-
-  return params.reduce(function (acc, value) {
-    return acc + value.toString();
-  }, '');
-}
-
-func.SYMBOL = SYMBOL;
-
-/***/ }),
-/* 23 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-exports.__esModule = true;
-exports.SYMBOL = undefined;
-exports['default'] = func;
-
-var _number = __webpack_require__(3);
-
-var _error = __webpack_require__(2);
-
-var SYMBOL = exports.SYMBOL = '/';
-
-function func(first) {
-  for (var _len = arguments.length, rest = Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
-    rest[_key - 1] = arguments[_key];
-  }
-
-  var result = rest.reduce(function (acc, value) {
-    return acc / (0, _number.toNumber)(value);
-  }, (0, _number.toNumber)(first));
-
-  if (result === Infinity) {
-    throw Error(_error.ERROR_DIV_ZERO);
-  }
-  if (isNaN(result)) {
-    throw Error(_error.ERROR_VALUE);
-  }
-
-  return result;
-}
-
-func.SYMBOL = SYMBOL;
-
-/***/ }),
 /* 24 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-exports.__esModule = true;
-exports.SYMBOL = undefined;
-exports['default'] = func;
-
-var _date = __webpack_require__(4);
-
-var SYMBOL = exports.SYMBOL = '=';
-
-function func(exp1, exp2) {
-  return (0, _date.dateToNumber)(exp1) === (0, _date.dateToNumber)(exp2);
-}
-
-func.SYMBOL = SYMBOL;
-
-/***/ }),
-/* 25 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-exports.__esModule = true;
-exports.SYMBOL = undefined;
-exports['default'] = func;
-
-var _formulajs = __webpack_require__(26);
-
-var formulajs = _interopRequireWildcard(_formulajs);
-
-var _supportedFormulas = __webpack_require__(14);
-
-var _supportedFormulas2 = _interopRequireDefault(_supportedFormulas);
-
-var _error = __webpack_require__(2);
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
-
-function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj['default'] = obj; return newObj; } }
-
-var SYMBOL = exports.SYMBOL = _supportedFormulas2['default'];
-
-function func(symbol) {
-  return function __formulaFunction() {
-    symbol = symbol.toUpperCase();
-
-    var symbolParts = symbol.split('.');
-    var foundFormula = false;
-    var result = void 0;
-
-    if (symbolParts.length === 1) {
-      if (formulajs[symbolParts[0]]) {
-        foundFormula = true;
-        result = formulajs[symbolParts[0]].apply(formulajs, arguments);
-      }
-    } else {
-      var length = symbolParts.length;
-      var index = 0;
-      var nestedFormula = formulajs;
-
-      while (index < length) {
-        nestedFormula = nestedFormula[symbolParts[index]];
-        index++;
-
-        if (!nestedFormula) {
-          nestedFormula = null;
-          break;
-        }
-      }
-      if (nestedFormula) {
-        foundFormula = true;
-        result = nestedFormula.apply(undefined, arguments);
-      }
-    }
-
-    if (!foundFormula) {
-      throw Error(_error.ERROR_NAME);
-    }
-
-    return result;
-  };
-}
-
-func.isFactory = true;
-func.SYMBOL = SYMBOL;
-
-/***/ }),
-/* 26 */
-/***/ (function(module, exports, __webpack_require__) {
-
-var categories = [
-  __webpack_require__(27),
-  __webpack_require__(29),
-  __webpack_require__(13),
-  __webpack_require__(30),
-  __webpack_require__(5),
-  __webpack_require__(7),
-  __webpack_require__(10),
-  __webpack_require__(31),
-  __webpack_require__(9),
-  __webpack_require__(32),
-  __webpack_require__(6),
-  __webpack_require__(12)
-];
-
-for (var c in categories) {
-  var category = categories[c];
-  for (var f in category) {
-    exports[f] = exports[f] || category[f];
-  }
-}
-
-
-/***/ }),
-/* 27 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var mathTrig = __webpack_require__(5);
 var statistical = __webpack_require__(6);
-var engineering = __webpack_require__(13);
+var engineering = __webpack_require__(14);
 var dateTime = __webpack_require__(10);
 
 function set(fn, root) {
@@ -14139,7 +14521,7 @@ exports.ZTEST = statistical.Z.TEST;
 
 
 /***/ }),
-/* 28 */
+/* 25 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /* bessel.js (C) 2013-present SheetJS -- http://sheetjs.com */
@@ -14391,7 +14773,7 @@ BESSEL.besselk = besselk;
 
 
 /***/ }),
-/* 29 */
+/* 26 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var error = __webpack_require__(0);
@@ -14796,7 +15178,7 @@ exports.DVARP = function(database, field, criteria) {
 
 
 /***/ }),
-/* 30 */
+/* 27 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var error = __webpack_require__(0);
@@ -14805,8 +15187,17 @@ var information = __webpack_require__(9);
 
 exports.AND = function() {
   var args = utils.flatten(arguments);
-  var result = true;
+  var result = error.value;
   for (var i = 0; i < args.length; i++) {
+    if (args[i] instanceof Error) {
+      return args[i];
+    }
+    if (args[i] === undefined || args[i] === null || typeof args[i] === "string") {
+      continue;
+    }
+    if (result === error.value) {
+      result = true;
+    }
     if (!args[i]) {
       result = false;
     }
@@ -14836,6 +15227,17 @@ exports.FALSE = function() {
 };
 
 exports.IF = function(test, then_value, otherwise_value) {
+  if (test instanceof Error) {
+    return test;
+  }
+  then_value = arguments.length >= 2 ? then_value : true;
+  if (then_value === undefined || then_value === null) {
+    then_value = 0;
+  }
+  otherwise_value = arguments.length === 3 ? otherwise_value : false;
+  if (otherwise_value === undefined || otherwise_value === null) {
+    otherwise_value = 0;
+  }
   return test ? then_value : otherwise_value;
 };
 
@@ -14860,13 +15262,28 @@ exports.IFNA = function(value, value_if_na) {
 };
 
 exports.NOT = function(logical) {
+  if (typeof logical === "string") {
+    return error.value;
+  }
+  if (logical instanceof Error) {
+    return logical;
+  }
   return !logical;
 };
 
 exports.OR = function() {
   var args = utils.flatten(arguments);
-  var result = false;
+  var result = error.value;
   for (var i = 0; i < args.length; i++) {
+    if (args[i] instanceof Error) {
+      return args[i];
+    }
+    if (args[i] === undefined || args[i] === null || typeof args[i] === "string") {
+      continue;
+    }
+    if (result === error.value) {
+      result = false;
+    }
     if (args[i]) {
       result = true;
     }
@@ -14880,11 +15297,23 @@ exports.TRUE = function() {
 
 exports.XOR = function() {
   var args = utils.flatten(arguments);
-  var result = 0;
+  var result = error.value;
   for (var i = 0; i < args.length; i++) {
+    if (args[i] instanceof Error) {
+      return args[i];
+    }
+    if (args[i] === undefined || args[i] === null || typeof args[i] === "string") {
+      continue;
+    }
+    if (result === error.value) {
+      result = 0;
+    }
     if (args[i]) {
       result++;
     }
+  }
+  if (result === error.value) {
+    return result;
   }
   return (Math.floor(Math.abs(result)) & 1) ? true : false;
 };
@@ -14922,7 +15351,7 @@ exports.SWITCH = function () {
 
 
 /***/ }),
-/* 31 */
+/* 28 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var error = __webpack_require__(0);
@@ -15020,10 +15449,6 @@ exports.COUPPCD = function() {
 };
 
 exports.CUMIPMT = function(rate, periods, value, start, end, type) {
-  // Credits: algorithm inspired by Apache OpenOffice
-  // Credits: Hannes Stiebitzhofer for the translations of function and variable names
-  // Requires exports.FV() and exports.PMT() from exports.js [http://stoic.com/exports/]
-
   rate = utils.parseNumber(rate);
   periods = utils.parseNumber(periods);
   value = utils.parseNumber(value);
@@ -15031,30 +15456,26 @@ exports.CUMIPMT = function(rate, periods, value, start, end, type) {
     return error.value;
   }
 
-  // Return error if either rate, periods, or value are lower than or equal to zero
   if (rate <= 0 || periods <= 0 || value <= 0) {
     return error.num;
   }
 
-  // Return error if start < 1, end < 1, or start > end
   if (start < 1 || end < 1 || start > end) {
     return error.num;
   }
 
-  // Return error if type is neither 0 nor 1
   if (type !== 0 && type !== 1) {
     return error.num;
   }
 
-  // Compute cumulative interest
   var payment = exports.PMT(rate, periods, value, 0, type);
   var interest = 0;
 
   if (start === 1) {
     if (type === 0) {
       interest = -value;
-      start++;
     }
+    start++;
   }
 
   for (var i = start; i <= end; i++) {
@@ -15066,7 +15487,6 @@ exports.CUMIPMT = function(rate, periods, value, start, end, type) {
   }
   interest *= rate;
 
-  // Return cumulative interest
   return interest;
 };
 
@@ -15557,14 +15977,18 @@ exports.NPER = function(rate, payment, present, future, type) {
   present = utils.parseNumber(present);
   future = utils.parseNumber(future);
   type = utils.parseNumber(type);
+
   if (utils.anyIsError(rate, payment, present, future, type)) {
     return error.value;
   }
 
-  // Return number of periods
-  var num = payment * (1 + rate * type) - future * rate;
-  var den = (present * rate + payment * (1 + rate * type));
-  return Math.log(num / den) / Math.log(1 + rate);
+  if (rate === 0) {
+    return (-(present + future) / payment);
+  } else {
+    var num = payment * (1 + rate * type) - future * rate;
+    var den = (present * rate + payment * (1 + rate * type));
+    return Math.log(num / den) / Math.log(1 + rate);
+  }
 };
 
 exports.NPV = function() {
@@ -15708,8 +16132,6 @@ exports.PV = function(rate, periods, payment, future, type) {
 };
 
 exports.RATE = function(periods, payment, present, future, type, guess) {
-  // Credits: rabugento
-
   guess = (guess === undefined) ? 0.01 : guess;
   future = (future === undefined) ? 0 : future;
   type = (type === undefined) ? 0 : type;
@@ -15724,41 +16146,36 @@ exports.RATE = function(periods, payment, present, future, type, guess) {
     return error.value;
   }
 
-  // Set maximum epsilon for end of iteration
   var epsMax = 1e-10;
-
-  // Set maximum number of iterations
-  var iterMax = 50;
-
-  // Implement Newton's method
-  var y, y0, y1, x0, x1 = 0,
-    f = 0,
-    i = 0;
+  var iterMax = 20;
   var rate = guess;
-  if (Math.abs(rate) < epsMax) {
-    y = present * (1 + periods * rate) + payment * (1 + rate * type) * periods + future;
-  } else {
-    f = Math.exp(periods * Math.log(1 + rate));
-    y = present * f + payment * (1 / rate + type) * (f - 1) + future;
-  }
-  y0 = present + payment * periods + future;
-  y1 = present * f + payment * (1 / rate + type) * (f - 1) + future;
-  i = x0 = 0;
-  x1 = rate;
-  while ((Math.abs(y0 - y1) > epsMax) && (i < iterMax)) {
-    rate = (y1 * x0 - y0 * x1) / (y1 - y0);
-    x0 = x1;
-    x1 = rate;
+
+  type = type ? 1 : 0;
+  for (var i = 0; i < iterMax; i++) {
+    if (rate <= -1) {
+      return error.num;
+    }
+    var y, f;
     if (Math.abs(rate) < epsMax) {
       y = present * (1 + periods * rate) + payment * (1 + rate * type) * periods + future;
     } else {
-      f = Math.exp(periods * Math.log(1 + rate));
+      f = Math.pow(1 + rate, periods);
       y = present * f + payment * (1 / rate + type) * (f - 1) + future;
     }
-    y0 = y1;
-    y1 = y;
-    ++i;
+    if (Math.abs(y) < epsMax) {
+      return rate;
+    }
+    var dy;
+    if (Math.abs(rate) < epsMax) {
+      dy = present * periods + payment * type * periods;
+    } else {
+      f = Math.pow(1 + rate, periods);
+      var df = periods * Math.pow(1 + rate, periods - 1);
+      dy = present * df + payment * (1 / rate + type) * df + payment * (-1 / (rate * rate)) * (f - 1);
+    }
+    rate -= y / dy;
   }
+
   return rate;
 };
 
@@ -15914,77 +16331,76 @@ exports.VDB = function() {
   throw new Error('VDB is not implemented');
 };
 
-// TODO needs better support for date
-// exports.XIRR = function(values, dates, guess) {
-//   // Credits: algorithm inspired by Apache OpenOffice
-//
-//   values = utils.parseNumberArray(utils.flatten(values));
-//   dates = utils.parseDateArray(utils.flatten(dates));
-//   guess = utils.parseNumber(guess);
-//
-//   if (utils.anyIsError(values, dates, guess)) {
-//     return error.value;
-//   }
-//
-//   // Calculates the resulting amount
-//   var irrResult = function(values, dates, rate) {
-//     var r = rate + 1;
-//     var result = values[0];
-//     for (var i = 1; i < values.length; i++) {
-//       result += values[i] / Math.pow(r, dateTime.DAYS(dates[i], dates[0]) / 365);
-//     }
-//     return result;
-//   };
-//
-//   // Calculates the first derivation
-//   var irrResultDeriv = function(values, dates, rate) {
-//     var r = rate + 1;
-//     var result = 0;
-//     for (var i = 1; i < values.length; i++) {
-//       var frac = dateTime.DAYS(dates[i], dates[0]) / 365;
-//       result -= frac * values[i] / Math.pow(r, frac + 1);
-//     }
-//     return result;
-//   };
-//
-//   // Check that values contains at least one positive value and one negative value
-//   var positive = false;
-//   var negative = false;
-//   for (var i = 0; i < values.length; i++) {
-//     if (values[i] > 0) {
-//       positive = true;
-//     }
-//     if (values[i] < 0) {
-//       negative = true;
-//     }
-//   }
-//
-//   // Return error if values does not contain at least one positive value and one negative value
-//   if (!positive || !negative) {
-//     return error.num;
-//   }
-//
-//   // Initialize guess and resultRate
-//   guess = guess || 0.1;
-//   var resultRate = guess;
-//
-//   // Set maximum epsilon for end of iteration
-//   var epsMax = 1e-10;
-//
-//   // Implement Newton's method
-//   var newRate, epsRate, resultValue;
-//   var contLoop = true;
-//   do {
-//     resultValue = irrResult(values, dates, resultRate);
-//     newRate = resultRate - resultValue / irrResultDeriv(values, dates, resultRate);
-//     epsRate = Math.abs(newRate - resultRate);
-//     resultRate = newRate;
-//     contLoop = (epsRate > epsMax) && (Math.abs(resultValue) > epsMax);
-//   } while (contLoop);
-//
-//   // Return internal rate of return
-//   return resultRate;
-// };
+exports.XIRR = function(values, dates, guess) {
+  // Credits: algorithm inspired by Apache OpenOffice
+
+  values = utils.parseNumberArray(utils.flatten(values));
+  dates = utils.parseDateArray(utils.flatten(dates));
+  guess = utils.parseNumber(guess);
+
+  if (utils.anyIsError(values, dates, guess)) {
+    return error.value;
+  }
+
+  // Calculates the resulting amount
+  var irrResult = function(values, dates, rate) {
+    var r = rate + 1;
+    var result = values[0];
+    for (var i = 1; i < values.length; i++) {
+      result += values[i] / Math.pow(r, dateTime.DAYS(dates[i], dates[0]) / 365);
+    }
+    return result;
+  };
+
+  // Calculates the first derivation
+  var irrResultDeriv = function(values, dates, rate) {
+    var r = rate + 1;
+    var result = 0;
+    for (var i = 1; i < values.length; i++) {
+      var frac = dateTime.DAYS(dates[i], dates[0]) / 365;
+      result -= frac * values[i] / Math.pow(r, frac + 1);
+    }
+    return result;
+  };
+
+  // Check that values contains at least one positive value and one negative value
+  var positive = false;
+  var negative = false;
+  for (var i = 0; i < values.length; i++) {
+    if (values[i] > 0) {
+      positive = true;
+    }
+    if (values[i] < 0) {
+      negative = true;
+    }
+  }
+
+  // Return error if values does not contain at least one positive value and one negative value
+  if (!positive || !negative) {
+    return error.num;
+  }
+
+  // Initialize guess and resultRate
+  guess = guess || 0.1;
+  var resultRate = guess;
+
+  // Set maximum epsilon for end of iteration
+  var epsMax = 1e-10;
+
+  // Implement Newton's method
+  var newRate, epsRate, resultValue;
+  var contLoop = true;
+  do {
+    resultValue = irrResult(values, dates, resultRate);
+    newRate = resultRate - resultValue / irrResultDeriv(values, dates, resultRate);
+    epsRate = Math.abs(newRate - resultRate);
+    resultRate = newRate;
+    contLoop = (epsRate > epsMax) && (Math.abs(resultValue) > epsMax);
+  } while (contLoop);
+
+  // Return internal rate of return
+  return resultRate;
+};
 
 exports.XNPV = function(rate, values, dates) {
   rate = utils.parseNumber(rate);
@@ -16018,13 +16434,13 @@ exports.YIELDMAT = function() {
 
 
 /***/ }),
-/* 32 */
+/* 29 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var error = __webpack_require__(0);
 var utils = __webpack_require__(1);
 
-exports.MATCH = function(lookupValue, lookupArray, matchType) {
+exports.MATCH = function (lookupValue, lookupArray, matchType) {
   if (!lookupValue && !lookupArray) {
     return error.na;
   }
@@ -16035,6 +16451,8 @@ exports.MATCH = function(lookupValue, lookupArray, matchType) {
   if (!(lookupArray instanceof Array)) {
     return error.na;
   }
+
+  lookupArray = utils.flatten(lookupArray);
 
   if (matchType !== -1 && matchType !== 0 && matchType !== 1) {
     return error.na;
@@ -16084,67 +16502,193 @@ exports.MATCH = function(lookupValue, lookupArray, matchType) {
 };
 
 exports.VLOOKUP = function (needle, table, index, rangeLookup) {
-  if (!needle || !table || !index) {
+  if (!table || !index) {
     return error.na;
   }
 
   rangeLookup = !(rangeLookup === 0 || rangeLookup === false);
-  var result;
+  var result = error.na;
+  var isNumberLookup = (typeof needle === "number");
+  var exactMatchOnly = false;
   for (var i = 0; i < table.length; i++) {
     var row = table[i];
 
     if (row[0] === needle) {
       result = (index < (row.length + 1) ? row[index - 1] : error.ref);
       break;
-    } else if ((rangeLookup && row[0] <= needle) ||
-      (rangeLookup && typeof row[0] === "string" && row[0].localeCompare(needle) < 0)) {
+    } else if (!exactMatchOnly && ((isNumberLookup && rangeLookup && row[0] <= needle) ||
+      (rangeLookup && typeof row[0] === "string" && row[0].localeCompare(needle) < 0))) {
       result = (index < (row.length + 1) ? row[index - 1] : error.ref);
+    }
+
+    if (isNumberLookup && row[0] > needle) {
+      exactMatchOnly = true;
     }
   }
 
-  return result ? result : error.na;
+  return result;
 };
 
 exports.HLOOKUP = function (needle, table, index, rangeLookup) {
-  if (!needle || !table || !index) {
-    return error.na;
-  }
-
-  rangeLookup = rangeLookup || false;
-
-  var transposedTable = utils.transpose(table);
-
-  for (var i = 0; i < transposedTable.length; i++) {
-    var row = transposedTable[i];
-    if ((!rangeLookup && row[0] === needle) ||
-      ((row[0] === needle) ||
-        (rangeLookup && typeof row[0] === "string" && row[0].toLowerCase().indexOf(needle.toLowerCase()) !== -1))) {
-      return (index < (row.length + 1) ? row[index - 1] : error.ref);
-    }
-  }
-
-  return error.na;
+  return exports.VLOOKUP(needle, utils.transpose(table), index, rangeLookup);
 };
 
 exports.LOOKUP = function (searchCriterion, array, resultArray) {
-  var index = array.indexOf(searchCriterion);
-  if (index > -1) {
-    return resultArray[index];
-  } else {
-    return resultArray[resultArray.length - 1];
+  array = utils.flatten(array);
+  resultArray = utils.flatten(resultArray);
+  var isNumberLookup = (typeof searchCriterion === "number");
+  var result = error.na;
+
+  for (var i = 0; i < array.length; i++) {
+    if (array[i] === searchCriterion) {
+      return resultArray[i];
+    } else if ((isNumberLookup && array[i] <= searchCriterion) ||
+      (typeof array[i] === "string" && array[i].localeCompare(searchCriterion) < 0)) {
+      result = resultArray[i];
+    } else if ((isNumberLookup && array[i] > searchCriterion)) {
+      return result;
+    }
   }
+
+  return result;
 };
 
 exports.INDEX = function (cellRange, rowNumber, columnNumber) {
-  if (rowNumber <= cellRange.length) {
-    if (columnNumber <= cellRange[rowNumber - 1].length) {
-      return cellRange[rowNumber - 1][columnNumber - 1];
-    }
+  var someError = utils.anyError(cellRange, rowNumber, columnNumber);
+  if (someError) {
+    return someError;
+  }
+
+  if (!Array.isArray(cellRange)) {
+    return error.value;
+  }
+
+  var isOneDimensionRange = cellRange.length > 0 && !Array.isArray(cellRange[0]);
+
+  if (isOneDimensionRange && !columnNumber) {
+    columnNumber = rowNumber;
+    rowNumber = 1;
+  } else {
+    columnNumber = columnNumber ? columnNumber : 1;
+    rowNumber = rowNumber ? rowNumber : 1;
+  }
+
+  if (columnNumber < 0 || rowNumber < 0) {
+    return error.value;
+  }
+
+  if (isOneDimensionRange && rowNumber === 1 && columnNumber <= cellRange.length) {
+    return cellRange[columnNumber - 1];
+  } else if (rowNumber <= cellRange.length && columnNumber <= cellRange[rowNumber - 1].length) {
+    return cellRange[rowNumber - 1][columnNumber - 1];
   }
 
   return error.ref;
 };
 
+
+/***/ }),
+/* 30 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+exports.__esModule = true;
+exports['default'] = splitFormula;
+function parseArgument(el) {
+  return JSON.parse(el);
+}
+
+function filterEmptyArguments(el) {
+  return el !== '';
+}
+
+/**
+ * @description
+ * ! As for now it does not support arrays.
+ * ex: MEDIAN([0,1,2])
+ *
+ * @param formula - Provide a formula to split.
+ * @returns {{args: *, name: String}}
+ *
+ * @examples
+ * splitFormula(DATE(2024, 1, 1)) -> {name: 'DATE', args: [2024, 1, 1]}
+ * splitFormula(TODAY()) -> {name: 'TODAY', args: []}
+ */
+function splitFormula(formula) {
+  var _formula$split = formula.split('('),
+      name = _formula$split[0],
+      argsString = _formula$split[1];
+
+  var args = argsString.split(')')[0].split(',').filter(filterEmptyArguments);
+
+  return {
+    name: name,
+    args: args.map(parseArgument)
+  };
+}
+
+/***/ }),
+/* 31 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+exports.__esModule = true;
+exports['default'] = func;
+var SYMBOL = exports.SYMBOL = '&';
+
+function func() {
+  for (var _len = arguments.length, params = Array(_len), _key = 0; _key < _len; _key++) {
+    params[_key] = arguments[_key];
+  }
+
+  return params.reduce(function (acc, value) {
+    return acc + value.toString();
+  }, '');
+}
+
+func.SYMBOL = SYMBOL;
+
+/***/ }),
+/* 32 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+exports.__esModule = true;
+exports.SYMBOL = undefined;
+exports['default'] = func;
+
+var _number = __webpack_require__(4);
+
+var _error = __webpack_require__(2);
+
+var SYMBOL = exports.SYMBOL = '/';
+
+function func(first) {
+  for (var _len = arguments.length, rest = Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
+    rest[_key - 1] = arguments[_key];
+  }
+
+  var result = rest.reduce(function (acc, value) {
+    return acc / (0, _number.toNumber)(value);
+  }, (0, _number.toNumber)(first));
+
+  if (result === Infinity) {
+    throw Error(_error.ERROR_DIV_ZERO);
+  }
+  if (isNaN(result)) {
+    throw Error(_error.ERROR_VALUE);
+  }
+
+  return result;
+}
+
+func.SYMBOL = SYMBOL;
 
 /***/ }),
 /* 33 */
@@ -16157,15 +16701,12 @@ exports.__esModule = true;
 exports.SYMBOL = undefined;
 exports['default'] = func;
 
-var _date = __webpack_require__(4);
+var _date = __webpack_require__(3);
 
-var SYMBOL = exports.SYMBOL = '>';
+var SYMBOL = exports.SYMBOL = '=';
 
 function func(exp1, exp2) {
-  if (!(0, _date.canCompareArgs)(exp1, exp2)) {
-    return false;
-  }
-  return exp1 > exp2;
+  return (0, _date.dateToNumber)(exp1) === (0, _date.dateToNumber)(exp2);
 }
 
 func.SYMBOL = SYMBOL;
@@ -16181,17 +16722,64 @@ exports.__esModule = true;
 exports.SYMBOL = undefined;
 exports['default'] = func;
 
-var _date = __webpack_require__(4);
+var _formulajs = __webpack_require__(11);
 
-var SYMBOL = exports.SYMBOL = '>=';
+var formulajs = _interopRequireWildcard(_formulajs);
 
-function func(exp1, exp2) {
-  if (!(0, _date.canCompareArgs)(exp1, exp2)) {
-    return false;
-  }
-  return exp1 >= exp2;
+var _supportedFormulas = __webpack_require__(15);
+
+var _supportedFormulas2 = _interopRequireDefault(_supportedFormulas);
+
+var _error = __webpack_require__(2);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj['default'] = obj; return newObj; } }
+
+var SYMBOL = exports.SYMBOL = _supportedFormulas2['default'];
+
+function func(symbol) {
+  return function __formulaFunction() {
+    symbol = symbol.toUpperCase();
+
+    var symbolParts = symbol.split('.');
+    var foundFormula = false;
+    var result = void 0;
+
+    if (symbolParts.length === 1) {
+      if (formulajs[symbolParts[0]]) {
+        foundFormula = true;
+        result = formulajs[symbolParts[0]].apply(formulajs, arguments);
+      }
+    } else {
+      var length = symbolParts.length;
+      var index = 0;
+      var nestedFormula = formulajs;
+
+      while (index < length) {
+        nestedFormula = nestedFormula[symbolParts[index]];
+        index++;
+
+        if (!nestedFormula) {
+          nestedFormula = null;
+          break;
+        }
+      }
+      if (nestedFormula) {
+        foundFormula = true;
+        result = nestedFormula.apply(undefined, arguments);
+      }
+    }
+
+    if (!foundFormula) {
+      throw Error(_error.ERROR_NAME);
+    }
+
+    return result;
+  };
 }
 
+func.isFactory = true;
 func.SYMBOL = SYMBOL;
 
 /***/ }),
@@ -16205,15 +16793,15 @@ exports.__esModule = true;
 exports.SYMBOL = undefined;
 exports['default'] = func;
 
-var _date = __webpack_require__(4);
+var _date = __webpack_require__(3);
 
-var SYMBOL = exports.SYMBOL = '<';
+var SYMBOL = exports.SYMBOL = '>';
 
 function func(exp1, exp2) {
   if (!(0, _date.canCompareArgs)(exp1, exp2)) {
     return false;
   }
-  return exp1 < exp2;
+  return exp1 > exp2;
 }
 
 func.SYMBOL = SYMBOL;
@@ -16229,15 +16817,15 @@ exports.__esModule = true;
 exports.SYMBOL = undefined;
 exports['default'] = func;
 
-var _date = __webpack_require__(4);
+var _date = __webpack_require__(3);
 
-var SYMBOL = exports.SYMBOL = '<=';
+var SYMBOL = exports.SYMBOL = '>=';
 
 function func(exp1, exp2) {
   if (!(0, _date.canCompareArgs)(exp1, exp2)) {
     return false;
   }
-  return exp1 <= exp2;
+  return exp1 >= exp2;
 }
 
 func.SYMBOL = SYMBOL;
@@ -16253,26 +16841,15 @@ exports.__esModule = true;
 exports.SYMBOL = undefined;
 exports['default'] = func;
 
-var _number = __webpack_require__(3);
+var _date = __webpack_require__(3);
 
-var _error = __webpack_require__(2);
+var SYMBOL = exports.SYMBOL = '<';
 
-var SYMBOL = exports.SYMBOL = '-';
-
-function func(first) {
-  for (var _len = arguments.length, rest = Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
-    rest[_key - 1] = arguments[_key];
+function func(exp1, exp2) {
+  if (!(0, _date.canCompareArgs)(exp1, exp2)) {
+    return false;
   }
-
-  var result = rest.reduce(function (acc, value) {
-    return acc - (0, _number.toNumber)(value);
-  }, (0, _number.toNumber)(first));
-
-  if (isNaN(result)) {
-    throw Error(_error.ERROR_VALUE);
-  }
-
-  return result;
+  return exp1 < exp2;
 }
 
 func.SYMBOL = SYMBOL;
@@ -16288,7 +16865,77 @@ exports.__esModule = true;
 exports.SYMBOL = undefined;
 exports['default'] = func;
 
-var _number = __webpack_require__(3);
+var _date = __webpack_require__(3);
+
+var SYMBOL = exports.SYMBOL = '<=';
+
+function func(exp1, exp2) {
+  if (!(0, _date.canCompareArgs)(exp1, exp2)) {
+    return false;
+  }
+  return exp1 <= exp2;
+}
+
+func.SYMBOL = SYMBOL;
+
+/***/ }),
+/* 39 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+exports.__esModule = true;
+exports.SYMBOL = undefined;
+exports['default'] = func;
+
+var _number = __webpack_require__(4);
+
+var _error = __webpack_require__(2);
+
+var _clickup = __webpack_require__(16);
+
+var _clickup2 = _interopRequireDefault(_clickup);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
+var SYMBOL = exports.SYMBOL = '-';
+
+function func(first) {
+  var toNumberConfig = {
+    convertDatesToNumbers: _clickup2['default'].ConvertDatesToNumbers,
+    convertFormulasInNumbers: _clickup2['default'].ConvertFormulasInNumbers
+  };
+
+  for (var _len = arguments.length, rest = Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
+    rest[_key - 1] = arguments[_key];
+  }
+
+  var result = rest.reduce(function (acc, value) {
+    return acc - (0, _number.toNumber)(value, toNumberConfig);
+  }, (0, _number.toNumber)(first, toNumberConfig));
+
+  if (isNaN(result)) {
+    throw Error(_error.ERROR_VALUE);
+  }
+
+  return result;
+}
+
+func.SYMBOL = SYMBOL;
+
+/***/ }),
+/* 40 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+exports.__esModule = true;
+exports.SYMBOL = undefined;
+exports['default'] = func;
+
+var _number = __webpack_require__(4);
 
 var _error = __webpack_require__(2);
 
@@ -16313,7 +16960,7 @@ function func(first) {
 func.SYMBOL = SYMBOL;
 
 /***/ }),
-/* 39 */
+/* 41 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -16323,7 +16970,7 @@ exports.__esModule = true;
 exports.SYMBOL = undefined;
 exports['default'] = func;
 
-var _date = __webpack_require__(4);
+var _date = __webpack_require__(3);
 
 var SYMBOL = exports.SYMBOL = '<>';
 
@@ -16334,7 +16981,7 @@ function func(exp1, exp2) {
 func.SYMBOL = SYMBOL;
 
 /***/ }),
-/* 40 */
+/* 42 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -16344,7 +16991,7 @@ exports.__esModule = true;
 exports.SYMBOL = undefined;
 exports['default'] = func;
 
-var _number = __webpack_require__(3);
+var _number = __webpack_require__(4);
 
 var _error = __webpack_require__(2);
 
@@ -16363,7 +17010,7 @@ function func(exp1, exp2) {
 func.SYMBOL = SYMBOL;
 
 /***/ }),
-/* 41 */
+/* 43 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /* parser generated by jison 0.4.18 */
@@ -17303,7 +17950,7 @@ exports.parse = function () { return grammarParser.parse.apply(grammarParser, ar
 
 
 /***/ }),
-/* 42 */
+/* 44 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
