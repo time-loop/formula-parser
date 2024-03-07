@@ -1,4 +1,4 @@
-import {toNumber, invertNumber} from '../../../src/helper/number';
+import { toNumber, invertNumber } from '../../../src/helper/number';
 
 describe('.toNumber()', () => {
   it('should correctly convert passed value into number', () => {
@@ -12,6 +12,8 @@ describe('.toNumber()', () => {
     expect(toNumber('-10')).toBe(-10);
     expect(toNumber(' -10 ')).toBe(-10);
     expect(isNaN(toNumber('foo'))).toBe(true);
+    expect(toNumber(null)).toBe(0);
+    expect(toNumber(undefined)).toBe(0);
   });
 });
 

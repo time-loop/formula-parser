@@ -1,6 +1,6 @@
 import * as formulajs from '@formulajs/formulajs';
 import splitFormula from './formula';
-import {getNumberOfDaysSinceEpoch, isDate} from './date';
+import { getNumberOfDaysSinceEpoch, isDate } from './date';
 
 const AcceptedFormulaJSConversions = ['DATE('];
 
@@ -11,18 +11,27 @@ const AcceptedFormulaJSConversions = ['DATE('];
  * @param {Object} config
  * @returns {*}
  */
-export function toNumber(value, config = {
-  convertDatesToNumbers: false,
-  convertFormulasInNumbers: false,
-}) {
+export function toNumber(
+  value,
+  config = {
+    convertDatesToNumbers: false,
+    convertFormulasInNumbers: false,
+  }
+) {
+  if (value === null || value === undefined) {
+    return 0;
+  }
+
   if (typeof value === 'number') {
     return value;
   }
 
   if (typeof value === 'string') {
-    const shouldBeParsed = AcceptedFormulaJSConversions.some((conversion) => value.startsWith(conversion));
+    const shouldBeParsed = AcceptedFormulaJSConversions.some((conversion) =>
+      value.startsWith(conversion)
+    );
     if (shouldBeParsed && Boolean(config.convertFormulasInNumbers)) {
-      const {name, args} = splitFormula(value);
+      const { name, args } = splitFormula(value);
       return toNumber(formulajs[name](...args), config);
     }
 

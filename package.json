@@ -1,6 +1,6 @@
 {
   "name": "@time-loop/hot-formula-parser",
-  "version": "3.1.1",
+  "version": "3.2.0",
   "description": "Formula parser",
   "browser": "dist/formula-parser.js",
   "main": "lib/index.js",
@@ -9,6 +9,7 @@
   "scripts": {
     "clean": "rimraf lib dist es coverage",
     "lint": "eslint src test",
+    "lint:fix": "eslint src test --fix",
     "check": "npm run lint && npm run test",
     "test": "cross-env BABEL_ENV=commonjs jest --detectOpenHandles",
     "coverage": "cross-env BABEL_ENV=commonjs jest --coverage",

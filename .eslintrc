@@ -37,26 +37,15 @@
     "prefer-spread": 1,
     "prefer-template": 1,
     "space-infix-ops": 2,
-    "arrow-body-style": [
-      2,
-      "as-needed"
-    ],
+    "arrow-body-style": [2, "as-needed"],
     "camelcase": [
       2,
       {
         "properties": "never"
       }
     ],
-    "curly": [
-      2,
-      "all"
-    ],
-    "no-mixed-operators": [
-      2,
-      "groups": [
-        ["+", "-", "*", "/", "%", "**"]
-      ]
-    ],
+    "curly": [2, "all"],
+    "no-mixed-operators": [2, { "groups": [["+", "-", "*", "/", "%", "**"]] }],
     "arrow-parens": [
       2,
       "always",
@@ -64,6 +53,7 @@
         "requireForBlockBody": true
       }
     ],
+    "comma-dangle": [2, "only-multiline"],
     "no-unneeded-ternary": [
       2,
       {
@@ -89,14 +79,8 @@
         "SwitchCase": 1
       }
     ],
-    "comma-style": [
-      2,
-      "last"
-    ],
-    "max-depth": [
-      2,
-      5
-    ],
+    "comma-style": [2, "last"],
+    "max-depth": [2, 5],
     "max-len": [
       2,
       {
@@ -111,19 +95,9 @@
         "named": "never"
       }
     ],
-    "array-bracket-spacing": [
-      2,
-      "never",
-      {}
-    ],
-    "space-in-parens": [
-      2,
-      "never"
-    ],
-    "quote-props": [
-      2,
-      "as-needed"
-    ],
+    "array-bracket-spacing": [2, "never", {}],
+    "space-in-parens": [2, "never"],
+    "quote-props": [2, "as-needed"],
     "key-spacing": [
       2,
       {
@@ -138,10 +112,7 @@
         "nonwords": false
       }
     ],
-    "yoda": [
-      2,
-      "never"
-    ],
+    "yoda": [2, "never"],
     "brace-style": [
       2,
       "1tbs",
@@ -163,21 +134,9 @@
         "after": true
       }
     ],
-    "space-before-blocks": [
-      2,
-      "always"
-    ],
-    "keyword-spacing": [
-      2,
-      {}
-    ],
-    "semi": [
-      2,
-      "always"
-    ],
-    "quotes": [
-      2,
-      "single"
-    ]
+    "space-before-blocks": [2, "always"],
+    "keyword-spacing": [2, {}],
+    "semi": [2, "always"],
+    "quotes": [2, "single"]
   }
 }
