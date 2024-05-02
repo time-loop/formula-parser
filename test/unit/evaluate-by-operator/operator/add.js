@@ -14,7 +14,11 @@ describe('add operator', () => {
         expect(() => func('foo', ' ', 'bar', ' baz')).toThrow('VALUE');
         expect(() => func('foo', 2)).toThrow('VALUE');
         expect(() => func(2, null)).toThrow('VALUE');
+        expect(() => func(2, undefined)).toThrow('VALUE');
+        expect(() => func(2, '')).toThrow('VALUE');
         expect(() => func(null, 2)).toThrow('VALUE');
+        expect(() => func(undefined, 2)).toThrow('VALUE');
+        expect(() => func('', 2)).toThrow('VALUE');
     });
 
     describe('ClickUp Overrides', () => {
