@@ -13,6 +13,8 @@ describe('add operator', () => {
         expect(func('2', '-8.8', 6, 0.4)).toBe(-0.4000000000000007);
         expect(() => func('foo', ' ', 'bar', ' baz')).toThrow('VALUE');
         expect(() => func('foo', 2)).toThrow('VALUE');
+        expect(() => func(2, null)).toThrow('VALUE');
+        expect(() => func(null, 2)).toThrow('VALUE');
     });
 
     describe('ClickUp Overrides', () => {
