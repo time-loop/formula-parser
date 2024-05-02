@@ -503,8 +503,8 @@ function toNumber(value) {
         convertFormulasInNumbers: false
     };
 
-    if (value === null || value === undefined) {
-        return 0;
+    if (value === null || value === undefined || value === '') {
+        return undefined;
     }
 
     if (typeof value === 'number') {
@@ -520,7 +520,8 @@ function toNumber(value) {
                 name = _splitFormula.name,
                 args = _splitFormula.args;
 
-            return toNumber(formulajs[name].apply(formulajs, args), config);
+            var formulaResult = formulajs[name].apply(formulajs, args);
+            return toNumber(formulaResult, config);
         }
 
         return value.indexOf('.') > -1 ? parseFloat(value) : parseInt(value, 10);
