@@ -12,7 +12,7 @@ import minus from './operator/minus';
 import multiply from './operator/multiply';
 import notEqual from './operator/not-equal';
 import power from './operator/power';
-import {ERROR_NAME} from './../error';
+import { ERROR_NAME } from './../error';
 
 const availableOperators = Object.create(null);
 
@@ -24,13 +24,13 @@ const availableOperators = Object.create(null);
  * @returns {*}
  */
 export default function evaluateByOperator(operator, params = []) {
-  operator = operator.toUpperCase();
+    operator = operator.toUpperCase();
 
-  if (!availableOperators[operator]) {
-    throw Error(ERROR_NAME);
-  }
+    if (!availableOperators[operator]) {
+        throw Error(ERROR_NAME);
+    }
 
-  return availableOperators[operator](...params);
+    return availableOperators[operator](...params);
 }
 
 /**
@@ -40,16 +40,16 @@ export default function evaluateByOperator(operator, params = []) {
  * @param {Function} func Logic to register for this symbol.
  */
 export function registerOperation(symbol, func) {
-  if (!Array.isArray(symbol)) {
-    symbol = [symbol.toUpperCase()];
-  }
-  symbol.forEach((s) => {
-    if (func.isFactory) {
-      availableOperators[s] = func(s);
-    } else {
-      availableOperators[s] = func;
+    if (!Array.isArray(symbol)) {
+        symbol = [symbol.toUpperCase()];
     }
-  });
+    symbol.forEach((s) => {
+        if (func.isFactory) {
+            availableOperators[s] = func(s);
+        } else {
+            availableOperators[s] = func;
+        }
+    });
 }
 
 registerOperation(add.SYMBOL, add);

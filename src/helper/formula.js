@@ -1,9 +1,9 @@
 function parseArgument(el) {
-  return JSON.parse(el);
+    return JSON.parse(el);
 }
 
 function filterEmptyArguments(el) {
-  return el !== '';
+    return el !== '';
 }
 
 /**
@@ -19,12 +19,11 @@ function filterEmptyArguments(el) {
  * splitFormula(TODAY()) -> {name: 'TODAY', args: []}
  */
 export default function splitFormula(formula) {
-  const [name, argsString] = formula.split('(');
-  const args = argsString.split(')')[0].split(',').filter(filterEmptyArguments);
+    const [name, argsString] = formula.split('(');
+    const args = argsString.split(')')[0].split(',').filter(filterEmptyArguments);
 
-  return {
-    name,
-    args: args.map(parseArgument),
-  };
+    return {
+        name,
+        args: args.map(parseArgument),
+    };
 }
-

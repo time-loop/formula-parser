@@ -7,7 +7,7 @@
  * @returns {String}
  */
 export function trimEdges(string, margin = 1) {
-  string = string.substring(margin, string.length - margin);
+    string = string.substring(margin, string.length - margin);
 
-  return string;
+    return string;
 }

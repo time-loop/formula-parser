@@ -2,24 +2,24 @@
 import func from '../../../../src/evaluate-by-operator/operator/greater-than-or-equal';
 
 describe('greater than or equal operator', () => {
-  it('should set SYMBOL const', () => {
-    expect(func.SYMBOL).toBe('>=');
-  });
+    it('should set SYMBOL const', () => {
+        expect(func.SYMBOL).toBe('>=');
+    });
 
-  it('should correctly process values', () => {
-    expect(func(2, 8.8)).toBe(false);
-    expect(func('2', 8.8)).toBe(false);
-    expect(func(void 0, null)).toBe(false);
-    expect(func(0, void 0)).toBe(false);
-    expect(func(new Date(), null)).toBe(false);
-    expect(func(null, new Date())).toBe(false);
-    expect(func(new Date(), false)).toBe(false);
-    expect(func(false, new Date())).toBe(false);
+    it('should correctly process values', () => {
+        expect(func(2, 8.8)).toBe(false);
+        expect(func('2', 8.8)).toBe(false);
+        expect(func(void 0, null)).toBe(false);
+        expect(func(0, void 0)).toBe(false);
+        expect(func(new Date(), null)).toBe(false);
+        expect(func(null, new Date())).toBe(false);
+        expect(func(new Date(), false)).toBe(false);
+        expect(func(false, new Date())).toBe(false);
 
-    expect(func(0, null)).toBe(true); // JS natively
-    expect(func(1, '1')).toBe(true);
-    expect(func(1, 1)).toBe(true);
-    expect(func(2, 1)).toBe(true);
-    expect(func(2.2, 2.1)).toBe(true);
-  });
+        expect(func(0, null)).toBe(true); // JS natively
+        expect(func(1, '1')).toBe(true);
+        expect(func(1, 1)).toBe(true);
+        expect(func(2, 1)).toBe(true);
+        expect(func(2.2, 2.1)).toBe(true);
+    });
 });
