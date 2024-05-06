@@ -8,14 +8,14 @@ export const ERROR_REF = 'REF';
 export const ERROR_VALUE = 'VALUE';
 
 const errors = {
-  [ERROR]: '#ERROR!',
-  [ERROR_DIV_ZERO]: '#DIV/0!',
-  [ERROR_NAME]: '#NAME?',
-  [ERROR_NOT_AVAILABLE]: '#N/A',
-  [ERROR_NULL]: '#NULL!',
-  [ERROR_NUM]: '#NUM!',
-  [ERROR_REF]: '#REF!',
-  [ERROR_VALUE]: '#VALUE!',
+    [ERROR]: '#ERROR!',
+    [ERROR_DIV_ZERO]: '#DIV/0!',
+    [ERROR_NAME]: '#NAME?',
+    [ERROR_NOT_AVAILABLE]: '#N/A',
+    [ERROR_NULL]: '#NULL!',
+    [ERROR_NUM]: '#NUM!',
+    [ERROR_REF]: '#REF!',
+    [ERROR_VALUE]: '#VALUE!',
 };
 
 /**
@@ -25,15 +25,15 @@ const errors = {
  * @returns {String|null} Returns error id.
  */
 export default function error(type) {
-  let result;
+    let result;
 
-  type = (type + '').replace(/#|!|\?/g, '');
+    type = String(type).replace(/#|!|\?/g, '');
 
-  if (errors[type]) {
-    result = errors[type];
-  }
+    if (errors[type]) {
+        result = errors[type];
+    }
 
-  return result ? result : null;
+    return result ? result : null;
 }
 
 /**
@@ -43,14 +43,15 @@ export default function error(type) {
  * @return {Boolean}
  */
 export function isValidStrict(type) {
-  let valid = false;
+    let valid = false;
 
-  for (const i in errors) {
-    if (Object.prototype.hasOwnProperty.call(errors, i) && errors[i] === type) {
-      valid = true;
-      break;
+    // eslint-disable-next-line no-restricted-syntax
+    for (const i in errors) {
+        if (Object.prototype.hasOwnProperty.call(errors, i) && errors[i] === type) {
+            valid = true;
+            break;
+        }
     }
-  }
 
-  return valid;
+    return valid;
 }
