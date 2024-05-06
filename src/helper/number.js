@@ -18,8 +18,8 @@ export function toNumber(
         convertFormulasInNumbers: false,
     }
 ) {
-    if (value === null || value === undefined) {
-        return 0;
+    if (value === null || value === undefined || value === '') {
+        return undefined;
     }
 
     if (typeof value === 'number') {
@@ -30,7 +30,8 @@ export function toNumber(
         const shouldBeParsed = AcceptedFormulaJSConversions.some((conversion) => value.startsWith(conversion));
         if (shouldBeParsed && Boolean(config.convertFormulasInNumbers)) {
             const { name, args } = splitFormula(value);
-            return toNumber(formulajs[name](...args), config);
+            const formulaResult = formulajs[name](...args);
+            return toNumber(formulaResult, config);
         }
 
         return value.indexOf('.') > -1 ? parseFloat(value) : parseInt(value, 10);

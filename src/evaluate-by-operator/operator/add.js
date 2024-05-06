@@ -1,4 +1,4 @@
-import { toNumber } from './../../helper/number';
+import { toNumber } from '../../helper/number';
 import { ERROR_VALUE } from './../../error';
 
 export const SYMBOL = '+';
