@@ -7,7 +7,7 @@ tmp/
 lib
 es
 coverage
-dist/
+dist
 
 dev.html
 .git-branches.toml
