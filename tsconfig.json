@@ -1,13 +1,6 @@
 {
     "exclude": ["node_modules"],
-    "include": [
-        "src/**/*.{t|j}s",
-        "src/helper/formula.js",
-        "src/helper/number.js",
-        "src/evaluate-by-operator/operator/add.js",
-        "src/error.js",
-        "src/helper/date.js"
-    ],
+    "include": ["src/**/*.ts", "src/**/*.js"],
     "compilerOptions": {
         "lib": ["es2022"],
         "module": "CommonJS",
