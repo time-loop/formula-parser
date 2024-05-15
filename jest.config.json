@@ -1,0 +1,9 @@
+{
+    "preset": "ts-jest",
+    "testEnvironment": "node",
+    "roots": ["./test"],
+    "setupFilesAfterEnv": ["./test/jest.setup.ts"],
+    "testRegex": "(/test/.*.ts)$",
+    "testPathIgnorePatterns": ["/node_modules/", "/dist/", "/test/_utils/", "/test/jest.setup.ts"],
+    "collectCoverageFrom": ["**/*.ts", "!src/grammar-parser/**"]
+}
