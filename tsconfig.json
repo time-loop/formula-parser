@@ -1,5 +1,5 @@
 {
-    "exclude": ["node_modules", "es", "lib", "loader", "test", "src/grammar-parser/grammar-parser.js"],
+    "exclude": ["node_modules"],
     "include": ["src/**/*.ts"],
     "compilerOptions": {
         "lib": ["es2022"],
@@ -18,7 +18,7 @@
         "esModuleInterop": true,
         "strict": false, // leaving this as false for now until we can convert everything to ts
         "allowJs": true,
-        "checkJs": true
+        "checkJs": false
     },
     "jest": {
         "globals": {
