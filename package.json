@@ -9,7 +9,7 @@
         "lint": "eslint src test",
         "lint:fix": "eslint src test --fix",
         "check": "npm run lint && npm run test",
-        "test": "jest --detectOpenHandles",
+        "test": "jest --clearCache && jest --detectOpenHandles",
         "coverage": "jest --coverage",
         "build": "tsc",
         "generate-parser": "cd src/grammar-parser && jison grammar-parser.jison",
