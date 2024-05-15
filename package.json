@@ -2,8 +2,8 @@
     "name": "@time-loop/hot-formula-parser",
     "version": "3.4.1",
     "description": "Formula parser",
-    "type": "module",
-    "module": "dist/index.js",
+    "type": "commonjs",
+    "main": "dist/index.js",
     "scripts": {
         "clean": "rimraf dist coverage",
         "lint": "eslint src test",
