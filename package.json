@@ -1,6 +1,6 @@
 {
     "name": "@time-loop/hot-formula-parser",
-    "version": "3.4.1",
+    "version": "3.4.2",
     "description": "Formula parser",
     "type": "commonjs",
     "main": "dist/index.js",
