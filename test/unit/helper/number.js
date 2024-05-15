@@ -11,7 +11,7 @@ describe('.toNumber()', () => {
         expect(toNumber('0')).toBe(0);
         expect(toNumber('-10')).toBe(-10);
         expect(toNumber(' -10 ')).toBe(-10);
-        expect(isNaN(toNumber('foo'))).toBe(true);
+        expect(toNumber('foo')).toBe(NaN);
         expect(toNumber(null)).toBe(undefined);
         expect(toNumber(undefined)).toBe(undefined);
     });

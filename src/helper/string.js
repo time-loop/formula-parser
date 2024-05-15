@@ -1,4 +1,3 @@
-/* eslint-disable import/prefer-default-export */
 /**
  * Trim value by cutting character starting from the beginning and ending at the same time.
  *

@@ -1,4 +1,4 @@
-import Emitter from 'tiny-emitter';
+import { TinyEmitter } from 'tiny-emitter';
 import JSON5 from 'json5';
 import evaluateByOperator from './evaluate-by-operator/evaluate-by-operator';
 import { Parser as GrammarParser } from './grammar-parser/grammar-parser';
@@ -11,9 +11,9 @@ import ClickUpConfiguration from './clickup.config';
 /**
  * @class Parser
  */
-class Parser extends Emitter {
+export default class Parser {
     constructor() {
-        super();
+        this.emitter = new TinyEmitter();
         this.parser = new GrammarParser();
         this.parser.yy = {
             toNumber,
@@ -75,6 +75,11 @@ class Parser extends Emitter {
         };
     }
 
+    on(eventName, callback, context = null) {
+        this.emitter.on(eventName, callback, context);
+        return this;
+    }
+
     /**
      * Set predefined variable name which can be visible while parsing formula expression.
      *
@@ -108,7 +113,7 @@ class Parser extends Emitter {
     _callVariable(name) {
         let value = this.getVariable(name);
 
-        this.emit('callVariable', name, (newValue) => {
+        this.emitter.emit('callVariable', name, (newValue) => {
             if (newValue !== void 0) {
                 value = newValue;
             }
@@ -160,7 +165,7 @@ class Parser extends Emitter {
             value = fn(params);
         }
 
-        this.emit('callFunction', name, params, (newValue) => {
+        this.emitter.emit('callFunction', name, params, (newValue) => {
             if (newValue !== void 0) {
                 value = newValue;
             }
@@ -182,7 +187,7 @@ class Parser extends Emitter {
         const [row, column] = extractLabel(label);
         let value = void 0;
 
-        this.emit('callCellValue', { label, row, column }, (_value) => {
+        this.emitter.emit('callCellValue', { label, row, column }, (_value) => {
             value = _value;
         });
 
@@ -203,8 +208,8 @@ class Parser extends Emitter {
 
         const [startRow, startColumn] = extractLabel(startLabel);
         const [endRow, endColumn] = extractLabel(endLabel);
-        let startCell = {};
-        let endCell = {};
+        const startCell = {};
+        const endCell = {};
 
         if (startRow.index <= endRow.index) {
             startCell.row = startRow;
@@ -227,7 +232,7 @@ class Parser extends Emitter {
 
         let value = [];
 
-        this.emit('callRangeValue', startCell, endCell, (_value = []) => {
+        this.emitter.emit('callRangeValue', startCell, endCell, (_value = []) => {
             value = _value;
         });
 
@@ -249,5 +254,3 @@ class Parser extends Emitter {
         throw Error(ERROR);
     }
 }
-
-export default Parser;

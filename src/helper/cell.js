@@ -85,7 +85,8 @@ export function extractLabel(label) {
     if (typeof label !== 'string' || !LABEL_EXTRACT_REGEXP.test(label)) {
         return [];
     }
-    const [, columnAbs, column, rowAbs, row] = label.toUpperCase().match(LABEL_EXTRACT_REGEXP);
+    const match = label.toUpperCase().match(LABEL_EXTRACT_REGEXP);
+    const [, columnAbs, column, rowAbs, row] = match || [];
 
     return [
         {

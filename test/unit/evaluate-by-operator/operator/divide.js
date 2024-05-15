@@ -1,4 +1,3 @@
-/* eslint-disable import/no-named-as-default-member */
 import func from '../../../../src/evaluate-by-operator/operator/divide';
 
 describe('divide operator', () => {

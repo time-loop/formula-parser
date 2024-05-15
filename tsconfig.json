@@ -1,0 +1,37 @@
+{
+    "exclude": ["node_modules"],
+    "include": [
+        "src/**/*.{t|j}s",
+        "src/helper/formula.js",
+        "src/helper/number.js",
+        "src/evaluate-by-operator/operator/add.js",
+        "src/error.js",
+        "src/helper/date.js"
+    ],
+    "compilerOptions": {
+        "lib": ["es2022"],
+        "module": "CommonJS",
+        "target": "ES2022",
+        "outDir": "./dist",
+        "sourceMap": true,
+        "declaration": false,
+        "strictNullChecks": true,
+        "moduleResolution": "node",
+        "experimentalDecorators": true,
+        "importHelpers": true,
+        "resolveJsonModule": true,
+        "isolatedModules": true,
+        "useDefineForClassFields": false,
+        "esModuleInterop": true,
+        "strict": false, // leaving this as false for now until we can convert everything to ts
+        "allowJs": true,
+        "checkJs": false
+    },
+    "jest": {
+        "globals": {
+            "ts-jest": {
+                "tsconfig": "tsconfig.spec.json"
+            }
+        }
+    }
+}

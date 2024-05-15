@@ -1,4 +1,3 @@
-/* eslint-disable import/no-named-as-default-member */
 import add from './operator/add';
 import ampersand from './operator/ampersand';
 import divide from './operator/divide';
@@ -12,7 +11,7 @@ import minus from './operator/minus';
 import multiply from './operator/multiply';
 import notEqual from './operator/not-equal';
 import power from './operator/power';
-import { ERROR_NAME } from './../error';
+import { ERROR_NAME } from '../error';
 
 const availableOperators = Object.create(null);
 
