@@ -18,7 +18,7 @@
         "build": "tsc",
         "generate-parser": "cd src/grammar-parser && jison grammar-parser.jison",
         "release": "generate-release",
-        "prepublish": "npm run clean && npm run check && npm run build"
+        "prepublishOnly": "npm run clean && npm run check && npm run build"
     },
     "repository": {
         "type": "git",
