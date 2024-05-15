@@ -1,9 +1,8 @@
-// @ts-check
-import eslint from '@eslint/js';
-import tseslint from 'typescript-eslint';
-import jestlint from 'eslint-plugin-jest';
+const eslint = require('@eslint/js');
+const tseslint = require('typescript-eslint');
+const jestlint = require('eslint-plugin-jest');
 
-export default tseslint.config(
+module.exports = tseslint.config(
     eslint.configs.recommended,
     ...tseslint.configs.recommended,
     jestlint.configs['flat/recommended'],
