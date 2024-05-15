@@ -114,7 +114,7 @@ describe('.extractLabel()', () => {
 });
 
 describe('.toLabel()', () => {
-    it('should correctly convert coords to label ', () => {
+    it('should correctly convert coords to label', () => {
         expect(toLabel({ index: 0, isAbsolute: false }, { index: 0, isAbsolute: false })).toBe('A1');
         expect(toLabel({ index: 0, isAbsolute: true }, { index: 0, isAbsolute: false })).toBe('A$1');
         expect(toLabel({ index: 0, isAbsolute: true }, { index: 0, isAbsolute: true })).toBe('$A$1');
@@ -124,7 +124,7 @@ describe('.toLabel()', () => {
 });
 
 describe('.columnIndexToLabel()', () => {
-    it('should correctly convert column index to label ', () => {
+    it('should correctly convert column index to label', () => {
         expect(columnIndexToLabel(-100)).toBe('');
         expect(columnIndexToLabel(-1)).toBe('');
         expect(columnIndexToLabel(0)).toBe('A');
@@ -152,7 +152,7 @@ describe('.columnLabelToIndex()', () => {
 });
 
 describe('.rowIndexToLabel()', () => {
-    it('should correctly convert row index to label ', () => {
+    it('should correctly convert row index to label', () => {
         expect(rowIndexToLabel(-100)).toBe('');
         expect(rowIndexToLabel(-1)).toBe('');
         expect(rowIndexToLabel(0)).toBe('1');

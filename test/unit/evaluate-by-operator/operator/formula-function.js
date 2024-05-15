@@ -1,4 +1,3 @@
-/* eslint-disable import/no-named-as-default-member */
 import SUPPORTED_FORMULAS from '../../../../src/supported-formulas';
 import func from '../../../../src/evaluate-by-operator/operator/formula-function';
 

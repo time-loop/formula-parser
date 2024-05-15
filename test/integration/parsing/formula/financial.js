@@ -282,7 +282,7 @@ describe('.parse() financial formulas', () => {
     });
 
     // TODO: Not supported yet
-    xit('XIRR', () => {
+    it.skip('XIRR', () => {
         parser.on('callRangeValue', (a, b, done) => {
             let values;
 

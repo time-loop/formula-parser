@@ -1,8 +1,12 @@
 {
     "preset": "ts-jest",
     "testEnvironment": "node",
-    "setupFilesAfterEnv": ["./test/jest.setup.ts"],
-    "testRegex": "(/test/.*.ts)$",
-    "testPathIgnorePatterns": ["/node_modules/", "/dist/", "/test/_utils/", "/test/jest.setup.ts"],
-    "collectCoverageFrom": ["**/*.ts", "!src/grammar-parser/**"]
+    "setupFilesAfterEnv": ["./test/jest.setup.js"],
+    "transform": {
+        "^.+\\.[tj]s$": "ts-jest"
+    },
+    "testRegex": "(/test/.*.(t|j)s)$",
+    "transformIgnorePatterns": ["^.+/.js$"],
+    "testPathIgnorePatterns": ["/node_modules/", "/dist/", "/test/_utils/", "/test/jest.setup.js"],
+    "collectCoverageFrom": ["**/*.[tj]s", "!src/grammar-parser/**"]
 }

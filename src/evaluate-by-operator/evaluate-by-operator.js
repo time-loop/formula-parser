@@ -1,4 +1,3 @@
-/* eslint-disable import/no-named-as-default-member */
 import add from './operator/add';
 import ampersand from './operator/ampersand';
 import divide from './operator/divide';
@@ -23,7 +22,7 @@ const availableOperators = Object.create(null);
  * @param {Array} [params=[]] Arguments to evaluate.
  * @returns {*}
  */
-export default function evaluateByOperator(operator, params: any[] = []) {
+export default function evaluateByOperator(operator, params = []) {
     operator = operator.toUpperCase();
 
     if (!availableOperators[operator]) {
@@ -44,7 +43,6 @@ export function registerOperation(symbol, func) {
         symbol = [symbol.toUpperCase()];
     }
     symbol.forEach((s) => {
-        // @ts-ignore
         if (func.isFactory) {
             availableOperators[s] = func(s);
         } else {

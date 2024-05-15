@@ -12,10 +12,6 @@ import ClickUpConfiguration from './clickup.config';
  * @class Parser
  */
 export default class Parser {
-    private emitter: TinyEmitter;
-    private parser: GrammarParser;
-    private variables: Record<string, any>;
-    private functions: Record<string, Function>;
     constructor() {
         this.emitter = new TinyEmitter();
         this.parser = new GrammarParser();
@@ -44,8 +40,8 @@ export default class Parser {
      * @return {*} Returns an object with tow properties `error` and `result`.
      */
     parse(expression) {
-        let result: any = null;
-        let error: any = null;
+        let result = null;
+        let error = null;
 
         Object.assign(ClickUpConfiguration, {
             ConvertFormulasInNumbers: this.getVariable('CONVERT_FORMULAS_IN_NUMBERS'),
@@ -212,8 +208,8 @@ export default class Parser {
 
         const [startRow, startColumn] = extractLabel(startLabel);
         const [endRow, endColumn] = extractLabel(endLabel);
-        let startCell: any = {};
-        let endCell: any = {};
+        const startCell = {};
+        const endCell = {};
 
         if (startRow.index <= endRow.index) {
             startCell.row = startRow;

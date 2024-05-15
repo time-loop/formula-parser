@@ -35,10 +35,13 @@
         "node": ">=18.10.0"
     },
     "devDependencies": {
+        "@babel/core": "^7.24.5",
+        "@babel/eslint-parser": "^7.24.5",
+        "@eslint/js": "^9.2.0",
         "@types/jest": "^29.5.12",
-        "eslint": "^4.2.0",
-        "eslint-config-airbnb-base": "^11.2.0",
-        "eslint-plugin-import": "^2.14.0",
+        "eslint": "^8.57.0",
+        "eslint-config-airbnb-base": "^15.0.0",
+        "eslint-plugin-jest": "^28.5.0",
         "generate-release": "^0.10.2",
         "jest": "^29.7.0",
         "jest-cli": "^29.7.0",
@@ -48,10 +51,12 @@
         "ts-jest": "^29.1.2",
         "ts-node": "^10.9.2",
         "tslib": "^2.6.2",
-        "typescript": "^5.4.5"
+        "typescript": "^5.4.5",
+        "typescript-eslint": "^7.9.0"
     },
     "dependencies": {
         "@formulajs/formulajs": "^2.3.0",
+        "eslint-plugin-import": "^2.29.1",
         "json5": "^2.2.3",
         "tiny-emitter": "^2.1.0"
     }

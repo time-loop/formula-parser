@@ -35,9 +35,6 @@ describe('.parse() general', () => {
     it('should not parse array type data', () => {
         expect(parser.parse([])).toMatchObject({ error: '#ERROR!', result: null });
         expect(parser.parse([1, 2])).toMatchObject({ error: '#ERROR!', result: null });
-    });
-
-    it('should not parse array type data', () => {
         expect(parser.parse(() => {})).toMatchObject({ error: '#ERROR!', result: null });
     });
 });

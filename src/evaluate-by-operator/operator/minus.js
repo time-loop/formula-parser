@@ -12,7 +12,7 @@ export default function func(first, ...rest) {
 
     const result = rest.reduce((acc, value) => {
         const subtrahend = toNumber(value, toNumberConfig);
-        return acc - (subtrahend ?? 0);
+        return acc - (subtrahend || 0);
     }, toNumber(first, toNumberConfig));
 
     if (isNaN(result)) {
