@@ -39,7 +39,7 @@ export default function error(type) {
 /**
  * Check if error type is strict valid with knows errors.
  *
- * @param {String} Error type.
+ * @param {String} type Error type.
  * @return {Boolean}
  */
 export function isValidStrict(type) {

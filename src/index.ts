@@ -38,3 +38,5 @@ export {
     rowIndexToLabel,
     rowLabelToIndex,
 };
+
+export { ClickUpParser } from './clickup/clickupParser';

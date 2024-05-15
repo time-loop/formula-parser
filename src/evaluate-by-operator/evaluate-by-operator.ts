@@ -12,7 +12,7 @@ import minus from './operator/minus';
 import multiply from './operator/multiply';
 import notEqual from './operator/not-equal';
 import power from './operator/power';
-import { ERROR_NAME } from './../error';
+import { ERROR_NAME } from '../error';
 
 const availableOperators = Object.create(null);
 
@@ -23,7 +23,7 @@ const availableOperators = Object.create(null);
  * @param {Array} [params=[]] Arguments to evaluate.
  * @returns {*}
  */
-export default function evaluateByOperator(operator, params = []) {
+export default function evaluateByOperator(operator, params: any[] = []) {
     operator = operator.toUpperCase();
 
     if (!availableOperators[operator]) {
@@ -44,6 +44,7 @@ export function registerOperation(symbol, func) {
         symbol = [symbol.toUpperCase()];
     }
     symbol.forEach((s) => {
+        // @ts-ignore
         if (func.isFactory) {
             availableOperators[s] = func(s);
         } else {

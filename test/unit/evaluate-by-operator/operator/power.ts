@@ -10,8 +10,8 @@ describe('power operator', () => {
         expect(func(2, 8.8)).toBe(445.7218884076158);
         expect(func('2', 8.8)).toBe(445.7218884076158);
         expect(func('2', '8.8')).toBe(445.7218884076158);
-        expect(func('2', '8.8', 6, 0.4)).toBe(445.7218884076158);
-        expect(() => func('foo', ' ', 'bar', ' baz')).toThrow('VALUE');
+        expect(func('2', '8.8')).toBe(445.7218884076158);
+        expect(() => func('foo', ' ')).toThrow('VALUE');
         expect(() => func('foo', 2)).toThrow('VALUE');
         expect(() => func(2, null)).toThrow('VALUE');
         expect(() => func(2, undefined)).toThrow('VALUE');

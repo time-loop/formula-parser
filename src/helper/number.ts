@@ -51,5 +51,9 @@ export function toNumber(
  * @returns {Number} Returns inverted number.
  */
 export function invertNumber(number) {
-    return -1 * toNumber(number);
+    const toInvert = toNumber(number);
+    if (toInvert === undefined) {
+        return Number.NaN;
+    }
+    return -1 * toInvert;
 }

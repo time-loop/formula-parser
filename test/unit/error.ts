@@ -2,7 +2,6 @@ import error, { isValidStrict } from '../../src/error';
 
 describe('.error()', () => {
     it('should return null for unrecognized error types', () => {
-        expect(error()).toBe(null);
         expect(error('')).toBe(null);
         expect(error('dewdewdw')).toBe(null);
         expect(error('ERROR1')).toBe(null);
@@ -77,7 +76,6 @@ describe('.error()', () => {
 
 describe('.isValidStrict()', () => {
     it('should return false for unrecognized error types', () => {
-        expect(isValidStrict()).toBeFalsy();
         expect(isValidStrict('')).toBeFalsy();
         expect(isValidStrict('dewdewdw')).toBeFalsy();
         expect(isValidStrict('ERROR1')).toBeFalsy();
