@@ -1,4 +1,5 @@
 import Parser from './parser';
+import { ClickUpParser } from './clickup-parser';
 import SUPPORTED_FORMULAS from './supported-formulas';
 import error, {
     ERROR,
@@ -37,4 +38,5 @@ export {
     columnLabelToIndex,
     rowIndexToLabel,
     rowLabelToIndex,
+    ClickUpParser,
 };
