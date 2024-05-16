@@ -1,5 +1,5 @@
 import Parser from './parser';
-import { ClickUpParser } from './clickup-parser';
+import { ClickUpParser } from './clickup/clickupParser';
 import SUPPORTED_FORMULAS from './supported-formulas';
 import error, {
     ERROR,
