@@ -114,8 +114,10 @@ export default class Parser {
         let value = this.getVariable(name);
 
         this.emitter.emit('callVariable', name, (newValue) => {
-            if (newValue !== void 0) {
-                value = newValue;
+            if (newValue !== undefined && newValue !== null && newValue.error) {
+                throw Error(newValue.error);
+            } else if (newValue !== undefined) {
+                value = newValue.result ?? newValue;
             }
         });
 
