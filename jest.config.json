@@ -7,6 +7,6 @@
     },
     "testRegex": "(/test/.*.(t|j)s)$",
     "transformIgnorePatterns": ["^.+/.js$"],
-    "testPathIgnorePatterns": ["/node_modules/", "/dist/", "/test/_utils/", "/test/jest.setup.js"],
+    "testPathIgnorePatterns": ["/node_modules/", "/dist/", "/test/_utils/", "/test/scripts", "/test/jest.setup.js"],
     "collectCoverageFrom": ["**/*.[tj]s", "!src/grammar-parser/**"]
 }
