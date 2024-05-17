@@ -14,8 +14,6 @@ export function getCustomFieldRegex() {
     return new RegExp(/CUSTOM_FIELD_([a-zA-Z0-9_]+)/, 'g');
 }
 
-export const restoreFieldIdFromName = (name: string) => name.replace(getCustomFieldRegex(), '').replace('_', '-');
-
 function createCustomFieldVariable(id: string, type: string, value: FieldValue): CustomFieldVariable {
     return {
         id,
@@ -42,7 +40,7 @@ export function isCustomFieldVariable(name: string): boolean {
 export function getCustomFieldVariable(name: string, value: unknown): CustomFieldVariable | undefined {
     const match = getCustomFieldRegex().exec(name);
     if (match && isCustomFieldVariableValue(value)) {
-        return createCustomFieldVariable(restoreFieldIdFromName(name), value.type, value.value);
+        return createCustomFieldVariable(match[1], value.type, value.value);
     }
     return undefined;
 }
