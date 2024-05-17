@@ -6,15 +6,9 @@ interface ReverseDependencyGraph {
 
 export function createDependencyDetector(variables: CustomFieldVariable[]) {
     const graph = createReverseDependencyGraph(variables);
-    const hasCycle = () => {
-        const visited = new Set<FieldName>();
-        const recStack = new Set<FieldName>();
-        return Object.keys(graph).some((fieldName) => detectCycle(graph, fieldName, visited, recStack));
-    };
-
     return {
         getDependents: (fieldId: FieldName) => getDependents(graph, fieldId),
-        hasCycle,
+        hasCycle: () => Object.keys(graph).some(detectCycle(graph)),
     };
 }
 
@@ -50,25 +44,26 @@ function addDependency(fieldName: FieldName) {
 
 function detectCycle(
     graph: ReverseDependencyGraph,
-    fieldName: FieldName,
-    visited: Set<FieldName>,
-    recStack: Set<FieldName>
-): boolean {
-    if (!visited.has(fieldName)) {
-        visited.add(fieldName);
-        recStack.add(fieldName);
+    visited: Set<FieldName> = new Set(),
+    recStack: Set<FieldName> = new Set()
+) {
+    return function (fieldName: FieldName): boolean {
+        if (!visited.has(fieldName)) {
+            visited.add(fieldName);
+            recStack.add(fieldName);
 
-        const neighbors = getDependents(graph, fieldName);
-        for (const neighbor of neighbors) {
-            if (!visited.has(neighbor) && detectCycle(graph, neighbor, visited, recStack)) {
-                return true;
-            } else if (recStack.has(neighbor)) {
-                return true;
+            const neighbors = getDependents(graph, fieldName);
+            for (const neighbor of neighbors) {
+                if (!visited.has(neighbor) && detectCycle(graph, visited, recStack)(neighbor)) {
+                    return true;
+                } else if (recStack.has(neighbor)) {
+                    return true;
+                }
             }
         }
-    }
-    recStack.delete(fieldName);
-    return false;
+        recStack.delete(fieldName);
+        return false;
+    };
 }
 
 function getDependents(reverseGraph: ReverseDependencyGraph, fieldName: FieldName): FieldName[] {
