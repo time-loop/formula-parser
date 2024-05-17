@@ -1,7 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 
-import { createDependencyDetector } from '../../../src/clickup/fieldDependents';
+import { createDependencyDetector, haveSameDependencies } from '../../../src/clickup/fieldDependents';
 import perfTestVariables from '../../data/test_custom_fields.json';
 
 describe('field dependents graph', () => {
@@ -65,6 +65,18 @@ describe('field dependents graph', () => {
         expect(depsDetector.getDependents(CF_4_ID)).toEqual([CF_5_ID]);
         expect(depsDetector.getDependents(CF_5_ID)).toEqual([CF_3_ID]);
         expect(depsDetector.hasCycle()).toBe(true);
+    });
+
+    it('should detect that two formulas have the same dependencies', () => {
+        const cf1 = { id: '100', type: 'formula', value: 'CUSTOM_FIELD_1 + CUSTOM_FIELD_2' };
+        const cf2 = { id: '200', type: 'formula', value: 'CUSTOM_FIELD_2 + CUSTOM_FIELD_1' };
+        expect(haveSameDependencies(cf1, cf2)).toBe(true);
+    });
+
+    it('should detect that two formulas have different dependencies', () => {
+        const cf1 = { id: '100', type: 'formula', value: 'CUSTOM_FIELD_1 + CUSTOM_FIELD_2' };
+        const cf2 = { id: '200', type: 'formula', value: 'CUSTOM_FIELD_2 + CUSTOM_FIELD_3' };
+        expect(haveSameDependencies(cf1, cf2)).toBe(false);
     });
 
     it.skip('should be fast enough', async () => {
