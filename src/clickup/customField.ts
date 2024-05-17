@@ -1,18 +1,22 @@
-export type FormulaVariableValue = any;
+export type FieldValue = any;
+export type FieldId = string;
 
 export interface CustomFieldVariableValue {
     type: string;
-    value: FormulaVariableValue;
+    value: FieldValue;
 }
 
 export interface CustomFieldVariable extends CustomFieldVariableValue {
-    id: string;
+    id: FieldId;
 }
 
-const getCustomFieldRegex = () => new RegExp(/CUSTOM_FIELD_(.*)/, 'g');
-const restoreFieldIdFromName = (name: string) => name.replace('_', '-');
+export function getCustomFieldRegex() {
+    return new RegExp(/CUSTOM_FIELD_([a-zA-Z0-9_]+)/, 'g');
+}
 
-function createCustomFieldVariable(id: string, type: string, value: FormulaVariableValue): CustomFieldVariable {
+export const restoreFieldIdFromName = (name: string) => name.replace(getCustomFieldRegex(), '').replace('_', '-');
+
+function createCustomFieldVariable(id: string, type: string, value: FieldValue): CustomFieldVariable {
     return {
         id,
         type,
@@ -37,8 +41,8 @@ export function isCustomFieldVariable(name: string): boolean {
 
 export function getCustomFieldVariable(name: string, value: unknown): CustomFieldVariable | undefined {
     const match = getCustomFieldRegex().exec(name);
-    if (match && match[1] && isCustomFieldVariableValue(value)) {
-        return createCustomFieldVariable(restoreFieldIdFromName(match[1]), value.type, value.value);
+    if (match && isCustomFieldVariableValue(value)) {
+        return createCustomFieldVariable(restoreFieldIdFromName(name), value.type, value.value);
     }
     return undefined;
 }
