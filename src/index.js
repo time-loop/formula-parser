@@ -10,6 +10,9 @@ import error, {
     ERROR_NUM,
     ERROR_REF,
     ERROR_VALUE,
+    ERROR_CYCLE,
+    ERROR_LEVEL,
+    ERROR_VARIABLE,
 } from './error';
 import {
     extractLabel,
@@ -30,7 +33,11 @@ export {
     ERROR_NUM,
     ERROR_REF,
     ERROR_VALUE,
+    ERROR_CYCLE,
+    ERROR_LEVEL,
+    ERROR_VARIABLE,
     Parser,
+    ClickUpParser,
     error,
     extractLabel,
     toLabel,
@@ -38,5 +45,4 @@ export {
     columnLabelToIndex,
     rowIndexToLabel,
     rowLabelToIndex,
-    ClickUpParser,
 };
