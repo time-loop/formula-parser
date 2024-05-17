@@ -35,7 +35,7 @@ describe('field dependents graph', () => {
         expect(depsDetector.getDependents(CF_2_ID)).toEqual([CF_3_ID, CF_4_ID]);
         expect(depsDetector.getDependents(CF_3_ID)).toEqual([CF_4_ID, CF_5_ID]);
         expect(depsDetector.getDependents(CF_4_ID)).toEqual([CF_5_ID]);
-        expect(depsDetector.getDependents(CF_5_ID)).toMatchInlineSnapshot(`[]`);
+        expect(depsDetector.getDependents(CF_5_ID)).toEqual([]);
         expect(depsDetector.hasCycle()).toBe(false);
     });
 
@@ -79,12 +79,12 @@ describe('field dependents graph', () => {
         expect(haveSameDependencies(cf1, cf2)).toBe(false);
     });
 
-    it.skip('should be fast enough', async () => {
+    it('should be fast enough', async () => {
         const filePath = path.join(process.cwd(), 'test', 'data', 'test_custom_fields.json');
         const data = fs.readFileSync(filePath, 'utf-8');
         const variables = JSON.parse(data);
         const start = Date.now();
-        const iterations = 1;
+        const iterations = 10;
         for (let i = 0; i < iterations; i++) {
             const depsDetector = createDependencyDetector(variables);
             if (depsDetector.hasCycle()) {
