@@ -60,8 +60,8 @@ function detectCycle(
                     return true;
                 }
             }
+            recStack.delete(fieldName);
         }
-        recStack.delete(fieldName);
         return false;
     };
 }
