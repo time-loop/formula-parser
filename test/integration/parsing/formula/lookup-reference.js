@@ -1,16 +1,8 @@
+import { ClickUpParser } from '../../../../src/clickup/clickupParser';
 import Parser from '../../../../src/parser';
 
 describe('.parse() lookup-reference formulas', () => {
-    let parser;
-
-    beforeEach(() => {
-        parser = new Parser();
-    });
-    afterEach(() => {
-        parser = null;
-    });
-
-    it('MATCH', () => {
+    it.each([new Parser(), ClickUpParser.create()])('MATCH', (parser) => {
         parser.setVariable('foo', [0, 1, 2, 3, 4, 100, 7]);
         parser.setVariable('bar', ['jima', 'jimb', 'jimc', 'bernie']);
 

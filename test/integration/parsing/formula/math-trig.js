@@ -1,47 +1,39 @@
+import { ClickUpParser } from '../../../../src/clickup/clickupParser';
 import Parser from '../../../../src/parser';
 
 describe('.parse() math-trig formulas', () => {
-    let parser;
-
-    beforeEach(() => {
-        parser = new Parser();
-    });
-    afterEach(() => {
-        parser = null;
-    });
-
-    it('ABS', () => {
+    it.each([new Parser(), ClickUpParser.create()])('ABS', (parser) => {
         expect(parser.parse('ABS()')).toMatchObject({ error: '#VALUE!', result: null });
         expect(parser.parse('ABS(-8)')).toMatchObject({ error: null, result: 8 });
         expect(parser.parse('ABS(-8.89)')).toMatchObject({ error: null, result: 8.89 });
         expect(parser.parse('ABS(8)')).toMatchObject({ error: null, result: 8 });
     });
 
-    it('ACOS', () => {
+    it.each([new Parser(), ClickUpParser.create()])('ACOS', (parser) => {
         expect(parser.parse('ACOS()')).toMatchObject({ error: '#VALUE!', result: null });
         expect(parser.parse('ACOS(1)')).toMatchObject({ error: null, result: 0 });
         expect(parser.parse('ACOS(-1)')).toMatchObject({ error: null, result: Math.PI });
     });
 
-    it('ACOSH', () => {
+    it.each([new Parser(), ClickUpParser.create()])('ACOSH', (parser) => {
         expect(parser.parse('ACOSH()')).toMatchObject({ error: '#VALUE!', result: null });
         expect(parser.parse('ACOSH(1)')).toMatchObject({ error: null, result: 0 });
         expect(parser.parse('ACOSH(-1)')).toMatchObject({ error: '#NUM!', result: null });
     });
 
-    it('ACOT', () => {
+    it.each([new Parser(), ClickUpParser.create()])('ACOT', (parser) => {
         expect(parser.parse('ACOT()')).toMatchObject({ error: '#VALUE!', result: null });
         expect(parser.parse('ACOT(1)')).toBeMatchCloseTo({ error: null, result: 0.7853981633974483 });
         expect(parser.parse('ACOT(-1)')).toBeMatchCloseTo({ error: null, result: -0.7853981633974483 });
     });
 
-    it('ACOTH', () => {
+    it.each([new Parser(), ClickUpParser.create()])('ACOTH', (parser) => {
         expect(parser.parse('ACOTH()')).toMatchObject({ error: '#VALUE!', result: null });
         expect(parser.parse('ACOTH(1)')).toMatchObject({ error: null, result: Infinity });
         expect(parser.parse('ACOTH(-1)')).toMatchObject({ error: null, result: -Infinity });
     });
 
-    it('ADD', () => {
+    it.each([new Parser(), ClickUpParser.create()])('ADD', (parser) => {
         expect(parser.parse('ADD()')).toMatchObject({ error: '#N/A', result: null });
         expect(parser.parse('ADD(3)')).toMatchObject({ error: '#N/A', result: null });
         expect(parser.parse('ADD(3, 5, 6, 7, 1)')).toMatchObject({ error: '#N/A', result: null });
@@ -50,7 +42,7 @@ describe('.parse() math-trig formulas', () => {
         expect(parser.parse('ADD(3, -5)')).toMatchObject({ error: null, result: -2 });
     });
 
-    it('AGGREGATE', () => {
+    it.each([new Parser(), ClickUpParser.create()])('AGGREGATE', (parser) => {
         parser.on('callRangeValue', (a, b, done) => {
             done([[1, 2, 3]]);
         });
@@ -60,45 +52,45 @@ describe('.parse() math-trig formulas', () => {
         expect(parser.parse('AGGREGATE(10, 4, A1:C1, 2)')).toMatchObject({ error: null, result: 1 });
     });
 
-    it('ARABIC', () => {
+    it.each([new Parser(), ClickUpParser.create()])('ARABIC', (parser) => {
         expect(parser.parse('ARABIC()')).toMatchObject({ error: '#VALUE!', result: null });
         expect(parser.parse('ARABIC("ABC")')).toMatchObject({ error: '#VALUE!', result: null });
         expect(parser.parse('ARABIC("X")')).toMatchObject({ error: null, result: 10 });
         expect(parser.parse('ARABIC("MXL")')).toMatchObject({ error: null, result: 1040 });
     });
 
-    it('ASIN', () => {
+    it.each([new Parser(), ClickUpParser.create()])('ASIN', (parser) => {
         expect(parser.parse('ASIN()')).toMatchObject({ error: '#VALUE!', result: null });
         expect(parser.parse('ASIN("value")')).toMatchObject({ error: '#VALUE!', result: null });
         expect(parser.parse('ASIN(0.5)')).toBeMatchCloseTo({ error: null, result: 0.5235987755982989 });
     });
 
-    it('ASINH', () => {
+    it.each([new Parser(), ClickUpParser.create()])('ASINH', (parser) => {
         expect(parser.parse('ASINH()')).toMatchObject({ error: '#VALUE!', result: null });
         expect(parser.parse('ASINH("value")')).toMatchObject({ error: '#VALUE!', result: null });
         expect(parser.parse('ASINH(0.5)')).toBeMatchCloseTo({ error: null, result: 0.48121182505960347 });
     });
 
-    it('ATAN', () => {
+    it.each([new Parser(), ClickUpParser.create()])('ATAN', (parser) => {
         expect(parser.parse('ATAN()')).toMatchObject({ error: '#VALUE!', result: null });
         expect(parser.parse('ATAN("value")')).toMatchObject({ error: '#VALUE!', result: null });
         expect(parser.parse('ATAN(0.5)')).toBeMatchCloseTo({ error: null, result: 0.4636476090008061 });
     });
 
-    it('ATAN2', () => {
+    it.each([new Parser(), ClickUpParser.create()])('ATAN2', (parser) => {
         expect(parser.parse('ATAN2()')).toMatchObject({ error: '#VALUE!', result: null });
         expect(parser.parse('ATAN2(1)')).toMatchObject({ error: '#VALUE!', result: null });
         expect(parser.parse('ATAN2("value")')).toMatchObject({ error: '#VALUE!', result: null });
         expect(parser.parse('ATAN2(1, 1)')).toBeMatchCloseTo({ error: null, result: 0.7853981633974483 });
     });
 
-    it('ATANH', () => {
+    it.each([new Parser(), ClickUpParser.create()])('ATANH', (parser) => {
         expect(parser.parse('ATANH()')).toMatchObject({ error: '#VALUE!', result: null });
         expect(parser.parse('ATANH("value")')).toMatchObject({ error: '#VALUE!', result: null });
         expect(parser.parse('ATANH(1)')).toMatchObject({ error: null, result: Infinity });
     });
 
-    it('BASE', () => {
+    it.each([new Parser(), ClickUpParser.create()])('BASE', (parser) => {
         expect(parser.parse('BASE()')).toMatchObject({ error: '#VALUE!', result: null });
         expect(parser.parse('BASE("value")')).toMatchObject({ error: '#VALUE!', result: null });
         expect(parser.parse('BASE(7)')).toMatchObject({ error: '#VALUE!', result: null });
@@ -106,7 +98,7 @@ describe('.parse() math-trig formulas', () => {
         expect(parser.parse('BASE(7, 2, 8)')).toMatchObject({ error: null, result: '00000111' });
     });
 
-    it('CEILING', () => {
+    it.each([new Parser(), ClickUpParser.create()])('CEILING', (parser) => {
         expect(parser.parse('CEILING()')).toMatchObject({ error: '#VALUE!', result: null });
         expect(parser.parse('CEILING("value")')).toMatchObject({ error: '#VALUE!', result: null });
         expect(parser.parse('CEILING(7.2)')).toMatchObject({ error: null, result: 8 });
@@ -116,7 +108,7 @@ describe('.parse() math-trig formulas', () => {
         expect(parser.parse('CEILING(-1.234, 0.1, "value")')).toMatchObject({ error: '#VALUE!', result: null });
     });
 
-    it('COMBIN', () => {
+    it.each([new Parser(), ClickUpParser.create()])('COMBIN', (parser) => {
         expect(parser.parse('COMBIN()')).toMatchObject({ error: '#VALUE!', result: null });
         expect(parser.parse('COMBIN("value")')).toMatchObject({ error: '#VALUE!', result: null });
         expect(parser.parse('COMBIN(1)')).toMatchObject({ error: '#VALUE!', result: null });
@@ -126,7 +118,7 @@ describe('.parse() math-trig formulas', () => {
         expect(parser.parse('COMBIN(3, 3)')).toMatchObject({ error: null, result: 1 });
     });
 
-    it('COMBINA', () => {
+    it.each([new Parser(), ClickUpParser.create()])('COMBINA', (parser) => {
         expect(parser.parse('COMBINA()')).toMatchObject({ error: '#VALUE!', result: null });
         expect(parser.parse('COMBINA("value")')).toMatchObject({ error: '#VALUE!', result: null });
         expect(parser.parse('COMBINA(1)')).toMatchObject({ error: '#VALUE!', result: null });
@@ -136,21 +128,21 @@ describe('.parse() math-trig formulas', () => {
         expect(parser.parse('COMBINA(3, 3)')).toMatchObject({ error: null, result: 10 });
     });
 
-    it('COS', () => {
+    it.each([new Parser(), ClickUpParser.create()])('COS', (parser) => {
         expect(parser.parse('COS()')).toMatchObject({ error: '#VALUE!', result: null });
         expect(parser.parse('COS("value")')).toMatchObject({ error: '#VALUE!', result: null });
         expect(parser.parse('COS(0)')).toMatchObject({ error: null, result: 1 });
         expect(parser.parse('COS(1)')).toBeMatchCloseTo({ error: null, result: 0.5403023058681398 });
     });
 
-    it('COSH', () => {
+    it.each([new Parser(), ClickUpParser.create()])('COSH', (parser) => {
         expect(parser.parse('COSH()')).toMatchObject({ error: '#VALUE!', result: null });
         expect(parser.parse('COSH("value")')).toMatchObject({ error: '#VALUE!', result: null });
         expect(parser.parse('COSH(0)')).toMatchObject({ error: null, result: 1 });
         expect(parser.parse('COSH(1)')).toBeMatchCloseTo({ error: null, result: 1.5430806348152437 });
     });
 
-    it('COT', () => {
+    it.each([new Parser(), ClickUpParser.create()])('COT', (parser) => {
         expect(parser.parse('COT()')).toMatchObject({ error: '#VALUE!', result: null });
         expect(parser.parse('COT("value")')).toMatchObject({ error: '#VALUE!', result: null });
         expect(parser.parse('COT(0)')).toMatchObject({ error: null, result: Infinity });
@@ -158,7 +150,7 @@ describe('.parse() math-trig formulas', () => {
         expect(parser.parse('COT(2)')).toBeMatchCloseTo({ error: null, result: -0.45765755436028577 });
     });
 
-    it('COTH', () => {
+    it.each([new Parser(), ClickUpParser.create()])('COTH', (parser) => {
         expect(parser.parse('COTH()')).toMatchObject({ error: '#VALUE!', result: null });
         expect(parser.parse('COTH("value")')).toMatchObject({ error: '#VALUE!', result: null });
         expect(parser.parse('COTH(0)')).toMatchObject({ error: null, result: Infinity });
@@ -166,7 +158,7 @@ describe('.parse() math-trig formulas', () => {
         expect(parser.parse('COTH(2)')).toBeMatchCloseTo({ error: null, result: 1.0373147207275482 });
     });
 
-    it('CSC', () => {
+    it.each([new Parser(), ClickUpParser.create()])('CSC', (parser) => {
         expect(parser.parse('CSC()')).toMatchObject({ error: '#VALUE!', result: null });
         expect(parser.parse('CSC("value")')).toMatchObject({ error: '#VALUE!', result: null });
         expect(parser.parse('CSC(0)')).toMatchObject({ error: null, result: Infinity });
@@ -174,7 +166,7 @@ describe('.parse() math-trig formulas', () => {
         expect(parser.parse('CSC(2)')).toBeMatchCloseTo({ error: null, result: 1.0997501702946164 });
     });
 
-    it('CSCH', () => {
+    it.each([new Parser(), ClickUpParser.create()])('CSCH', (parser) => {
         expect(parser.parse('CSCH()')).toMatchObject({ error: '#VALUE!', result: null });
         expect(parser.parse('CSCH("value")')).toMatchObject({ error: '#VALUE!', result: null });
         expect(parser.parse('CSCH(0)')).toMatchObject({ error: null, result: Infinity });
@@ -182,7 +174,7 @@ describe('.parse() math-trig formulas', () => {
         expect(parser.parse('CSCH(2)')).toBeMatchCloseTo({ error: null, result: 0.27572056477178325 });
     });
 
-    it('DECIMAL', () => {
+    it.each([new Parser(), ClickUpParser.create()])('DECIMAL', (parser) => {
         expect(parser.parse('DECIMAL()')).toMatchObject({ error: '#VALUE!', result: null });
         expect(parser.parse('DECIMAL("value")')).toBeMatchCloseTo({ error: null, result: NaN });
         expect(parser.parse('DECIMAL(1.3)')).toMatchObject({ error: null, result: 1 });
@@ -191,7 +183,7 @@ describe('.parse() math-trig formulas', () => {
         expect(parser.parse('DECIMAL("32b", 16)')).toMatchObject({ error: null, result: 811 });
     });
 
-    it('DEGREES', () => {
+    it.each([new Parser(), ClickUpParser.create()])('DEGREES', (parser) => {
         expect(parser.parse('DEGREES()')).toMatchObject({ error: '#VALUE!', result: null });
         expect(parser.parse('DEGREES("value")')).toMatchObject({ error: '#VALUE!', result: null });
         expect(parser.parse('DEGREES(PI())')).toMatchObject({ error: null, result: 180 });
@@ -199,7 +191,7 @@ describe('.parse() math-trig formulas', () => {
         expect(parser.parse('DEGREES(1.1)')).toBeMatchCloseTo({ error: null, result: 63.02535746439057 });
     });
 
-    it('DIVIDE', () => {
+    it.each([new Parser(), ClickUpParser.create()])('DIVIDE', (parser) => {
         expect(parser.parse('DIVIDE()')).toMatchObject({ error: '#N/A', result: null });
         expect(parser.parse('DIVIDE("value")')).toMatchObject({ error: '#N/A', result: null });
         expect(parser.parse('DIVIDE(1)')).toMatchObject({ error: '#N/A', result: null });
@@ -208,14 +200,14 @@ describe('.parse() math-trig formulas', () => {
         expect(parser.parse('DIVIDE(0, 2)')).toMatchObject({ error: null, result: 0 });
     });
 
-    it('EVEN', () => {
+    it.each([new Parser(), ClickUpParser.create()])('EVEN', (parser) => {
         expect(parser.parse('EVEN()')).toMatchObject({ error: '#VALUE!', result: null });
         expect(parser.parse('EVEN("value")')).toMatchObject({ error: '#VALUE!', result: null });
         expect(parser.parse('EVEN(1)')).toMatchObject({ error: null, result: 2 });
         expect(parser.parse('EVEN(-33)')).toMatchObject({ error: null, result: -34 });
     });
 
-    it('EQ', () => {
+    it.each([new Parser(), ClickUpParser.create()])('EQ', (parser) => {
         // Equal
         expect(parser.parse('EQ()')).toMatchObject({ error: '#N/A', result: null });
         expect(parser.parse('EQ("value")')).toMatchObject({ error: '#N/A', result: null });
@@ -225,7 +217,7 @@ describe('.parse() math-trig formulas', () => {
         expect(parser.parse('EQ(12.2, 12.3)')).toMatchObject({ error: null, result: false });
     });
 
-    it('EXP', () => {
+    it.each([new Parser(), ClickUpParser.create()])('EXP', (parser) => {
         expect(parser.parse('EXP()')).toMatchObject({ error: '#N/A', result: null });
         expect(parser.parse('EXP(MY_VAR)')).toMatchObject({ error: '#NAME?', result: null });
         expect(parser.parse('EXP("1")')).toMatchObject({ error: '#ERROR!', result: null });
@@ -233,7 +225,7 @@ describe('.parse() math-trig formulas', () => {
         expect(parser.parse('EXP(1)')).toMatchObject({ error: null, result: 2.718281828459045 });
     });
 
-    it('FACT', () => {
+    it.each([new Parser(), ClickUpParser.create()])('FACT', (parser) => {
         expect(parser.parse('FACT()')).toMatchObject({ error: '#VALUE!', result: null });
         expect(parser.parse('FACT("value")')).toMatchObject({ error: '#VALUE!', result: null });
         expect(parser.parse('FACT(1)')).toMatchObject({ error: null, result: 1 });
@@ -244,7 +236,7 @@ describe('.parse() math-trig formulas', () => {
         expect(parser.parse('FACT(10)')).toMatchObject({ error: null, result: 3628800 });
     });
 
-    it('FACTDOUBLE', () => {
+    it.each([new Parser(), ClickUpParser.create()])('FACTDOUBLE', (parser) => {
         expect(parser.parse('FACTDOUBLE()')).toMatchObject({ error: '#VALUE!', result: null });
         expect(parser.parse('FACTDOUBLE("value")')).toMatchObject({ error: '#VALUE!', result: null });
         expect(parser.parse('FACTDOUBLE(1)')).toMatchObject({ error: null, result: 1 });
@@ -255,7 +247,7 @@ describe('.parse() math-trig formulas', () => {
         expect(parser.parse('FACTDOUBLE(10)')).toMatchObject({ error: null, result: 3840 });
     });
 
-    it('FLOOR', () => {
+    it.each([new Parser(), ClickUpParser.create()])('FLOOR', (parser) => {
         expect(parser.parse('FLOOR()')).toMatchObject({ error: '#VALUE!', result: null });
         expect(parser.parse('FLOOR("value")')).toMatchObject({ error: '#VALUE!', result: null });
         expect(parser.parse('FLOOR(1)')).toMatchObject({ error: null, result: 1 });
@@ -264,7 +256,7 @@ describe('.parse() math-trig formulas', () => {
         expect(parser.parse('FLOOR(-1, -10)')).toMatchObject({ error: null, result: -10 });
     });
 
-    it('GCD', () => {
+    it.each([new Parser(), ClickUpParser.create()])('GCD', (parser) => {
         expect(parser.parse('GCD()')).toMatchObject({ error: '#VALUE!', result: null });
         expect(parser.parse('GCD("value")')).toMatchObject({ error: '#VALUE!', result: null });
         expect(parser.parse('GCD(1)')).toMatchObject({ error: null, result: 1 });
@@ -272,7 +264,7 @@ describe('.parse() math-trig formulas', () => {
         expect(parser.parse('GCD(200, -12, 22, 9)')).toMatchObject({ error: null, result: 1 });
     });
 
-    it('GTE', () => {
+    it.each([new Parser(), ClickUpParser.create()])('GTE', (parser) => {
         // Greater than or equal
         expect(parser.parse('GTE()')).toMatchObject({ error: '#N/A', result: null });
         expect(parser.parse('GTE("value")')).toMatchObject({ error: '#N/A', result: null });
@@ -281,7 +273,7 @@ describe('.parse() math-trig formulas', () => {
         expect(parser.parse('GTE(1.1, 1.1)')).toMatchObject({ error: null, result: true });
     });
 
-    it('INT', () => {
+    it.each([new Parser(), ClickUpParser.create()])('INT', (parser) => {
         expect(parser.parse('INT()')).toMatchObject({ error: '#VALUE!', result: null });
         expect(parser.parse('INT("value")')).toMatchObject({ error: '#VALUE!', result: null });
         expect(parser.parse('INT(1)')).toMatchObject({ error: null, result: 1 });
@@ -289,7 +281,7 @@ describe('.parse() math-trig formulas', () => {
         expect(parser.parse('INT(1.5)')).toMatchObject({ error: null, result: 1 });
     });
 
-    it('LCM', () => {
+    it.each([new Parser(), ClickUpParser.create()])('LCM', (parser) => {
         expect(parser.parse('LCM()')).toMatchObject({ error: '#VALUE!', result: null });
         expect(parser.parse('LCM("value")')).toMatchObject({ error: '#VALUE!', result: null });
         expect(parser.parse('LCM(1)')).toMatchObject({ error: null, result: 1 });
@@ -297,27 +289,27 @@ describe('.parse() math-trig formulas', () => {
         expect(parser.parse('LCM(3, 8)')).toMatchObject({ error: null, result: 24 });
     });
 
-    it('LN', () => {
+    it.each([new Parser(), ClickUpParser.create()])('LN', (parser) => {
         expect(parser.parse('LN()')).toMatchObject({ error: '#VALUE!', result: null });
         expect(parser.parse('LN("value")')).toMatchObject({ error: '#VALUE!', result: null });
         expect(parser.parse('LN(1)')).toMatchObject({ error: null, result: 0 });
         expect(parser.parse(`LN(${Math.E})`)).toMatchObject({ error: null, result: 1 });
     });
 
-    it('LOG', () => {
+    it.each([new Parser(), ClickUpParser.create()])('LOG', (parser) => {
         expect(parser.parse('LOG()')).toMatchObject({ error: '#VALUE!', result: null });
         expect(parser.parse('LOG("value")')).toMatchObject({ error: '#VALUE!', result: null });
         expect(parser.parse('LOG(1)')).toMatchObject({ error: '#VALUE!', result: null });
         expect(parser.parse('LOG(10, 10)')).toMatchObject({ error: null, result: 1 });
     });
 
-    it('LOG10', () => {
+    it.each([new Parser(), ClickUpParser.create()])('LOG10', (parser) => {
         expect(parser.parse('LOG10()')).toMatchObject({ error: '#VALUE!', result: null });
         expect(parser.parse('LOG10("value")')).toMatchObject({ error: '#VALUE!', result: null });
         expect(parser.parse('LOG10(10)')).toMatchObject({ error: null, result: 1 });
     });
 
-    it('LT', () => {
+    it.each([new Parser(), ClickUpParser.create()])('LT', (parser) => {
         // Less than
         expect(parser.parse('LT()')).toMatchObject({ error: '#N/A', result: null });
         expect(parser.parse('LT("value")')).toMatchObject({ error: '#N/A', result: null });
@@ -328,7 +320,7 @@ describe('.parse() math-trig formulas', () => {
         expect(parser.parse('LT(1.3, 1.2)')).toMatchObject({ error: null, result: false });
     });
 
-    it('LTE', () => {
+    it.each([new Parser(), ClickUpParser.create()])('LTE', (parser) => {
         // Less than or equal
         expect(parser.parse('LTE()')).toMatchObject({ error: '#N/A', result: null });
         expect(parser.parse('LTE("value")')).toMatchObject({ error: '#N/A', result: null });
@@ -339,7 +331,7 @@ describe('.parse() math-trig formulas', () => {
         expect(parser.parse('LTE(1.3, 1.2)')).toMatchObject({ error: null, result: false });
     });
 
-    it('MINUS', () => {
+    it.each([new Parser(), ClickUpParser.create()])('MINUS', (parser) => {
         expect(parser.parse('MINUS()')).toMatchObject({ error: '#N/A', result: null });
         expect(parser.parse('MINUS("value")')).toMatchObject({ error: '#N/A', result: null });
         expect(parser.parse('MINUS(1)')).toMatchObject({ error: '#N/A', result: null });
@@ -349,7 +341,7 @@ describe('.parse() math-trig formulas', () => {
         expect(parser.parse('MINUS(1.3, 1.2)')).toBeMatchCloseTo({ error: null, result: 0.1 });
     });
 
-    it('MOD', () => {
+    it.each([new Parser(), ClickUpParser.create()])('MOD', (parser) => {
         expect(parser.parse('MOD()')).toMatchObject({ error: '#VALUE!', result: null });
         expect(parser.parse('MOD("value")')).toMatchObject({ error: '#VALUE!', result: null });
         expect(parser.parse('MOD(1)')).toMatchObject({ error: '#VALUE!', result: null });
@@ -358,7 +350,7 @@ describe('.parse() math-trig formulas', () => {
         expect(parser.parse('MOD(4, 0)')).toMatchObject({ error: '#DIV/0!', result: null });
     });
 
-    it('MROUND', () => {
+    it.each([new Parser(), ClickUpParser.create()])('MROUND', (parser) => {
         expect(parser.parse('MROUND()')).toMatchObject({ error: '#VALUE!', result: null });
         expect(parser.parse('MROUND("value")')).toMatchObject({ error: '#VALUE!', result: null });
         expect(parser.parse('MROUND(1)')).toMatchObject({ error: '#VALUE!', result: null });
@@ -367,14 +359,14 @@ describe('.parse() math-trig formulas', () => {
         expect(parser.parse('MROUND(-4, 1.1)')).toMatchObject({ error: '#NUM!', result: null });
     });
 
-    it('MULTINOMIAL', () => {
+    it.each([new Parser(), ClickUpParser.create()])('MULTINOMIAL', (parser) => {
         expect(parser.parse('MULTINOMIAL()')).toMatchObject({ error: '#VALUE!', result: null });
         expect(parser.parse('MULTINOMIAL("value")')).toMatchObject({ error: '#VALUE!', result: null });
         expect(parser.parse('MULTINOMIAL(1)')).toMatchObject({ error: null, result: 1 });
         expect(parser.parse('MULTINOMIAL(1, 3, 4)')).toMatchObject({ error: null, result: 280 });
     });
 
-    it('MULTIPLY', () => {
+    it.each([new Parser(), ClickUpParser.create()])('MULTIPLY', (parser) => {
         expect(parser.parse('MULTIPLY()')).toMatchObject({ error: '#N/A', result: null });
         expect(parser.parse('MULTIPLY("value")')).toMatchObject({ error: '#N/A', result: null });
         expect(parser.parse('MULTIPLY(1)')).toMatchObject({ error: '#N/A', result: null });
@@ -383,7 +375,7 @@ describe('.parse() math-trig formulas', () => {
         expect(parser.parse('MULTIPLY(2, 2.2)')).toMatchObject({ error: null, result: 4.4 });
     });
 
-    it('NE', () => {
+    it.each([new Parser(), ClickUpParser.create()])('NE', (parser) => {
         // Not Equal
         expect(parser.parse('NE()')).toMatchObject({ error: '#N/A', result: null });
         expect(parser.parse('NE("value")')).toMatchObject({ error: '#N/A', result: null });
@@ -394,7 +386,7 @@ describe('.parse() math-trig formulas', () => {
         expect(parser.parse('NE(2.2, 2.2)')).toMatchObject({ error: null, result: false });
     });
 
-    it('ODD', () => {
+    it.each([new Parser(), ClickUpParser.create()])('ODD', (parser) => {
         expect(parser.parse('ODD()')).toMatchObject({ error: '#VALUE!', result: null });
         expect(parser.parse('ODD("value")')).toMatchObject({ error: '#VALUE!', result: null });
         expect(parser.parse('ODD(2)')).toMatchObject({ error: null, result: 3 });
@@ -402,11 +394,11 @@ describe('.parse() math-trig formulas', () => {
         expect(parser.parse('ODD(11)')).toMatchObject({ error: null, result: 11 });
     });
 
-    it('PI', () => {
+    it.each([new Parser(), ClickUpParser.create()])('PI', (parser) => {
         expect(parser.parse('PI()')).toMatchObject({ error: null, result: Math.PI });
     });
 
-    it('POWER', () => {
+    it.each([new Parser(), ClickUpParser.create()])('POWER', (parser) => {
         expect(parser.parse('POWER()')).toMatchObject({ error: '#VALUE!', result: null });
         expect(parser.parse('POWER("value")')).toMatchObject({ error: '#VALUE!', result: null });
         expect(parser.parse('POWER(2)')).toMatchObject({ error: '#VALUE!', result: null });
@@ -414,7 +406,7 @@ describe('.parse() math-trig formulas', () => {
         expect(parser.parse('POWER(2, 8)')).toMatchObject({ error: null, result: 256 });
     });
 
-    it('POW', () => {
+    it.each([new Parser(), ClickUpParser.create()])('POW', (parser) => {
         expect(parser.parse('POW()')).toMatchObject({ error: '#N/A', result: null });
         expect(parser.parse('POW("value")')).toMatchObject({ error: '#N/A', result: null });
         expect(parser.parse('POW(2)')).toMatchObject({ error: '#N/A', result: null });
@@ -422,7 +414,7 @@ describe('.parse() math-trig formulas', () => {
         expect(parser.parse('POW(2, 8)')).toMatchObject({ error: null, result: 256 });
     });
 
-    it('PRODUCT', () => {
+    it.each([new Parser(), ClickUpParser.create()])('PRODUCT', (parser) => {
         expect(parser.parse('PRODUCT()')).toMatchObject({ error: '#VALUE!', result: null });
         expect(parser.parse('PRODUCT("value")')).toMatchObject({ error: '#VALUE!', result: null });
         expect(parser.parse('PRODUCT(2)')).toMatchObject({ error: null, result: 2 });
@@ -431,7 +423,7 @@ describe('.parse() math-trig formulas', () => {
         expect(parser.parse('PRODUCT(2, 8, 10, 10)')).toMatchObject({ error: null, result: 1600 });
     });
 
-    it('QUOTIENT', () => {
+    it.each([new Parser(), ClickUpParser.create()])('QUOTIENT', (parser) => {
         expect(parser.parse('QUOTIENT()')).toMatchObject({ error: '#VALUE!', result: null });
         expect(parser.parse('QUOTIENT("value")')).toMatchObject({ error: '#VALUE!', result: null });
         expect(parser.parse('QUOTIENT(2)')).toMatchObject({ error: '#VALUE!', result: null });
@@ -441,14 +433,14 @@ describe('.parse() math-trig formulas', () => {
         expect(parser.parse('QUOTIENT(-9, 2)')).toMatchObject({ error: null, result: -4 });
     });
 
-    it('RADIANS', () => {
+    it.each([new Parser(), ClickUpParser.create()])('RADIANS', (parser) => {
         expect(parser.parse('RADIANS()')).toMatchObject({ error: '#VALUE!', result: null });
         expect(parser.parse('RADIANS("value")')).toMatchObject({ error: '#VALUE!', result: null });
         expect(parser.parse('RADIANS(180)')).toMatchObject({ error: null, result: Math.PI });
         expect(parser.parse('RADIANS(90)')).toMatchObject({ error: null, result: Math.PI / 2 });
     });
 
-    it('RAND', () => {
+    it.each([new Parser(), ClickUpParser.create()])('RAND', (parser) => {
         const result = parser.parse('RAND()');
 
         expect(result.error).toBeNull();
@@ -456,7 +448,7 @@ describe('.parse() math-trig formulas', () => {
         expect(result.result).toBeLessThanOrEqual(1);
     });
 
-    it('RANDBETWEEN', () => {
+    it.each([new Parser(), ClickUpParser.create()])('RANDBETWEEN', (parser) => {
         const result = parser.parse('RANDBETWEEN(-5, -3)');
 
         expect(result.error).toBeNull();
@@ -464,7 +456,7 @@ describe('.parse() math-trig formulas', () => {
         expect(result.result).toBeLessThanOrEqual(-3);
     });
 
-    it('ROMAN', () => {
+    it.each([new Parser(), ClickUpParser.create()])('ROMAN', (parser) => {
         expect(parser.parse('ROMAN()')).toMatchObject({ error: '#VALUE!', result: null });
         expect(parser.parse('ROMAN("value")')).toMatchObject({ error: '#VALUE!', result: null });
         expect(parser.parse('ROMAN(1)')).toMatchObject({ error: null, result: 'I' });
@@ -474,7 +466,7 @@ describe('.parse() math-trig formulas', () => {
         expect(parser.parse('ROMAN(2000)')).toMatchObject({ error: null, result: 'MM' });
     });
 
-    it('ROUND', () => {
+    it.each([new Parser(), ClickUpParser.create()])('ROUND', (parser) => {
         expect(parser.parse('ROUND()')).toMatchObject({ error: '#VALUE!', result: null });
         expect(parser.parse('ROUND("value")')).toMatchObject({ error: '#VALUE!', result: null });
         expect(parser.parse('ROUND(1)')).toMatchObject({ error: '#VALUE!', result: null });
@@ -485,7 +477,7 @@ describe('.parse() math-trig formulas', () => {
         expect(parser.parse('ROUND(2345.2234578, -2)')).toMatchObject({ error: null, result: 2300 });
     });
 
-    it('ROUNDDOWN', () => {
+    it.each([new Parser(), ClickUpParser.create()])('ROUNDDOWN', (parser) => {
         expect(parser.parse('ROUNDDOWN()')).toMatchObject({ error: '#VALUE!', result: null });
         expect(parser.parse('ROUNDDOWN("value")')).toMatchObject({ error: '#VALUE!', result: null });
         expect(parser.parse('ROUNDDOWN(1)')).toMatchObject({ error: '#VALUE!', result: null });
@@ -496,7 +488,7 @@ describe('.parse() math-trig formulas', () => {
         expect(parser.parse('ROUNDDOWN(2345.2234578, -2)')).toMatchObject({ error: null, result: 2300 });
     });
 
-    it('ROUNDUP', () => {
+    it.each([new Parser(), ClickUpParser.create()])('ROUNDUP', (parser) => {
         expect(parser.parse('ROUNDUP()')).toMatchObject({ error: '#VALUE!', result: null });
         expect(parser.parse('ROUNDUP("value")')).toMatchObject({ error: '#VALUE!', result: null });
         expect(parser.parse('ROUNDUP(1)')).toMatchObject({ error: '#VALUE!', result: null });
@@ -507,21 +499,21 @@ describe('.parse() math-trig formulas', () => {
         expect(parser.parse('ROUNDUP(2345.2234578, -2)')).toMatchObject({ error: null, result: 2400 });
     });
 
-    it('SEC', () => {
+    it.each([new Parser(), ClickUpParser.create()])('SEC', (parser) => {
         expect(parser.parse('SEC()')).toMatchObject({ error: '#VALUE!', result: null });
         expect(parser.parse('SEC("value")')).toMatchObject({ error: '#VALUE!', result: null });
         expect(parser.parse('SEC(1)')).toBeMatchCloseTo({ error: null, result: 1.8508157176809255 });
         expect(parser.parse('SEC(30)')).toBeMatchCloseTo({ error: null, result: 6.482921234962678 });
     });
 
-    it('SECH', () => {
+    it.each([new Parser(), ClickUpParser.create()])('SECH', (parser) => {
         expect(parser.parse('SECH()')).toMatchObject({ error: '#VALUE!', result: null });
         expect(parser.parse('SECH("value")')).toMatchObject({ error: '#VALUE!', result: null });
         expect(parser.parse('SECH(1)')).toBeMatchCloseTo({ error: null, result: 0.6480542736638855 });
         expect(parser.parse('SECH(30)')).toBeMatchCloseTo({ error: null, result: 1.8715245937680314e-13 });
     });
 
-    it('SERIESSUM', () => {
+    it.each([new Parser(), ClickUpParser.create()])('SERIESSUM', (parser) => {
         parser.setVariable('SERIESSUM_ARR', [
             1,
             -1 / parser.parse('FACT(2)').result,
@@ -535,7 +527,7 @@ describe('.parse() math-trig formulas', () => {
         });
     });
 
-    it('SIGN', () => {
+    it.each([new Parser(), ClickUpParser.create()])('SIGN', (parser) => {
         expect(parser.parse('SIGN()')).toMatchObject({ error: '#VALUE!', result: null });
         expect(parser.parse('SIGN("value")')).toMatchObject({ error: '#VALUE!', result: null });
         expect(parser.parse('SIGN(1)')).toMatchObject({ error: null, result: 1 });
@@ -544,19 +536,19 @@ describe('.parse() math-trig formulas', () => {
         expect(parser.parse('SIGN(0)')).toMatchObject({ error: null, result: 0 });
     });
 
-    it('SIN', () => {
+    it.each([new Parser(), ClickUpParser.create()])('SIN', (parser) => {
         expect(parser.parse('SIN()')).toMatchObject({ error: '#VALUE!', result: null });
         expect(parser.parse('SIN("value")')).toMatchObject({ error: '#VALUE!', result: null });
         expect(parser.parse(`SIN(${Math.PI / 2})`)).toMatchObject({ error: null, result: 1 });
     });
 
-    it('SINH', () => {
+    it.each([new Parser(), ClickUpParser.create()])('SINH', (parser) => {
         expect(parser.parse('SINH()')).toMatchObject({ error: '#VALUE!', result: null });
         expect(parser.parse('SINH("value")')).toMatchObject({ error: '#VALUE!', result: null });
         expect(parser.parse('SINH(1)')).toBeMatchCloseTo({ error: null, result: 1.1752011936438014 });
     });
 
-    it('SQRT', () => {
+    it.each([new Parser(), ClickUpParser.create()])('SQRT', (parser) => {
         expect(parser.parse('SQRT()')).toMatchObject({ error: '#VALUE!', result: null });
         expect(parser.parse('SQRT("value")')).toMatchObject({ error: '#VALUE!', result: null });
         expect(parser.parse('SQRT(1)')).toMatchObject({ error: null, result: 1 });
@@ -564,13 +556,13 @@ describe('.parse() math-trig formulas', () => {
         expect(parser.parse('SQRT(64)')).toMatchObject({ error: null, result: 8 });
     });
 
-    it('SQRTPI', () => {
+    it.each([new Parser(), ClickUpParser.create()])('SQRTPI', (parser) => {
         expect(parser.parse('SQRTPI()')).toMatchObject({ error: '#VALUE!', result: null });
         expect(parser.parse('SQRTPI("value")')).toMatchObject({ error: '#VALUE!', result: null });
         expect(parser.parse('SQRTPI(64)')).toBeMatchCloseTo({ error: null, result: 14.179630807244127 });
     });
 
-    it('SUBTOTAL', () => {
+    it.each([new Parser(), ClickUpParser.create()])('SUBTOTAL', (parser) => {
         parser.on('callRangeValue', (a, b, done) => {
             done([[120, 10, 150, 23]]);
         });
@@ -578,14 +570,14 @@ describe('.parse() math-trig formulas', () => {
         expect(parser.parse('SUBTOTAL(9, A1:C1)')).toMatchObject({ error: null, result: 303 });
     });
 
-    it('SUM', () => {
+    it.each([new Parser(), ClickUpParser.create()])('SUM', (parser) => {
         expect(parser.parse('SUM()')).toMatchObject({ error: null, result: 0 });
         expect(parser.parse('SUM("value")')).toMatchObject({ error: null, result: 0 });
         expect(parser.parse('SUM(64)')).toMatchObject({ error: null, result: 64 });
         expect(parser.parse('SUM(64, 3.3, 0.1)')).toBeMatchCloseTo({ error: null, result: 67.4 });
     });
 
-    it('SUMIF', () => {
+    it.each([new Parser(), ClickUpParser.create()])('SUMIF', (parser) => {
         parser.on('callRangeValue', (a, b, done) => {
             done([[1, 2, 3]]);
         });
@@ -593,7 +585,7 @@ describe('.parse() math-trig formulas', () => {
         expect(parser.parse('SUMIF(A1:C1, ">2")')).toMatchObject({ error: null, result: 3 });
     });
 
-    it('SUMIFS', () => {
+    it.each([new Parser(), ClickUpParser.create()])('SUMIFS', (parser) => {
         parser.on('callRangeValue', (a, b, done) => {
             done([[1, 2, 3]]);
         });
@@ -601,7 +593,7 @@ describe('.parse() math-trig formulas', () => {
         expect(parser.parse('SUMIFS(A1:C1, ">1", "<3")')).toMatchObject({ error: null, result: 2 });
     });
 
-    it('SUMPRODUCT', () => {
+    it.each([new Parser(), ClickUpParser.create()])('SUMPRODUCT', (parser) => {
         parser.on('callRangeValue', (a, b, done) => {
             if (a.label === 'A1' && b.label === 'B3') {
                 done([
@@ -621,14 +613,14 @@ describe('.parse() math-trig formulas', () => {
         expect(parser.parse('SUMPRODUCT(A1:B3, A4:B6)')).toMatchObject({ error: null, result: 156 });
     });
 
-    it('SUMSQ', () => {
+    it.each([new Parser(), ClickUpParser.create()])('SUMSQ', (parser) => {
         expect(parser.parse('SUMSQ()')).toMatchObject({ error: '#VALUE!', result: null });
         expect(parser.parse('SUMSQ("value")')).toMatchObject({ error: '#VALUE!', result: null });
         expect(parser.parse('SUMSQ(64)')).toMatchObject({ error: null, result: 4096 });
         expect(parser.parse('SUMSQ(64, 3.3, 0.1)')).toBeMatchCloseTo({ error: null, result: 4106.9 });
     });
 
-    it('SUMX2MY2', () => {
+    it.each([new Parser(), ClickUpParser.create()])('SUMX2MY2', (parser) => {
         parser.on('callRangeValue', (a, b, done) => {
             if (a.label === 'A1' && b.label === 'B3') {
                 done([[1, 2, 3]]);
@@ -640,7 +632,7 @@ describe('.parse() math-trig formulas', () => {
         expect(parser.parse('SUMX2MY2(A1:B3, A4:B6)')).toMatchObject({ error: null, result: -63 });
     });
 
-    it('SUMX2PY2', () => {
+    it.each([new Parser(), ClickUpParser.create()])('SUMX2PY2', (parser) => {
         parser.on('callRangeValue', (a, b, done) => {
             if (a.label === 'A1' && b.label === 'B3') {
                 done([[1, 2, 3]]);
@@ -652,7 +644,7 @@ describe('.parse() math-trig formulas', () => {
         expect(parser.parse('SUMX2PY2(A1:B3, A4:B6)')).toMatchObject({ error: null, result: 91 });
     });
 
-    it('SUMXMY2', () => {
+    it.each([new Parser(), ClickUpParser.create()])('SUMXMY2', (parser) => {
         parser.on('callRangeValue', (a, b, done) => {
             if (a.label === 'A1' && b.label === 'B3') {
                 done([[1, 2, 3]]);
@@ -664,20 +656,20 @@ describe('.parse() math-trig formulas', () => {
         expect(parser.parse('SUMXMY2(A1:B3, A4:B6)')).toMatchObject({ error: null, result: 27 });
     });
 
-    it('TAN', () => {
+    it.each([new Parser(), ClickUpParser.create()])('TAN', (parser) => {
         expect(parser.parse('TAN()')).toMatchObject({ error: '#VALUE!', result: null });
         expect(parser.parse('TAN("value")')).toMatchObject({ error: '#VALUE!', result: null });
         expect(parser.parse('TAN(1)')).toBeMatchCloseTo({ error: null, result: 1.5574077246549023 });
         expect(parser.parse('TAN(RADIANS(45))')).toBeMatchCloseTo({ error: null, result: 1 });
     });
 
-    it('TANH', () => {
+    it.each([new Parser(), ClickUpParser.create()])('TANH', (parser) => {
         expect(parser.parse('TANH()')).toMatchObject({ error: '#VALUE!', result: null });
         expect(parser.parse('TANH("value")')).toMatchObject({ error: '#VALUE!', result: null });
         expect(parser.parse('TANH(1)')).toBeMatchCloseTo({ error: null, result: 0.761594155955765 });
     });
 
-    it('TRUNC', () => {
+    it.each([new Parser(), ClickUpParser.create()])('TRUNC', (parser) => {
         expect(parser.parse('TRUNC()')).toMatchObject({ error: '#VALUE!', result: null });
         expect(parser.parse('TRUNC("value")')).toMatchObject({ error: '#VALUE!', result: null });
         expect(parser.parse('TRUNC(1)')).toMatchObject({ error: null, result: 1 });

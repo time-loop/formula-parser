@@ -1,16 +1,8 @@
+import { ClickUpParser } from '../../../../src/clickup/clickupParser';
 import Parser from '../../../../src/parser';
 
 describe('.parse() statistical formulas', () => {
-    let parser;
-
-    beforeEach(() => {
-        parser = new Parser();
-    });
-    afterEach(() => {
-        parser = null;
-    });
-
-    it('AVEDEV', () => {
+    it.each([new Parser(), ClickUpParser.create()])('AVEDEV', (parser) => {
         expect(parser.parse('AVEDEV()')).toMatchObject({ error: '#VALUE!', result: null });
         expect(parser.parse('AVEDEV(1.1)')).toMatchObject({ error: null, result: 0 });
         expect(parser.parse('AVEDEV(1.1, 2)')).toBeMatchCloseTo({ error: null, result: 0.45 });
@@ -18,21 +10,21 @@ describe('.parse() statistical formulas', () => {
         expect(parser.parse('AVEDEV(1.1, 2, 5, 10)')).toBeMatchCloseTo({ error: null, result: 2.975 });
     });
 
-    it('AVERAGE', () => {
+    it.each([new Parser(), ClickUpParser.create()])('AVERAGE', (parser) => {
         expect(parser.parse('AVERAGE()')).toMatchObject({ error: '#NUM!', result: null });
         expect(parser.parse('AVERAGE(1.1)')).toBeMatchCloseTo({ error: null, result: 1.1 });
         expect(parser.parse('AVERAGE(1.1, 2, 5, 10)')).toBeMatchCloseTo({ error: null, result: 4.525 });
         expect(parser.parse('AVERAGE(1.1, TRUE, 2, NULL, 5, 10)')).toBeMatchCloseTo({ error: null, result: 4.525 });
     });
 
-    it('AVERAGEA', () => {
+    it.each([new Parser(), ClickUpParser.create()])('AVERAGEA', (parser) => {
         expect(parser.parse('AVERAGEA()')).toMatchObject({ error: '#NUM!', result: null });
         expect(parser.parse('AVERAGEA(1.1)')).toBeMatchCloseTo({ error: null, result: 1.1 });
         expect(parser.parse('AVERAGEA(1.1, 2, 5, 10)')).toBeMatchCloseTo({ error: null, result: 4.525 });
         expect(parser.parse('AVERAGEA(1.1, TRUE, 2, NULL, 5, 10)')).toBeMatchCloseTo({ error: null, result: 3.82 });
     });
 
-    it('AVERAGEIF', () => {
+    it.each([new Parser(), ClickUpParser.create()])('AVERAGEIF', (parser) => {
         parser.on('callRangeValue', (a, b, done) => {
             if (a.label === 'A1' && b.label === 'B3') {
                 done([
@@ -50,7 +42,7 @@ describe('.parse() statistical formulas', () => {
         expect(parser.parse('AVERAGEIF(A1:B3, ">5", A4:B6)')).toMatchObject({ error: null, result: 3.5 });
     });
 
-    it('AVERAGEIFS', () => {
+    it.each([new Parser(), ClickUpParser.create()])('AVERAGEIFS', (parser) => {
         parser.on('callRangeValue', (a, b, done) => {
             if (a.label === 'A1' && b.label === 'D1') {
                 done([2, 4, 8, 16]);
@@ -64,7 +56,7 @@ describe('.parse() statistical formulas', () => {
         expect(parser.parse('AVERAGEIFS(A1:D1, A2:D2, ">2", A3:D3, ">2")')).toMatchObject({ error: null, result: 12 });
     });
 
-    it('BETADIST', () => {
+    it.each([new Parser(), ClickUpParser.create()])('BETADIST', (parser) => {
         expect(parser.parse('BETADIST()')).toMatchObject({ error: '#VALUE!', result: null });
         expect(parser.parse('BETADIST(2)')).toMatchObject({ error: '#VALUE!', result: null });
         expect(parser.parse('BETADIST(2, 8)')).toMatchObject({ error: '#VALUE!', result: null });
@@ -80,13 +72,13 @@ describe('.parse() statistical formulas', () => {
         });
     });
 
-    it('BETAINV', () => {
+    it.each([new Parser(), ClickUpParser.create()])('BETAINV', (parser) => {
         expect(parser.parse('BETAINV()')).toMatchObject({ error: '#VALUE!', result: null });
         expect(parser.parse('BETAINV(0.6854705810117458, 8, 10, 1, 3)')).toBeMatchCloseTo({ error: null, result: 2 });
         expect(parser.parse('BETA.INV(0.6854705810117458, 8, 10, 1, 3)')).toBeMatchCloseTo({ error: null, result: 2 });
     });
 
-    it('BINOMDIST', () => {
+    it.each([new Parser(), ClickUpParser.create()])('BINOMDIST', (parser) => {
         expect(parser.parse('BINOMDIST()')).toMatchObject({ error: '#VALUE!', result: null });
         expect(parser.parse('BINOMDIST(6)')).toMatchObject({ error: '#VALUE!', result: null });
         expect(parser.parse('BINOMDIST(6, 10)')).toMatchObject({ error: '#VALUE!', result: null });
@@ -95,7 +87,7 @@ describe('.parse() statistical formulas', () => {
         expect(parser.parse('BINOM.DIST(6, 10, 0.5, FALSE)')).toBeMatchCloseTo({ error: null, result: 0.205078125 });
     });
 
-    it('BINOM.DIST.RANGE', () => {
+    it.each([new Parser(), ClickUpParser.create()])('BINOM.DIST.RANGE', (parser) => {
         expect(parser.parse('BINOM.DIST.RANGE()')).toMatchObject({ error: '#VALUE!', result: null });
         expect(parser.parse('BINOM.DIST.RANGE(60)')).toMatchObject({ error: '#VALUE!', result: null });
         expect(parser.parse('BINOM.DIST.RANGE(60, 0.5)')).toMatchObject({ error: '#VALUE!', result: null });
@@ -105,41 +97,41 @@ describe('.parse() statistical formulas', () => {
         });
     });
 
-    it('BINOM.INV', () => {
+    it.each([new Parser(), ClickUpParser.create()])('BINOM.INV', (parser) => {
         expect(parser.parse('BINOM.INV()')).toMatchObject({ error: '#VALUE!', result: null });
         expect(parser.parse('BINOM.INV(6)')).toMatchObject({ error: '#VALUE!', result: null });
         expect(parser.parse('BINOM.INV(6, 0.5)')).toMatchObject({ error: '#VALUE!', result: null });
         expect(parser.parse('BINOM.INV(6, 0.5, 0.7)')).toMatchObject({ error: null, result: 4 });
     });
 
-    it('CHISQ.DIST', () => {
+    it.each([new Parser(), ClickUpParser.create()])('CHISQ.DIST', (parser) => {
         expect(parser.parse('CHISQ.DIST()')).toMatchObject({ error: '#VALUE!', result: null });
         expect(parser.parse('CHISQ.DIST(0.5)')).toMatchObject({ error: '#VALUE!', result: null });
         expect(parser.parse('CHISQ.DIST(0.5, 1)')).toBeMatchCloseTo({ error: null, result: 0.43939128946770356 });
         expect(parser.parse('CHISQ.DIST(0.5, 1, TRUE)')).toBeMatchCloseTo({ error: null, result: 0.5204998778130242 });
     });
 
-    it('CHISQ.DIST.RT', () => {
+    it.each([new Parser(), ClickUpParser.create()])('CHISQ.DIST.RT', (parser) => {
         expect(parser.parse('CHISQ.DIST.RT()')).toMatchObject({ error: '#N/A', result: null });
         expect(parser.parse('CHISQ.DIST.RT(0.5)')).toMatchObject({ error: '#N/A', result: null });
         expect(parser.parse('CHISQ.DIST.RT(0.5, 1)')).toMatchObject({ error: '#NUM!', result: null });
         expect(parser.parse('CHISQ.DIST.RT(3, 5)')).toBeMatchCloseTo({ error: null, result: 0.6999858358786271 });
     });
 
-    it('CHISQ.INV', () => {
+    it.each([new Parser(), ClickUpParser.create()])('CHISQ.INV', (parser) => {
         expect(parser.parse('CHISQ.INV()')).toMatchObject({ error: '#VALUE!', result: null });
         expect(parser.parse('CHISQ.INV(0.5)')).toMatchObject({ error: '#VALUE!', result: null });
         expect(parser.parse('CHISQ.INV(0.5, 6)')).toBeMatchCloseTo({ error: null, result: 5.348120627447116 });
     });
 
-    it('CHISQ.INV.RT', () => {
+    it.each([new Parser(), ClickUpParser.create()])('CHISQ.INV.RT', (parser) => {
         expect(parser.parse('CHISQ.INV.RT()')).toMatchObject({ error: '#N/A', result: null });
         expect(parser.parse('CHISQ.INV.RT(0.5)')).toMatchObject({ error: '#N/A', result: null });
         expect(parser.parse('CHISQ.INV.RT(-1, 2)')).toMatchObject({ error: '#NUM!', result: null });
         expect(parser.parse('CHISQ.INV.RT(0.4, 6)')).toBeMatchCloseTo({ error: null, result: 6.2107571945266935 });
     });
 
-    it('COLUMN', () => {
+    it.each([new Parser(), ClickUpParser.create()])('COLUMN', (parser) => {
         parser.on('callRangeValue', (a, b, done) => {
             if (a.label === 'A1' && b.label === 'C2') {
                 done([
@@ -156,7 +148,7 @@ describe('.parse() statistical formulas', () => {
         expect(parser.parse('COLUMN(A1:C2, 1)')).toMatchObject({ error: null, result: [[2], [3], [4]] });
     });
 
-    it('COLUMNS', () => {
+    it.each([new Parser(), ClickUpParser.create()])('COLUMNS', (parser) => {
         parser.on('callRangeValue', (a, b, done) => {
             if (a.label === 'A1' && b.label === 'C2') {
                 done([
@@ -171,7 +163,7 @@ describe('.parse() statistical formulas', () => {
         expect(parser.parse('COLUMNS(A1:C2)')).toMatchObject({ error: null, result: 2 });
     });
 
-    it('CONFIDENCE', () => {
+    it.each([new Parser(), ClickUpParser.create()])('CONFIDENCE', (parser) => {
         expect(parser.parse('CONFIDENCE()')).toMatchObject({ error: '#VALUE!', result: null });
         expect(parser.parse('CONFIDENCE(0.5)')).toMatchObject({ error: '#VALUE!', result: null });
         expect(parser.parse('CONFIDENCE(0.5, 1)')).toMatchObject({ error: '#VALUE!', result: null });
@@ -179,14 +171,14 @@ describe('.parse() statistical formulas', () => {
         expect(parser.parse('CONFIDENCE.NORM(0.5, 1, 5)')).toBeMatchCloseTo({ error: null, result: 0.301640986313058 });
     });
 
-    it('CONFIDENCE.T', () => {
+    it.each([new Parser(), ClickUpParser.create()])('CONFIDENCE.T', (parser) => {
         expect(parser.parse('CONFIDENCE.T()')).toMatchObject({ error: '#VALUE!', result: null });
         expect(parser.parse('CONFIDENCE.T(0.5)')).toMatchObject({ error: '#VALUE!', result: null });
         expect(parser.parse('CONFIDENCE.T(0.5, 1)')).toMatchObject({ error: '#VALUE!', result: null });
         expect(parser.parse('CONFIDENCE.T(0.5, 1, 5)')).toBeMatchCloseTo({ error: null, result: 0.33124980616238564 });
     });
 
-    it('CORREL', () => {
+    it.each([new Parser(), ClickUpParser.create()])('CORREL', (parser) => {
         parser.setVariable('foo', [3, 2, 4, 5, 6]);
         parser.setVariable('bar', [9, 7, 12, 15, 17]);
 
@@ -194,25 +186,25 @@ describe('.parse() statistical formulas', () => {
         expect(parser.parse('CORREL(foo, bar)')).toBeMatchCloseTo({ error: null, result: 0.9970544855015815 });
     });
 
-    it('COUNT', () => {
+    it.each([new Parser(), ClickUpParser.create()])('COUNT', (parser) => {
         expect(parser.parse('COUNT()')).toMatchObject({ error: null, result: 0 });
         expect(parser.parse('COUNT(0.5)')).toMatchObject({ error: null, result: 1 });
         expect(parser.parse('COUNT(TRUE, 0.5, "foo", 1, 8)')).toMatchObject({ error: null, result: 3 });
     });
 
-    it('COUNTA', () => {
+    it.each([new Parser(), ClickUpParser.create()])('COUNTA', (parser) => {
         expect(parser.parse('COUNTA()')).toMatchObject({ error: null, result: 0 });
         expect(parser.parse('COUNTA(0.5)')).toMatchObject({ error: null, result: 1 });
         expect(parser.parse('COUNTA(TRUE, 0.5, "foo", 1, 8)')).toMatchObject({ error: null, result: 5 });
     });
 
-    it('COUNTBLANK', () => {
+    it.each([new Parser(), ClickUpParser.create()])('COUNTBLANK', (parser) => {
         expect(parser.parse('COUNTBLANK()')).toMatchObject({ error: null, result: 0 });
         expect(parser.parse('COUNTBLANK(0.5)')).toMatchObject({ error: null, result: 0 });
         expect(parser.parse('COUNTBLANK(TRUE, 0.5, "", 1, 8)')).toMatchObject({ error: null, result: 1 });
     });
 
-    it('COUNTIF', () => {
+    it.each([new Parser(), ClickUpParser.create()])('COUNTIF', (parser) => {
         parser.setVariable('foo', [1, null, 3, 'a', '']);
         parser.on('callRangeValue', (a, b, done) => {
             if (a.label === 'A1' && b.label === 'C2') {
@@ -228,7 +220,7 @@ describe('.parse() statistical formulas', () => {
         expect(parser.parse('COUNTIF([0, 1, 0, 1, 0], 0)')).toMatchObject({ error: null, result: 3 });
     });
 
-    it('COUNTIFS', () => {
+    it.each([new Parser(), ClickUpParser.create()])('COUNTIFS', (parser) => {
         parser.setVariable('foo', [1, null, 3, 'a', '']);
         parser.on('callRangeValue', (a, b, done) => {
             if (a.label === 'A1' && b.label === 'C2') {
@@ -243,40 +235,40 @@ describe('.parse() statistical formulas', () => {
         expect(parser.parse('COUNTIFS(A1:C2, ">1")')).toMatchObject({ error: null, result: 2 });
     });
 
-    it('COUNTIN', () => {
+    it.each([new Parser(), ClickUpParser.create()])('COUNTIN', (parser) => {
         parser.setVariable('foo', [1, 1, 2, 2, 2]);
 
         expect(parser.parse('COUNTIN(foo, 1)')).toMatchObject({ error: null, result: 2 });
         expect(parser.parse('COUNTIN(foo, 2)')).toMatchObject({ error: null, result: 3 });
     });
 
-    it('COUNTUNIQUE', () => {
+    it.each([new Parser(), ClickUpParser.create()])('COUNTUNIQUE', (parser) => {
         expect(parser.parse('COUNTUNIQUE()')).toMatchObject({ error: null, result: 0 });
         expect(parser.parse('COUNTUNIQUE(1, 1, 2, 2, 3)')).toMatchObject({ error: null, result: 3 });
         expect(parser.parse('COUNTUNIQUE(1, 1, 2, 2, 3, "a", "a")')).toMatchObject({ error: null, result: 4 });
     });
 
-    it('COVARIANCE.P', () => {
+    it.each([new Parser(), ClickUpParser.create()])('COVARIANCE.P', (parser) => {
         parser.setVariable('foo', [3, 2, 4, 5, 6]);
         parser.setVariable('bar', [9, 7, 12, 15, 17]);
 
         expect(parser.parse('COVARIANCE.P(foo, bar)')).toMatchObject({ error: null, result: 5.2 });
     });
 
-    it('COVARIANCE.S', () => {
+    it.each([new Parser(), ClickUpParser.create()])('COVARIANCE.S', (parser) => {
         parser.setVariable('foo', [2, 4, 8]);
         parser.setVariable('bar', [5, 11, 12]);
 
         expect(parser.parse('COVARIANCE.S(foo, bar)')).toBeMatchCloseTo({ error: null, result: 9.666666666 });
     });
 
-    it('DEVSQ', () => {
+    it.each([new Parser(), ClickUpParser.create()])('DEVSQ', (parser) => {
         parser.setVariable('foo', [4, 5, 8, 7, 11, 4, 3]);
 
         expect(parser.parse('DEVSQ(foo)')).toMatchObject({ error: null, result: 48 });
     });
 
-    it('EXPONDIST', () => {
+    it.each([new Parser(), ClickUpParser.create()])('EXPONDIST', (parser) => {
         expect(parser.parse('EXPONDIST()')).toMatchObject({ error: '#VALUE!', result: null });
         expect(parser.parse('EXPONDIST(0.2)')).toMatchObject({ error: '#VALUE!', result: null });
         expect(parser.parse('EXPONDIST(0.2, 10)')).toBeMatchCloseTo({ error: null, result: 1.353352832366127 });
@@ -284,7 +276,7 @@ describe('.parse() statistical formulas', () => {
         expect(parser.parse('EXPON.DIST(0.2, 10, TRUE)')).toBeMatchCloseTo({ error: null, result: 0.8646647167633873 });
     });
 
-    it('FDIST', () => {
+    it.each([new Parser(), ClickUpParser.create()])('FDIST', (parser) => {
         expect(parser.parse('FDIST()')).toMatchObject({ error: '#VALUE!', result: null });
         expect(parser.parse('FDIST(15)')).toMatchObject({ error: '#VALUE!', result: null });
         expect(parser.parse('FDIST(15, 6)')).toMatchObject({ error: '#VALUE!', result: null });
@@ -293,7 +285,7 @@ describe('.parse() statistical formulas', () => {
         expect(parser.parse('F.DIST(15, 6, 4, TRUE)')).toBeMatchCloseTo({ error: null, result: 0.9897419523940192 });
     });
 
-    it('FDISTRT', () => {
+    it.each([new Parser(), ClickUpParser.create()])('FDISTRT', (parser) => {
         expect(parser.parse('FDISTRT()')).toMatchObject({ error: '#N/A', result: null });
         expect(parser.parse('FDISTRT(15)')).toMatchObject({ error: '#N/A', result: null });
         expect(parser.parse('FDISTRT(15, 6)')).toMatchObject({ error: '#N/A', result: null });
@@ -301,7 +293,7 @@ describe('.parse() statistical formulas', () => {
         expect(parser.parse('F.DIST.RT(15, 6, 4)')).toBeMatchCloseTo({ error: null, result: 0.010258047605980813 });
     });
 
-    it('FINV', () => {
+    it.each([new Parser(), ClickUpParser.create()])('FINV', (parser) => {
         expect(parser.parse('FINV()')).toMatchObject({ error: '#VALUE!', result: null });
         expect(parser.parse('FINV(0.1)')).toMatchObject({ error: '#VALUE!', result: null });
         expect(parser.parse('FINV(0.1, 6)')).toMatchObject({ error: '#VALUE!', result: null });
@@ -309,7 +301,7 @@ describe('.parse() statistical formulas', () => {
         expect(parser.parse('F.INV(0.1, 6, 4)')).toBeMatchCloseTo({ error: null, result: 0.31438998832176834 });
     });
 
-    it('FINVRT', () => {
+    it.each([new Parser(), ClickUpParser.create()])('FINVRT', (parser) => {
         expect(parser.parse('FINVRT()')).toMatchObject({ error: '#N/A', result: null });
         expect(parser.parse('FINVRT(0.1)')).toMatchObject({ error: '#N/A', result: null });
         expect(parser.parse('FINVRT(0.1, 6)')).toMatchObject({ error: '#N/A', result: null });
@@ -317,38 +309,38 @@ describe('.parse() statistical formulas', () => {
         expect(parser.parse('F.INV.RT(0.1, 6, 4)')).toBeMatchCloseTo({ error: null, result: 4.009749312673947 });
     });
 
-    it('FISHER', () => {
+    it.each([new Parser(), ClickUpParser.create()])('FISHER', (parser) => {
         expect(parser.parse('FISHER()')).toMatchObject({ error: '#VALUE!', result: null });
         expect(parser.parse('FISHER(0.1)')).toBeMatchCloseTo({ error: null, result: 0.10033534773107562 });
         expect(parser.parse('FISHER(1)')).toMatchObject({ error: null, result: Infinity });
     });
 
-    it('FISHERINV', () => {
+    it.each([new Parser(), ClickUpParser.create()])('FISHERINV', (parser) => {
         expect(parser.parse('FISHERINV()')).toMatchObject({ error: '#VALUE!', result: null });
         expect(parser.parse('FISHERINV(0.1)')).toBeMatchCloseTo({ error: null, result: 0.09966799462495583 });
         expect(parser.parse('FISHERINV(1)')).toBeMatchCloseTo({ error: null, result: 0.761594155955765 });
     });
 
-    it('FORECAST', () => {
+    it.each([new Parser(), ClickUpParser.create()])('FORECAST', (parser) => {
         parser.setVariable('foo', [6, 7, 9, 15, 21]);
         parser.setVariable('bar', [20, 28, 31, 38, 40]);
 
         expect(parser.parse('FORECAST(30, foo, bar)')).toBeMatchCloseTo({ error: null, result: 10.607253086419755 });
     });
 
-    it('FREQUENCY', () => {
+    it.each([new Parser(), ClickUpParser.create()])('FREQUENCY', (parser) => {
         parser.setVariable('foo', [79, 85, 78, 85, 50, 81, 95, 88, 97]);
         parser.setVariable('bar', [70, 79, 89]);
 
         expect(parser.parse('FREQUENCY(foo, bar)')).toMatchObject({ error: null, result: [1, 2, 4, 2] });
     });
 
-    it('GAMMA', () => {
+    it.each([new Parser(), ClickUpParser.create()])('GAMMA', (parser) => {
         expect(parser.parse('GAMMA()')).toMatchObject({ error: '#VALUE!', result: null });
         expect(parser.parse('GAMMA(0.1)')).toBeMatchCloseTo({ error: null, result: 9.51350769866877 });
     });
 
-    it('GAMMADIST', () => {
+    it.each([new Parser(), ClickUpParser.create()])('GAMMADIST', (parser) => {
         expect(parser.parse('GAMMADIST()')).toMatchObject({ error: '#N/A', result: null });
         expect(parser.parse('GAMMADIST(1)')).toMatchObject({ error: '#N/A', result: null });
         expect(parser.parse('GAMMADIST(1, 3)')).toMatchObject({ error: '#N/A', result: null });
@@ -363,7 +355,7 @@ describe('.parse() statistical formulas', () => {
         });
     });
 
-    it('GAMMAINV', () => {
+    it.each([new Parser(), ClickUpParser.create()])('GAMMAINV', (parser) => {
         expect(parser.parse('GAMMAINV()')).toMatchObject({ error: '#N/A', result: null });
         expect(parser.parse('GAMMAINV(1)')).toMatchObject({ error: '#N/A', result: null });
         expect(parser.parse('GAMMAINV(1, 3)')).toMatchObject({ error: '#N/A', result: null });
@@ -371,28 +363,28 @@ describe('.parse() statistical formulas', () => {
         expect(parser.parse('GAMMA.INV(1, 3, 7)')).toBeMatchCloseTo({ error: null, result: 1233.435565298214 });
     });
 
-    it('GAMMALN', () => {
+    it.each([new Parser(), ClickUpParser.create()])('GAMMALN', (parser) => {
         expect(parser.parse('GAMMALN()')).toMatchObject({ error: '#VALUE!', result: null });
         expect(parser.parse('GAMMALN(4)')).toBeMatchCloseTo({ error: null, result: 1.7917594692280547 });
     });
 
-    it('GAMMALN.PRECISE', () => {
+    it.each([new Parser(), ClickUpParser.create()])('GAMMALN.PRECISE', (parser) => {
         expect(parser.parse('GAMMALN.PRECISE()')).toMatchObject({ error: '#N/A', result: null });
         expect(parser.parse('GAMMALN.PRECISE(4)')).toBeMatchCloseTo({ error: null, result: 1.7917594692280547 });
     });
 
-    it('GAUSS', () => {
+    it.each([new Parser(), ClickUpParser.create()])('GAUSS', (parser) => {
         expect(parser.parse('GAUSS()')).toMatchObject({ error: '#VALUE!', result: null });
         expect(parser.parse('GAUSS(4)')).toBeMatchCloseTo({ error: null, result: 0.4999683287581669 });
     });
 
-    it('GEOMEAN', () => {
+    it.each([new Parser(), ClickUpParser.create()])('GEOMEAN', (parser) => {
         parser.setVariable('foo', [4, 5, 8, 7, 11, 4, 3]);
 
         expect(parser.parse('GEOMEAN(foo)')).toBeMatchCloseTo({ error: null, result: 5.476986969656962 });
     });
 
-    it('GROWTH', () => {
+    it.each([new Parser(), ClickUpParser.create()])('GROWTH', (parser) => {
         parser.setVariable('foo', [33100, 47300, 69000, 102000, 150000, 220000]);
         parser.setVariable('bar', [11, 12, 13, 14, 15, 16]);
         parser.setVariable('baz', [11, 12, 13, 14, 15, 16, 17, 18, 19]);
@@ -411,13 +403,13 @@ describe('.parse() statistical formulas', () => {
         expect(result.result[8]).toBeCloseTo(685597.3889812973);
     });
 
-    it('HARMEAN', () => {
+    it.each([new Parser(), ClickUpParser.create()])('HARMEAN', (parser) => {
         parser.setVariable('foo', [4, 5, 8, 7, 11, 4, 3]);
 
         expect(parser.parse('HARMEAN(foo)')).toBeMatchCloseTo({ error: null, result: 5.028375962061728 });
     });
 
-    it('HYPGEOMDIST', () => {
+    it.each([new Parser(), ClickUpParser.create()])('HYPGEOMDIST', (parser) => {
         expect(parser.parse('HYPGEOMDIST()')).toMatchObject({ error: '#VALUE!', result: null });
         expect(parser.parse('HYPGEOMDIST(1)')).toMatchObject({ error: '#VALUE!', result: null });
         expect(parser.parse('HYPGEOMDIST(1, 4)')).toMatchObject({ error: '#VALUE!', result: null });
@@ -429,14 +421,14 @@ describe('.parse() statistical formulas', () => {
         });
     });
 
-    it('INTERCEPT', () => {
+    it.each([new Parser(), ClickUpParser.create()])('INTERCEPT', (parser) => {
         parser.setVariable('foo', [2, 3, 9, 1, 8]);
         parser.setVariable('bar', [6, 5, 11, 7, 5]);
 
         expect(parser.parse('INTERCEPT(foo, bar)')).toBeMatchCloseTo({ error: null, result: 0.04838709677419217 });
     });
 
-    it('KURT', () => {
+    it.each([new Parser(), ClickUpParser.create()])('KURT', (parser) => {
         parser.setVariable('foo', [3, 4, 5, 2, 3, 4, 5, 6, 4, 7]);
         parser.setVariable('bar', [3, 4, 5, 2, 3, 4, 5, 'dewdwe', 4, 7]);
 
@@ -444,7 +436,7 @@ describe('.parse() statistical formulas', () => {
         expect(parser.parse('KURT(bar)')).toMatchObject({ error: '#VALUE!', result: null });
     });
 
-    it('LARGE', () => {
+    it.each([new Parser(), ClickUpParser.create()])('LARGE', (parser) => {
         parser.setVariable('foo', [3, 5, 3, 5, 4]);
         parser.setVariable('bar', [3, 5, 3, 'dwedwed', 4]);
 
@@ -452,7 +444,7 @@ describe('.parse() statistical formulas', () => {
         expect(parser.parse('LARGE(bar, 3)')).toMatchObject({ error: '#VALUE!', result: null });
     });
 
-    it('LINEST', () => {
+    it.each([new Parser(), ClickUpParser.create()])('LINEST', (parser) => {
         parser.setVariable('foo', [1, 9, 5, 7]);
         parser.setVariable('bar', [0, 4, 2, 3]);
 
@@ -460,7 +452,7 @@ describe('.parse() statistical formulas', () => {
         expect(parser.parse('LINEST(foo, "aaaaaa")')).toMatchObject({ error: '#VALUE!', result: null });
     });
 
-    it('LOGEST', () => {
+    it.each([new Parser(), ClickUpParser.create()])('LOGEST', (parser) => {
         parser.setVariable('foo', [1, 9, 5, 7]);
         parser.setVariable('bar', [0, 4, 2, 3]);
 
@@ -468,7 +460,7 @@ describe('.parse() statistical formulas', () => {
         expect(parser.parse('LOGEST(foo, "aaaaaa")')).toMatchObject({ error: '#VALUE!', result: null });
     });
 
-    it('LOGNORMDIST', () => {
+    it.each([new Parser(), ClickUpParser.create()])('LOGNORMDIST', (parser) => {
         expect(parser.parse('LOGNORMDIST()')).toMatchObject({ error: '#VALUE!', result: null });
         expect(parser.parse('LOGNORMDIST(4)')).toMatchObject({ error: '#VALUE!', result: null });
         expect(parser.parse('LOGNORMDIST(4, 3.5)')).toMatchObject({ error: '#VALUE!', result: null });
@@ -483,7 +475,7 @@ describe('.parse() statistical formulas', () => {
         });
     });
 
-    it('LOGNORMINV', () => {
+    it.each([new Parser(), ClickUpParser.create()])('LOGNORMINV', (parser) => {
         expect(parser.parse('LOGNORMINV()')).toMatchObject({ error: '#VALUE!', result: null });
         expect(parser.parse('LOGNORMINV(0.0390835557068005)')).toMatchObject({ error: '#VALUE!', result: null });
         expect(parser.parse('LOGNORMINV(0.0390835557068005, 3.5)')).toMatchObject({ error: '#VALUE!', result: null });
@@ -491,32 +483,32 @@ describe('.parse() statistical formulas', () => {
         expect(parser.parse('LOGNORM.INV(0.0390835557068005, 3.5, 1.2)')).toBeMatchCloseTo({ error: null, result: 4 });
     });
 
-    it('MAX', () => {
+    it.each([new Parser(), ClickUpParser.create()])('MAX', (parser) => {
         expect(parser.parse('MAX()')).toMatchObject({ error: null, result: 0 });
         expect(parser.parse('MAX(-1, 9, 9.2, 4, "foo", TRUE)')).toMatchObject({ error: null, result: 9.2 });
     });
 
-    it('MAXA', () => {
+    it.each([new Parser(), ClickUpParser.create()])('MAXA', (parser) => {
         expect(parser.parse('MAXA()')).toMatchObject({ error: null, result: 0 });
         expect(parser.parse('MAXA(-1, 9, 9.2, 4, "foo", TRUE)')).toMatchObject({ error: null, result: 9.2 });
     });
 
-    it('MEDIAN', () => {
+    it.each([new Parser(), ClickUpParser.create()])('MEDIAN', (parser) => {
         expect(parser.parse('MEDIAN()')).toMatchObject({ error: '#NUM!', result: null });
         expect(parser.parse('MEDIAN(1, 9, 9.2, 4)')).toMatchObject({ error: null, result: 6.5 });
     });
 
-    it('MIN', () => {
+    it.each([new Parser(), ClickUpParser.create()])('MIN', (parser) => {
         expect(parser.parse('MIN()')).toMatchObject({ error: null, result: 0 });
         expect(parser.parse('MIN(-1.1, 9, 9.2, 4, "foo", TRUE)')).toMatchObject({ error: null, result: -1.1 });
     });
 
-    it('MINA', () => {
+    it.each([new Parser(), ClickUpParser.create()])('MINA', (parser) => {
         expect(parser.parse('MINA()')).toMatchObject({ error: null, result: 0 });
         expect(parser.parse('MINA(-1.1, 9, 9.2, 4, "foo", TRUE)')).toMatchObject({ error: null, result: -1.1 });
     });
 
-    it('MODEMULT', () => {
+    it.each([new Parser(), ClickUpParser.create()])('MODEMULT', (parser) => {
         parser.setVariable('foo', [1, 2, 3, 4, 3, 2, 1, 2, 3, 5, 6, 1]);
         parser.setVariable('bar', [1, 2, 'dewdew', 4, 3, 2, 1, 2, 3, 5, 6, 1]);
 
@@ -525,7 +517,7 @@ describe('.parse() statistical formulas', () => {
         expect(parser.parse('MODEMULT(bar)')).toMatchObject({ error: '#VALUE!', result: null });
     });
 
-    it('MODESNGL', () => {
+    it.each([new Parser(), ClickUpParser.create()])('MODESNGL', (parser) => {
         parser.setVariable('foo', [5.6, 4, 4, 3, 2, 4]);
         parser.setVariable('bar', [5.6, 'dewdew', 4, 3, 2, 4]);
 
@@ -534,7 +526,7 @@ describe('.parse() statistical formulas', () => {
         expect(parser.parse('MODESNGL(bar)')).toMatchObject({ error: '#VALUE!', result: null });
     });
 
-    it('NEGBINOMDIST', () => {
+    it.each([new Parser(), ClickUpParser.create()])('NEGBINOMDIST', (parser) => {
         expect(parser.parse('NEGBINOMDIST()')).toMatchObject({ error: '#VALUE!', result: null });
         expect(parser.parse('NEGBINOMDIST(10)')).toMatchObject({ error: '#VALUE!', result: null });
         expect(parser.parse('NEGBINOMDIST(10, 5)')).toMatchObject({ error: '#VALUE!', result: null });
@@ -552,7 +544,7 @@ describe('.parse() statistical formulas', () => {
         });
     });
 
-    it('NORMDIST', () => {
+    it.each([new Parser(), ClickUpParser.create()])('NORMDIST', (parser) => {
         expect(parser.parse('NORMDIST()')).toMatchObject({ error: '#VALUE!', result: null });
         expect(parser.parse('NORMDIST(1)')).toMatchObject({ error: '#VALUE!', result: null });
         expect(parser.parse('NORMDIST(1, 0)')).toMatchObject({ error: '#VALUE!', result: null });
@@ -561,7 +553,7 @@ describe('.parse() statistical formulas', () => {
         expect(parser.parse('NORM.DIST(1, 0, 1, TRUE)')).toBeMatchCloseTo({ error: null, result: 0.8413447460685429 });
     });
 
-    it('NORMINV', () => {
+    it.each([new Parser(), ClickUpParser.create()])('NORMINV', (parser) => {
         expect(parser.parse('NORMINV()')).toMatchObject({ error: '#VALUE!', result: null });
         expect(parser.parse('NORMINV(1)')).toMatchObject({ error: '#VALUE!', result: null });
         expect(parser.parse('NORMINV(1, 0)')).toMatchObject({ error: '#VALUE!', result: null });
@@ -569,20 +561,20 @@ describe('.parse() statistical formulas', () => {
         expect(parser.parse('NORM.INV(1, 0, 1)')).toBeMatchCloseTo({ error: null, result: 141.4213562373095 });
     });
 
-    it('NORMSDIST', () => {
+    it.each([new Parser(), ClickUpParser.create()])('NORMSDIST', (parser) => {
         expect(parser.parse('NORMSDIST()')).toMatchObject({ error: '#VALUE!', result: null });
         expect(parser.parse('NORMSDIST(1)')).toBeMatchCloseTo({ error: null, result: 0.24197072451914337 });
         expect(parser.parse('NORMSDIST(1, TRUE)')).toBeMatchCloseTo({ error: null, result: 0.8413447460685429 });
         expect(parser.parse('NORM.S.DIST(1, TRUE)')).toBeMatchCloseTo({ error: null, result: 0.8413447460685429 });
     });
 
-    it('NORMSINV', () => {
+    it.each([new Parser(), ClickUpParser.create()])('NORMSINV', (parser) => {
         expect(parser.parse('NORMSINV()')).toMatchObject({ error: '#VALUE!', result: null });
         expect(parser.parse('NORMSINV(1)')).toBeMatchCloseTo({ error: null, result: 141.4213562373095 });
         expect(parser.parse('NORM.S.INV(1)')).toBeMatchCloseTo({ error: null, result: 141.4213562373095 });
     });
 
-    it('PEARSON', () => {
+    it.each([new Parser(), ClickUpParser.create()])('PEARSON', (parser) => {
         parser.setVariable('foo', [9, 7, 5, 3, 1]);
         parser.setVariable('bar', [10, 6, 1, 5, 3]);
         parser.setVariable('baz', [10, 'dewdewd', 1, 5, 3]);
@@ -591,7 +583,7 @@ describe('.parse() statistical formulas', () => {
         expect(parser.parse('PEARSON(foo, baz)')).toMatchObject({ error: '#VALUE!', result: null });
     });
 
-    it('PERCENTILEEXC', () => {
+    it.each([new Parser(), ClickUpParser.create()])('PERCENTILEEXC', (parser) => {
         parser.setVariable('foo', [1, 2, 3, 4]);
         parser.setVariable('bar', [1, 'dewdew', 3, 4]);
 
@@ -600,7 +592,7 @@ describe('.parse() statistical formulas', () => {
         expect(parser.parse('PERCENTILEEXC(bar, 0.5)')).toMatchObject({ error: '#VALUE!', result: null });
     });
 
-    it('PERCENTILEINC', () => {
+    it.each([new Parser(), ClickUpParser.create()])('PERCENTILEINC', (parser) => {
         parser.setVariable('foo', [1, 2, 3, 4]);
         parser.setVariable('bar', [1, 'dewdew', 3, 4]);
 
@@ -609,7 +601,7 @@ describe('.parse() statistical formulas', () => {
         expect(parser.parse('PERCENTILEINC(bar, 0.5)')).toMatchObject({ error: '#VALUE!', result: null });
     });
 
-    it('PERCENTRANKEXC', () => {
+    it.each([new Parser(), ClickUpParser.create()])('PERCENTRANKEXC', (parser) => {
         parser.setVariable('foo', [1, 2, 3, 4]);
         parser.setVariable('bar', [1, 'dewdew', 3, 4]);
 
@@ -618,7 +610,7 @@ describe('.parse() statistical formulas', () => {
         expect(parser.parse('PERCENTRANKEXC(bar, 4)')).toMatchObject({ error: '#VALUE!', result: null });
     });
 
-    it('PERCENTRANKINC', () => {
+    it.each([new Parser(), ClickUpParser.create()])('PERCENTRANKINC', (parser) => {
         parser.setVariable('foo', [1, 2, 3, 4]);
         parser.setVariable('bar', [1, 'dewdew', 3, 4]);
 
@@ -627,24 +619,24 @@ describe('.parse() statistical formulas', () => {
         expect(parser.parse('PERCENTRANKINC(bar, 4)')).toMatchObject({ error: '#VALUE!', result: null });
     });
 
-    it('PERMUT', () => {
+    it.each([new Parser(), ClickUpParser.create()])('PERMUT', (parser) => {
         expect(parser.parse('PERMUT()')).toMatchObject({ error: '#VALUE!', result: null });
         expect(parser.parse('PERMUT(10)')).toMatchObject({ error: '#VALUE!', result: null });
         expect(parser.parse('PERMUT(10, 3)')).toMatchObject({ error: null, result: 720 });
     });
 
-    it('PERMUTATIONA', () => {
+    it.each([new Parser(), ClickUpParser.create()])('PERMUTATIONA', (parser) => {
         expect(parser.parse('PERMUTATIONA()')).toMatchObject({ error: '#VALUE!', result: null });
         expect(parser.parse('PERMUTATIONA(10)')).toMatchObject({ error: '#VALUE!', result: null });
         expect(parser.parse('PERMUTATIONA(10, 3)')).toMatchObject({ error: null, result: 1000 });
     });
 
-    it('PHI', () => {
+    it.each([new Parser(), ClickUpParser.create()])('PHI', (parser) => {
         expect(parser.parse('PHI()')).toMatchObject({ error: '#VALUE!', result: null });
         expect(parser.parse('PHI(1)')).toBeMatchCloseTo({ error: null, result: 0.24197072451914337 });
     });
 
-    it('POISSONDIST', () => {
+    it.each([new Parser(), ClickUpParser.create()])('POISSONDIST', (parser) => {
         expect(parser.parse('POISSONDIST()')).toMatchObject({ error: '#VALUE!', result: null });
         expect(parser.parse('POISSONDIST(1)')).toMatchObject({ error: '#VALUE!', result: null });
         expect(parser.parse('POISSONDIST(1, 3)')).toBeMatchCloseTo({ error: null, result: 0.14936120510359185 });
@@ -652,7 +644,7 @@ describe('.parse() statistical formulas', () => {
         expect(parser.parse('POISSON.DIST(1, 3, TRUE)')).toBeMatchCloseTo({ error: null, result: 0.1991482734714558 });
     });
 
-    it('PROB', () => {
+    it.each([new Parser(), ClickUpParser.create()])('PROB', (parser) => {
         parser.setVariable('foo', [0, 1, 2, 3]);
         parser.setVariable('bar', [0.2, 0.3, 0.1, 0.4]);
         parser.setVariable('baz', [0, 'dewd', 2, 3]);
@@ -663,7 +655,7 @@ describe('.parse() statistical formulas', () => {
         expect(parser.parse('PROB(baz, bar, 1, 3)')).toMatchObject({ error: '#VALUE!', result: null });
     });
 
-    it('QUARTILEEXC', () => {
+    it.each([new Parser(), ClickUpParser.create()])('QUARTILEEXC', (parser) => {
         parser.setVariable('foo', [6, 7, 15, 36, 39, 40, 41, 42, 43, 47, 49]);
 
         expect(parser.parse('QUARTILEEXC(foo, 1)')).toMatchObject({ error: null, result: 15 });
@@ -673,7 +665,7 @@ describe('.parse() statistical formulas', () => {
         expect(parser.parse('QUARTILEEXC(foo, "dwe")')).toMatchObject({ error: '#VALUE!', result: null });
     });
 
-    it('QUARTILEINC', () => {
+    it.each([new Parser(), ClickUpParser.create()])('QUARTILEINC', (parser) => {
         parser.setVariable('foo', [1, 2, 4, 7, 8, 9, 10, 12]);
 
         expect(parser.parse('QUARTILEINC(foo, 1)')).toMatchObject({ error: null, result: 3.5 });
@@ -683,7 +675,7 @@ describe('.parse() statistical formulas', () => {
         expect(parser.parse('QUARTILEINC(foo, "dwe")')).toMatchObject({ error: '#VALUE!', result: null });
     });
 
-    it('RANKAVG', () => {
+    it.each([new Parser(), ClickUpParser.create()])('RANKAVG', (parser) => {
         parser.setVariable('foo', [89, 88, 92, 101, 94, 97, 95]);
 
         expect(parser.parse('RANKAVG(94, foo)')).toMatchObject({ error: null, result: 4 });
@@ -692,7 +684,7 @@ describe('.parse() statistical formulas', () => {
         expect(parser.parse('RANKAVG("dwe", foo, 1)')).toMatchObject({ error: '#VALUE!', result: null });
     });
 
-    it('RANKEQ', () => {
+    it.each([new Parser(), ClickUpParser.create()])('RANKEQ', (parser) => {
         parser.setVariable('foo', [7, 3.5, 3.5, 1, 2]);
 
         expect(parser.parse('RANKEQ(7, foo, 1)')).toMatchObject({ error: null, result: 5 });
@@ -701,7 +693,7 @@ describe('.parse() statistical formulas', () => {
         expect(parser.parse('RANKEQ("dwe", foo, TRUE)')).toMatchObject({ error: '#VALUE!', result: null });
     });
 
-    it('ROW', () => {
+    it.each([new Parser(), ClickUpParser.create()])('ROW', (parser) => {
         parser.on('callRangeValue', (a, b, done) => {
             if (a.label === 'A1' && b.label === 'C2') {
                 done([
@@ -719,7 +711,7 @@ describe('.parse() statistical formulas', () => {
         expect(parser.parse('ROW(A1:C2, 2)')).toMatchObject({ error: null, result: [2, 4] });
     });
 
-    it('ROWS', () => {
+    it.each([new Parser(), ClickUpParser.create()])('ROWS', (parser) => {
         parser.on('callRangeValue', (a, b, done) => {
             if (a.label === 'A1' && b.label === 'C2') {
                 done([
@@ -734,7 +726,7 @@ describe('.parse() statistical formulas', () => {
         expect(parser.parse('ROWS(A1:C2)')).toMatchObject({ error: null, result: 3 });
     });
 
-    it('RSQ', () => {
+    it.each([new Parser(), ClickUpParser.create()])('RSQ', (parser) => {
         parser.setVariable('foo', [2, 3, 9, 1, 8, 7, 5]);
         parser.setVariable('bar', [6, 5, 11, 7, 5, 4, 4]);
         parser.setVariable('baz', [6, 'dwe', 11, 7, 5, 4, 4]);
@@ -743,7 +735,7 @@ describe('.parse() statistical formulas', () => {
         expect(parser.parse('RSQ(baz, bar)')).toMatchObject({ error: '#VALUE!', result: null });
     });
 
-    it('SKEW', () => {
+    it.each([new Parser(), ClickUpParser.create()])('SKEW', (parser) => {
         parser.setVariable('foo', [3, 4, 5, 2, 3, 4, 5, 6, 4, 7]);
         parser.setVariable('bar', [3, 'dwe', 5, 2, 3, 4, 5, 6, 4, 7]);
 
@@ -751,7 +743,7 @@ describe('.parse() statistical formulas', () => {
         expect(parser.parse('SKEW(bar)')).toMatchObject({ error: '#VALUE!', result: null });
     });
 
-    it('SKEWP', () => {
+    it.each([new Parser(), ClickUpParser.create()])('SKEWP', (parser) => {
         parser.setVariable('foo', [3, 4, 5, 2, 3, 4, 5, 6, 4, 7]);
         parser.setVariable('bar', [3, 'dwe', 5, 2, 3, 4, 5, 6, 4, 7]);
 
@@ -761,7 +753,7 @@ describe('.parse() statistical formulas', () => {
         expect(parser.parse('SKEW.P(bar)')).toMatchObject({ error: '#VALUE!', result: null });
     });
 
-    it('SLOPE', () => {
+    it.each([new Parser(), ClickUpParser.create()])('SLOPE', (parser) => {
         parser.setVariable('foo', [2, 3, 9, 1, 8, 7, 5]);
         parser.setVariable('bar', [6, 5, 11, 7, 5, 4, 4]);
         parser.setVariable('baz', [6, 'dwe', 11, 7, 5, 4, 4]);
@@ -770,7 +762,7 @@ describe('.parse() statistical formulas', () => {
         expect(parser.parse('SLOPE(baz, bar)')).toMatchObject({ error: '#VALUE!', result: null });
     });
 
-    it('SMALL', () => {
+    it.each([new Parser(), ClickUpParser.create()])('SMALL', (parser) => {
         parser.setVariable('foo', [3, 4, 5, 2, 3, 4, 6, 4, 7]);
         parser.setVariable('bar', [3, 4, 'dwe', 2, 3, 4, 6, 4, 7]);
 
@@ -778,40 +770,40 @@ describe('.parse() statistical formulas', () => {
         expect(parser.parse('SMALL(bar, 4)')).toMatchObject({ error: '#VALUE!', result: null });
     });
 
-    it('STANDARDIZE', () => {
+    it.each([new Parser(), ClickUpParser.create()])('STANDARDIZE', (parser) => {
         expect(parser.parse('STANDARDIZE()')).toMatchObject({ error: '#VALUE!', result: null });
         expect(parser.parse('STANDARDIZE(1)')).toMatchObject({ error: '#VALUE!', result: null });
         expect(parser.parse('STANDARDIZE(1, 3)')).toMatchObject({ error: '#VALUE!', result: null });
         expect(parser.parse('STANDARDIZE(1, 3, 5)')).toMatchObject({ error: null, result: -0.4 });
     });
 
-    it('STDEVP', () => {
+    it.each([new Parser(), ClickUpParser.create()])('STDEVP', (parser) => {
         parser.setVariable('foo', [1345, 1301, 1368, 1322, 1310, 1370, 1318, 1350, 1303, 1299]);
 
         expect(parser.parse('STDEVP(foo)')).toBeMatchCloseTo({ error: null, result: 26.054558142482477 });
         expect(parser.parse('STDEV.P(foo)')).toBeMatchCloseTo({ error: null, result: 26.054558142482477 });
     });
 
-    it('STDEVS', () => {
+    it.each([new Parser(), ClickUpParser.create()])('STDEVS', (parser) => {
         parser.setVariable('foo', [1345, 1301, 1368, 1322, 1310, 1370, 1318, 1350, 1303, 1299]);
 
         expect(parser.parse('STDEVS(foo)')).toBeMatchCloseTo({ error: null, result: 27.46391571984349 });
         expect(parser.parse('STDEV.S(foo)')).toBeMatchCloseTo({ error: null, result: 27.46391571984349 });
     });
 
-    it('STDEVA', () => {
+    it.each([new Parser(), ClickUpParser.create()])('STDEVA', (parser) => {
         parser.setVariable('foo', [1345, 1301, 1368, 1322, 1310, 1370, 1318, 1350, 1303, 1299]);
 
         expect(parser.parse('STDEVA(foo)')).toBeMatchCloseTo({ error: null, result: 27.46391571984349 });
     });
 
-    it('STDEVPA', () => {
+    it.each([new Parser(), ClickUpParser.create()])('STDEVPA', (parser) => {
         parser.setVariable('foo', [1345, 1301, 1368, 1322, 1310, 1370, 1318, 1350, 1303, 1299]);
 
         expect(parser.parse('STDEVPA(foo)')).toBeMatchCloseTo({ error: null, result: 26.054558142482477 });
     });
 
-    it('STEYX', () => {
+    it.each([new Parser(), ClickUpParser.create()])('STEYX', (parser) => {
         parser.setVariable('foo', [2, 3, 9, 1, 8, 7, 5]);
         parser.setVariable('bar', [6, 5, 11, 7, 5, 4, 4]);
         parser.setVariable('baz', [6, 5, 'dwe', 7, 5, 4, 4]);
@@ -820,7 +812,7 @@ describe('.parse() statistical formulas', () => {
         expect(parser.parse('STEYX(baz, bar)')).toMatchObject({ error: '#VALUE!', result: null });
     });
 
-    it('TRANSPOSE', () => {
+    it.each([new Parser(), ClickUpParser.create()])('TRANSPOSE', (parser) => {
         parser.on('callRangeValue', (a, b, done) => {
             if (a.label === 'A1' && b.label === 'C2') {
                 done([
@@ -844,7 +836,7 @@ describe('.parse() statistical formulas', () => {
         expect(parser.parse('TRANSPOSE(A3:C3)')).toMatchObject({ error: null, result: [[1], [2], [3]] });
     });
 
-    it('TDIST', () => {
+    it.each([new Parser(), ClickUpParser.create()])('TDIST', (parser) => {
         expect(parser.parse('TDIST()')).toMatchObject({ error: '#VALUE!', result: null });
         expect(parser.parse('TDIST(1)')).toMatchObject({ error: '#VALUE!', result: null });
         expect(parser.parse('TDIST(1, 3)')).toBeMatchCloseTo({ error: null, result: 0.2067483346226397 });
@@ -852,32 +844,32 @@ describe('.parse() statistical formulas', () => {
         expect(parser.parse('T.DIST(1, 3, TRUE)')).toBeMatchCloseTo({ error: null, result: 0.8044988904727264 });
     });
 
-    it('T.DIST.2T', () => {
+    it.each([new Parser(), ClickUpParser.create()])('T.DIST.2T', (parser) => {
         expect(parser.parse('T.DIST.2T()')).toMatchObject({ error: '#N/A', result: null });
         expect(parser.parse('T.DIST.2T(1)')).toMatchObject({ error: '#N/A', result: null });
         expect(parser.parse('T.DIST.2T(1, 6)')).toBeMatchCloseTo({ error: null, result: 0.3559176837495821 });
     });
 
-    it('T.DIST.RT', () => {
+    it.each([new Parser(), ClickUpParser.create()])('T.DIST.RT', (parser) => {
         expect(parser.parse('T.DIST.RT()')).toMatchObject({ error: '#N/A', result: null });
         expect(parser.parse('T.DIST.RT(1)')).toMatchObject({ error: '#N/A', result: null });
         expect(parser.parse('T.DIST.RT(1, 6)')).toBeMatchCloseTo({ error: null, result: 0.17795884187479105 });
     });
 
-    it('TINV', () => {
+    it.each([new Parser(), ClickUpParser.create()])('TINV', (parser) => {
         expect(parser.parse('TINV()')).toMatchObject({ error: '#VALUE!', result: null });
         expect(parser.parse('TINV(0.1)')).toMatchObject({ error: '#VALUE!', result: null });
         expect(parser.parse('TINV(0.1, 6)')).toBeMatchCloseTo({ error: null, result: -1.4397557472652736 });
         expect(parser.parse('T.INV(0.1, 6)')).toBeMatchCloseTo({ error: null, result: -1.4397557472652736 });
     });
 
-    it('T.INV.2T', () => {
+    it.each([new Parser(), ClickUpParser.create()])('T.INV.2T', (parser) => {
         expect(parser.parse('T.INV.2T()')).toMatchObject({ error: '#VALUE!', result: null });
         expect(parser.parse('T.INV.2T(0.1)')).toMatchObject({ error: '#VALUE!', result: null });
         expect(parser.parse('T.INV.2T(0.1, 6)')).toBeMatchCloseTo({ error: null, result: 1.9431802743487372 });
     });
 
-    it('TREND', () => {
+    it.each([new Parser(), ClickUpParser.create()])('TREND', (parser) => {
         parser.setVariable('foo', [1, 9, 5, 7]);
         parser.setVariable('bar', [0, 4, 2, 3]);
         parser.setVariable('baz', [5, 8]);
@@ -886,7 +878,7 @@ describe('.parse() statistical formulas', () => {
         expect(parser.parse('TREND(foo, bar, "dwe")')).toMatchObject({ error: '#VALUE!', result: null });
     });
 
-    it('TRIMMEAN', () => {
+    it.each([new Parser(), ClickUpParser.create()])('TRIMMEAN', (parser) => {
         parser.setVariable('foo', [4, 5, 6, 7, 2, 3, 4, 5, 1, 2, 3]);
         parser.setVariable('bar', [4, 5, 'dwe', 7, 2, 3, 4, 5, 1, 2, 3]);
 
@@ -894,7 +886,7 @@ describe('.parse() statistical formulas', () => {
         expect(parser.parse('TRIMMEAN(bar, 0.2)')).toMatchObject({ error: '#VALUE!', result: null });
     });
 
-    it('VARP', () => {
+    it.each([new Parser(), ClickUpParser.create()])('VARP', (parser) => {
         expect(parser.parse('VARP()')).toMatchObject({ error: '#NUM!', result: null });
         expect(parser.parse('VARP(1)')).toMatchObject({ error: null, result: 0 });
         expect(parser.parse('VARP(1, 2)')).toBeMatchCloseTo({ error: null, result: 0.25 });
@@ -903,7 +895,7 @@ describe('.parse() statistical formulas', () => {
         expect(parser.parse('VAR.P(1, 2, 3, 4)')).toBeMatchCloseTo({ error: null, result: 1.25 });
     });
 
-    it('VARS', () => {
+    it.each([new Parser(), ClickUpParser.create()])('VARS', (parser) => {
         expect(parser.parse('VARS()')).toMatchObject({ error: null, result: -0 });
         expect(parser.parse('VARS(1)')).toBeMatchCloseTo({ error: null, result: NaN });
         expect(parser.parse('VARS(1, 2)')).toBeMatchCloseTo({ error: null, result: 0.5 });
@@ -913,7 +905,7 @@ describe('.parse() statistical formulas', () => {
         expect(parser.parse('VAR.S(1, 2, 3, 4, TRUE, "foo")')).toBeMatchCloseTo({ error: null, result: 1.66666666666 });
     });
 
-    it('VARA', () => {
+    it.each([new Parser(), ClickUpParser.create()])('VARA', (parser) => {
         expect(parser.parse('VARA()')).toMatchObject({ error: null, result: -0 });
         expect(parser.parse('VARA(1)')).toBeMatchCloseTo({ error: null, result: NaN });
         expect(parser.parse('VARA(1, 2)')).toBeMatchCloseTo({ error: null, result: 0.5 });
@@ -922,7 +914,7 @@ describe('.parse() statistical formulas', () => {
         expect(parser.parse('VARA(1, 2, 3, 4, TRUE, "foo")')).toBeMatchCloseTo({ error: null, result: 2.166666666666 });
     });
 
-    it('VARPA', () => {
+    it.each([new Parser(), ClickUpParser.create()])('VARPA', (parser) => {
         expect(parser.parse('VARPA()')).toMatchObject({ error: '#NUM!', result: null });
         expect(parser.parse('VARPA(1)')).toMatchObject({ error: null, result: 0 });
         expect(parser.parse('VARPA(1, 2)')).toBeMatchCloseTo({ error: null, result: 0.25 });
@@ -931,7 +923,7 @@ describe('.parse() statistical formulas', () => {
         expect(parser.parse('VARPA(1, 2, 3, 4, TRUE, "foo")')).toBeMatchCloseTo({ error: null, result: 1.80555555555 });
     });
 
-    it('WEIBULLDIST', () => {
+    it.each([new Parser(), ClickUpParser.create()])('WEIBULLDIST', (parser) => {
         expect(parser.parse('WEIBULLDIST()')).toMatchObject({ error: '#VALUE!', result: null });
         expect(parser.parse('WEIBULLDIST(1)')).toMatchObject({ error: '#VALUE!', result: null });
         expect(parser.parse('WEIBULLDIST(1, 2)')).toMatchObject({ error: '#VALUE!', result: null });

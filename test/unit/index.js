@@ -5,6 +5,10 @@ describe('Public API', () => {
         expect(lib.Parser).toBeInstanceOf(Function);
     });
 
+    it('ClickUpParser should be defined', () => {
+        expect(lib.ClickUpParser).toBeInstanceOf(Function);
+    });
+
     it('SUPPORTED_FORMULAS should be defined', () => {
         expect(lib.SUPPORTED_FORMULAS).toBeInstanceOf(Array);
     });
@@ -39,6 +43,18 @@ describe('Public API', () => {
 
     it('ERROR_VALUE should be defined', () => {
         expect(lib.ERROR_VALUE).toBeDefined();
+    });
+
+    it('ERROR_CYCLE should be defined', () => {
+        expect(lib.ERROR_CYCLE).toBeDefined();
+    });
+
+    it('ERROR_LEVEL should be defined', () => {
+        expect(lib.ERROR_LEVEL).toBeDefined();
+    });
+
+    it('ERROR_VARIABLE should be defined', () => {
+        expect(lib.ERROR_VARIABLE).toBeDefined();
     });
 
     it('error should be defined', () => {

@@ -75,7 +75,7 @@ describe('ClickUpParser', () => {
 
         const result = parser.parse(formula);
 
-        expect(result.error).toBe('#MISSING!');
+        expect(result.error).toBe('#NAME?');
     });
 
     it('should return error if circular dependency detected', () => {

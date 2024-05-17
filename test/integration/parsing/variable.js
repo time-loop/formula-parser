@@ -1,22 +1,14 @@
+import { ClickUpParser } from '../../../src/clickup/clickupParser';
 import Parser from '../../../src/parser';
 
 describe('.parse() variable', () => {
-    let parser;
-
-    beforeEach(() => {
-        parser = new Parser();
-    });
-    afterEach(() => {
-        parser = null;
-    });
-
-    it('should evaluate defaults variables', () => {
+    it.each([new Parser(), ClickUpParser.create()])('should evaluate defaults variables', (parser) => {
         expect(parser.parse('TRUE')).toMatchObject({ error: null, result: true });
         expect(parser.parse('FALSE')).toMatchObject({ error: null, result: false });
         expect(parser.parse('NULL')).toMatchObject({ error: null, result: null });
     });
 
-    it('should evaluate custom variables', () => {
+    it.each([new Parser(), ClickUpParser.create()])('should evaluate custom variables', (parser) => {
         expect(parser.parse('foo')).toMatchObject({ error: '#NAME?', result: null });
 
         parser.setVariable('foo', 'bar');

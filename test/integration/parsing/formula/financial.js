@@ -1,16 +1,8 @@
+import { ClickUpParser } from '../../../../src/clickup/clickupParser';
 import Parser from '../../../../src/parser';
 
 describe('.parse() financial formulas', () => {
-    let parser;
-
-    beforeEach(() => {
-        parser = new Parser();
-    });
-    afterEach(() => {
-        parser = null;
-    });
-
-    it('ACCRINT', () => {
+    it.each([new Parser(), ClickUpParser.create()])('ACCRINT', (parser) => {
         expect(parser.parse('ACCRINT()')).toMatchObject({ error: '#VALUE!', result: null });
         expect(parser.parse('ACCRINT("2/2/2012")')).toMatchObject({ error: '#VALUE!', result: null });
         expect(parser.parse('ACCRINT("2/2/2012", "3/30/2012")')).toMatchObject({ error: '#VALUE!', result: null });
@@ -36,7 +28,7 @@ describe('.parse() financial formulas', () => {
         });
     });
 
-    it('CUMIPMT', () => {
+    it.each([new Parser(), ClickUpParser.create()])('CUMIPMT', (parser) => {
         expect(parser.parse('CUMIPMT()')).toMatchObject({ error: '#VALUE!', result: null });
         expect(parser.parse('CUMIPMT(0.1/12)')).toMatchObject({ error: '#VALUE!', result: null });
         expect(parser.parse('CUMIPMT(0.1/12, 30*12)')).toMatchObject({ error: '#VALUE!', result: null });
@@ -49,7 +41,7 @@ describe('.parse() financial formulas', () => {
         });
     });
 
-    it('CUMPRINC', () => {
+    it.each([new Parser(), ClickUpParser.create()])('CUMPRINC', (parser) => {
         expect(parser.parse('CUMPRINC()')).toMatchObject({ error: '#VALUE!', result: null });
         expect(parser.parse('CUMPRINC(0.1/12)')).toMatchObject({ error: '#VALUE!', result: null });
         expect(parser.parse('CUMPRINC(0.1/12, 30*12)')).toMatchObject({ error: '#VALUE!', result: null });
@@ -62,7 +54,7 @@ describe('.parse() financial formulas', () => {
         });
     });
 
-    it('DB', () => {
+    it.each([new Parser(), ClickUpParser.create()])('DB', (parser) => {
         expect(parser.parse('DB()')).toMatchObject({ error: '#VALUE!', result: null });
         expect(parser.parse('DB(10000)')).toMatchObject({ error: '#VALUE!', result: null });
         expect(parser.parse('DB(10000, 1000)')).toMatchObject({ error: '#VALUE!', result: null });
@@ -70,7 +62,7 @@ describe('.parse() financial formulas', () => {
         expect(parser.parse('DB(10000, 1000, 6, 1)')).toMatchObject({ error: null, result: 3190 });
     });
 
-    it('DDB', () => {
+    it.each([new Parser(), ClickUpParser.create()])('DDB', (parser) => {
         expect(parser.parse('DDB()')).toMatchObject({ error: '#VALUE!', result: null });
         expect(parser.parse('DDB(10000)')).toMatchObject({ error: '#VALUE!', result: null });
         expect(parser.parse('DDB(10000, 1000)')).toMatchObject({ error: '#VALUE!', result: null });
@@ -78,25 +70,25 @@ describe('.parse() financial formulas', () => {
         expect(parser.parse('DDB(10000, 1000, 6, 1)')).toMatchObject({ error: null, result: 3333.333333333333 });
     });
 
-    it('DOLLARDE', () => {
+    it.each([new Parser(), ClickUpParser.create()])('DOLLARDE', (parser) => {
         expect(parser.parse('DOLLARDE()')).toMatchObject({ error: '#VALUE!', result: null });
         expect(parser.parse('DOLLARDE(1.1)')).toMatchObject({ error: '#VALUE!', result: null });
         expect(parser.parse('DOLLARDE(1.1, 4)')).toMatchObject({ error: null, result: 1.25 });
     });
 
-    it('DOLLARFR', () => {
+    it.each([new Parser(), ClickUpParser.create()])('DOLLARFR', (parser) => {
         expect(parser.parse('DOLLARFR()')).toMatchObject({ error: '#VALUE!', result: null });
         expect(parser.parse('DOLLARFR(1.1)')).toMatchObject({ error: '#VALUE!', result: null });
         expect(parser.parse('DOLLARFR(1.1, 4)')).toMatchObject({ error: null, result: 1.04 });
     });
 
-    it('EFFECT', () => {
+    it.each([new Parser(), ClickUpParser.create()])('EFFECT', (parser) => {
         expect(parser.parse('EFFECT()')).toMatchObject({ error: '#VALUE!', result: null });
         expect(parser.parse('EFFECT(1.1)')).toMatchObject({ error: '#VALUE!', result: null });
         expect(parser.parse('EFFECT(1.1, 4)')).toBeMatchCloseTo({ error: null, result: 1.6426566406249994 });
     });
 
-    it('FV', () => {
+    it.each([new Parser(), ClickUpParser.create()])('FV', (parser) => {
         expect(parser.parse('FV()')).toMatchObject({ error: '#VALUE!', result: null });
         expect(parser.parse('FV(1.1, 10)')).toMatchObject({ error: '#VALUE!', result: null });
         expect(parser.parse('FV(1.1, 10, -200)')).toMatchObject({ error: null, result: 303088.74505820015 });
@@ -104,13 +96,13 @@ describe('.parse() financial formulas', () => {
         expect(parser.parse('FV(1.1, 10, -200, -500, 1)')).toMatchObject({ error: null, result: 1470480.4135322706 });
     });
 
-    it('FVSCHEDULE', () => {
+    it.each([new Parser(), ClickUpParser.create()])('FVSCHEDULE', (parser) => {
         parser.on('callRangeValue', (a, b, done) => done([[0.09, 0.1, 0.11]]));
 
         expect(parser.parse('FVSCHEDULE(100, A1:C1)')).toMatchObject({ error: null, result: 133.08900000000003 });
     });
 
-    it('IPMT', () => {
+    it.each([new Parser(), ClickUpParser.create()])('IPMT', (parser) => {
         expect(parser.parse('IPMT()')).toMatchObject({ error: '#VALUE!', result: null });
         expect(parser.parse('IPMT(0.2, 6)')).toMatchObject({ error: '#VALUE!', result: null });
         expect(parser.parse('IPMT(0.2, 6, 24)')).toMatchObject({ error: '#VALUE!', result: null });
@@ -122,13 +114,13 @@ describe('.parse() financial formulas', () => {
         });
     });
 
-    it('IRR', () => {
+    it.each([new Parser(), ClickUpParser.create()])('IRR', (parser) => {
         parser.on('callRangeValue', (a, b, done) => done([[-75000, 12000, 15000, 18000, 21000, 24000]]));
 
         expect(parser.parse('IRR(A1:C1)')).toMatchObject({ error: null, result: 0.05715142887178451 });
     });
 
-    it('ISPMT', () => {
+    it.each([new Parser(), ClickUpParser.create()])('ISPMT', (parser) => {
         expect(parser.parse('ISPMT()')).toMatchObject({ error: '#VALUE!', result: null });
         expect(parser.parse('ISPMT(1.1, 2)')).toMatchObject({ error: '#VALUE!', result: null });
         expect(parser.parse('ISPMT(1.1, 2, 16)')).toMatchObject({ error: '#VALUE!', result: null });
@@ -136,19 +128,19 @@ describe('.parse() financial formulas', () => {
         expect(parser.parse('ISPMT(1.1, 2, 16, 1000)')).toMatchObject({ error: null, result: -962.5 });
     });
 
-    it('MIRR', () => {
+    it.each([new Parser(), ClickUpParser.create()])('MIRR', (parser) => {
         parser.on('callRangeValue', (a, b, done) => done([[-75000, 12000, 15000, 18000, 21000, 24000]]));
 
         expect(parser.parse('MIRR(A1:C1, 0.1, 0.12)')).toBeMatchCloseTo({ error: null, result: 0.07971710360838036 });
     });
 
-    it('NOMINAL', () => {
+    it.each([new Parser(), ClickUpParser.create()])('NOMINAL', (parser) => {
         expect(parser.parse('NOMINAL()')).toMatchObject({ error: '#VALUE!', result: null });
         expect(parser.parse('NOMINAL(1.1)')).toMatchObject({ error: '#VALUE!', result: null });
         expect(parser.parse('NOMINAL(1.1, 2)')).toBeMatchCloseTo({ error: null, result: 0.8982753492378879 });
     });
 
-    it('NPER', () => {
+    it.each([new Parser(), ClickUpParser.create()])('NPER', (parser) => {
         expect(parser.parse('NPER()')).toMatchObject({ error: '#VALUE!', result: null });
         expect(parser.parse('NPER(1.1)')).toMatchObject({ error: '#VALUE!', result: null });
         expect(parser.parse('NPER(1.1, -2)')).toMatchObject({ error: '#VALUE!', result: null });
@@ -160,7 +152,7 @@ describe('.parse() financial formulas', () => {
         });
     });
 
-    it('NPV', () => {
+    it.each([new Parser(), ClickUpParser.create()])('NPV', (parser) => {
         expect(parser.parse('NPV()')).toMatchObject({ error: '#VALUE!', result: null });
         expect(parser.parse('NPV(1.1)')).toMatchObject({ error: null, result: 0 });
         expect(parser.parse('NPV(1.1, -2)')).toBeMatchCloseTo({ error: null, result: -0.9523809523809523 });
@@ -169,14 +161,14 @@ describe('.parse() financial formulas', () => {
         expect(parser.parse('NPV(1.1, -2, -100, 1000, 1)')).toBeMatchCloseTo({ error: null, result: 84.4030008072768 });
     });
 
-    it('PDURATION', () => {
+    it.each([new Parser(), ClickUpParser.create()])('PDURATION', (parser) => {
         expect(parser.parse('PDURATION()')).toMatchObject({ error: '#VALUE!', result: null });
         expect(parser.parse('PDURATION(0.1)')).toMatchObject({ error: '#VALUE!', result: null });
         expect(parser.parse('PDURATION(0.1, 200)')).toMatchObject({ error: '#VALUE!', result: null });
         expect(parser.parse('PDURATION(0.1, 200, 400)')).toBeMatchCloseTo({ error: null, result: 7.272540897341714 });
     });
 
-    it('PMT', () => {
+    it.each([new Parser(), ClickUpParser.create()])('PMT', (parser) => {
         expect(parser.parse('PMT()')).toMatchObject({ error: '#VALUE!', result: null });
         expect(parser.parse('PMT(0.1)')).toMatchObject({ error: '#VALUE!', result: null });
         expect(parser.parse('PMT(0.1, 200)')).toMatchObject({ error: '#VALUE!', result: null });
@@ -184,7 +176,7 @@ describe('.parse() financial formulas', () => {
         expect(parser.parse('PMT(0.1, 200, 400, 500)')).toBeMatchCloseTo({ error: null, result: -40.00000047392049 });
     });
 
-    it('PPMT', () => {
+    it.each([new Parser(), ClickUpParser.create()])('PPMT', (parser) => {
         expect(parser.parse('PPMT()')).toMatchObject({ error: '#VALUE!', result: null });
         expect(parser.parse('PPMT(0.1)')).toMatchObject({ error: '#VALUE!', result: null });
         expect(parser.parse('PPMT(0.1, 200)')).toMatchObject({ error: '#VALUE!', result: null });
@@ -195,7 +187,7 @@ describe('.parse() financial formulas', () => {
         });
     });
 
-    it('PV', () => {
+    it.each([new Parser(), ClickUpParser.create()])('PV', (parser) => {
         expect(parser.parse('PV()')).toMatchObject({ error: '#VALUE!', result: null });
         expect(parser.parse('PV(1.1)')).toMatchObject({ error: '#VALUE!', result: null });
         expect(parser.parse('PV(1.1, 200)')).toMatchObject({ error: '#VALUE!', result: null });
@@ -207,7 +199,7 @@ describe('.parse() financial formulas', () => {
         });
     });
 
-    it('RATE', () => {
+    it.each([new Parser(), ClickUpParser.create()])('RATE', (parser) => {
         expect(parser.parse('RATE()')).toMatchObject({ error: '#VALUE!', result: null });
         expect(parser.parse('RATE(24)')).toMatchObject({ error: '#VALUE!', result: null });
         expect(parser.parse('RATE(24, -1000)')).toMatchObject({ error: '#VALUE!', result: null });
@@ -223,21 +215,21 @@ describe('.parse() financial formulas', () => {
         });
     });
 
-    it('RRI', () => {
+    it.each([new Parser(), ClickUpParser.create()])('RRI', (parser) => {
         expect(parser.parse('RRI()')).toMatchObject({ error: '#VALUE!', result: null });
         expect(parser.parse('RRI(8)')).toMatchObject({ error: '#VALUE!', result: null });
         expect(parser.parse('RRI(8, 100)')).toMatchObject({ error: '#VALUE!', result: null });
         expect(parser.parse('RRI(8, 100, 300)')).toBeMatchCloseTo({ error: null, result: 0.1472026904398771 });
     });
 
-    it('SLN', () => {
+    it.each([new Parser(), ClickUpParser.create()])('SLN', (parser) => {
         expect(parser.parse('SLN()')).toMatchObject({ error: '#VALUE!', result: null });
         expect(parser.parse('SLN(200)')).toMatchObject({ error: '#VALUE!', result: null });
         expect(parser.parse('SLN(200, 750)')).toMatchObject({ error: '#VALUE!', result: null });
         expect(parser.parse('SLN(200, 750, 10)')).toMatchObject({ error: null, result: -55 });
     });
 
-    it('SYD', () => {
+    it.each([new Parser(), ClickUpParser.create()])('SYD', (parser) => {
         expect(parser.parse('SYD()')).toMatchObject({ error: '#VALUE!', result: null });
         expect(parser.parse('SYD(200)')).toMatchObject({ error: '#VALUE!', result: null });
         expect(parser.parse('SYD(200, 750)')).toMatchObject({ error: '#VALUE!', result: null });
@@ -245,7 +237,7 @@ describe('.parse() financial formulas', () => {
         expect(parser.parse('SYD(200, 750, 10, 1)')).toMatchObject({ error: null, result: -100 });
     });
 
-    it('TBILLEQ', () => {
+    it.each([new Parser(), ClickUpParser.create()])('TBILLEQ', (parser) => {
         expect(parser.parse('TBILLEQ()')).toMatchObject({ error: '#VALUE!', result: null });
         expect(parser.parse('TBILLEQ("03/31/2008")')).toMatchObject({ error: '#VALUE!', result: null });
         expect(parser.parse('TBILLEQ("03/31/2008", "06/01/2008")')).toMatchObject({ error: '#VALUE!', result: null });
@@ -255,7 +247,7 @@ describe('.parse() financial formulas', () => {
         });
     });
 
-    it('TBILLPRICE', () => {
+    it.each([new Parser(), ClickUpParser.create()])('TBILLPRICE', (parser) => {
         expect(parser.parse('TBILLPRICE()')).toMatchObject({ error: '#VALUE!', result: null });
         expect(parser.parse('TBILLPRICE("03/31/2008")')).toMatchObject({ error: '#VALUE!', result: null });
         expect(parser.parse('TBILLPRICE("03/31/2008", "06/01/2008")')).toMatchObject({
@@ -268,7 +260,7 @@ describe('.parse() financial formulas', () => {
         });
     });
 
-    it('TBILLYIELD', () => {
+    it.each([new Parser(), ClickUpParser.create()])('TBILLYIELD', (parser) => {
         expect(parser.parse('TBILLYIELD()')).toMatchObject({ error: '#VALUE!', result: null });
         expect(parser.parse('TBILLYIELD("03/31/2008")')).toMatchObject({ error: '#VALUE!', result: null });
         expect(parser.parse('TBILLYIELD("03/31/2008", "06/01/2008")')).toMatchObject({
@@ -282,7 +274,7 @@ describe('.parse() financial formulas', () => {
     });
 
     // TODO: Not supported yet
-    it.skip('XIRR', () => {
+    it.skip('XIRR', (parser) => {
         parser.on('callRangeValue', (a, b, done) => {
             let values;
 
@@ -298,7 +290,7 @@ describe('.parse() financial formulas', () => {
         expect(parser.parse('XIRR(A1:C1, A2:C2, 0.1)')).toBeMatchCloseTo({ error: null, result: 0.373374019797564 });
     });
 
-    it('XNPV', () => {
+    it.each([new Parser(), ClickUpParser.create()])('XNPV', (parser) => {
         parser.on('callRangeValue', (a, b, done) => {
             let values;
 
