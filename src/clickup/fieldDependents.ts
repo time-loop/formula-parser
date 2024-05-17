@@ -6,16 +6,19 @@ interface ReverseDependencyGraph {
     [fieldId: FieldId]: Set<FieldId>;
 }
 
-const addDependency = (fieldId: FieldId) => (graph: ReverseDependencyGraph, dependency: FieldId) => {
-    if (!graph[dependency]) {
-        graph[dependency] = new Set();
-    }
-    graph[dependency].add(fieldId);
-    return graph;
-};
+function addDependency(fieldId: FieldId) {
+    return (graph: ReverseDependencyGraph, dependency: FieldId) => {
+        if (!graph[dependency]) {
+            graph[dependency] = new Set();
+        }
+        graph[dependency].add(fieldId);
+        return graph;
+    };
+}
 
-const hasDependencies = (v: CustomFieldVariable): boolean =>
-    v.type === 'formula' && typeof v.value === 'string' && getCustomFieldRegex().test(v.value);
+function hasDependencies(v: CustomFieldVariable): boolean {
+    return v.type === 'formula' && typeof v.value === 'string' && getCustomFieldRegex().test(v.value);
+}
 
 function extractDependencies(variable: CustomFieldVariable): FieldId[] {
     if (hasDependencies(variable)) {
@@ -61,7 +64,7 @@ function detectCycle(
     return false;
 }
 
-export function getDependents(reverseGraph: ReverseDependencyGraph, fieldId: FieldId): FieldId[] {
+function getDependents(reverseGraph: ReverseDependencyGraph, fieldId: FieldId): FieldId[] {
     const dependencies = reverseGraph[fieldId];
     return dependencies ? Array.from(dependencies) : [];
 }
