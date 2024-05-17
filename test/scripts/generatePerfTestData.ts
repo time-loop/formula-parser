@@ -50,10 +50,10 @@ function generateCustomFields(
     }
 
     // Generate formula fields
-    for (let i = numFormulas; i < numFields; i++) {
+    for (let i = numRegularFields; i < numFields; i++) {
         const dependencies = Array.from({ length: dependenciesPerFormula }, () => {
             const isFormulaDependency = Math.random() < formulaDependencyRatio;
-            const dependencyType = isFormulaDependency && i !== numFormulas ? 'formula' : 'regular';
+            const dependencyType = isFormulaDependency && i !== numRegularFields ? 'formula' : 'regular';
             const dependencyPool = customFields.getCustomFields(dependencyType);
             const randomDependency = dependencyPool[Math.floor(Math.random() * dependencyPool.length)];
             return randomDependency.name;
