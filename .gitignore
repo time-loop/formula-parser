@@ -10,7 +10,6 @@ lib
 es
 coverage
 dist
-test/data
 
 dev.html
 .git-branches.toml
