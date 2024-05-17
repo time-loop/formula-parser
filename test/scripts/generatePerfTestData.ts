@@ -72,7 +72,7 @@ function generateCustomFields(
 
 function main() {
     const args = process.argv.slice(2);
-    const numFields = parseInt(args[0]) || 1000;
+    const numFields = parseInt(args[0]) || 30000;
     const formulaRatio = parseFloat(args[1]) || 0.5;
     const dependenciesPerFormula = parseInt(args[2]) || 10;
     const formulaDependencyRatio = parseFloat(args[3]) || 0.5;
