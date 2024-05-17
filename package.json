@@ -15,6 +15,7 @@
         "test:clear": "jest --clearCache",
         "test": "npm run test:clear && jest --detectOpenHandles",
         "test:coverage": "npm run test:clear && jest --coverage",
+        "test:generate": "ts-node test/scripts/generatePerfTestData.ts",
         "build": "tsc",
         "generate-parser": "cd src/grammar-parser && jison grammar-parser.jison",
         "release": "generate-release",
