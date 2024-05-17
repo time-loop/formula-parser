@@ -91,5 +91,6 @@ describe('field dependents graph', () => {
         }
         const timeAverage = (Date.now() - start) / iterations;
         expect(timeAverage).toBeLessThan(250);
+        console.log(`Dependencies detection for ${variables.length} variables (average time): ${timeAverage} ms`);
     });
 });
