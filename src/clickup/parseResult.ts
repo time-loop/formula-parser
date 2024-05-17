@@ -1,4 +1,7 @@
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export type Result = any;
+
 export interface ParseResult {
-    result: any;
+    result: Result | null;
     error: string | null;
 }

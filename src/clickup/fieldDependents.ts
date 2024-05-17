@@ -90,12 +90,12 @@ function arraysEqual(arr1, arr2) {
     const countMap = {};
 
     // Count elements in the first array
-    for (let el of arr1) {
+    for (const el of arr1) {
         countMap[el] = (countMap[el] || 0) + 1;
     }
 
     // Subtract count for elements in the second array
-    for (let el of arr2) {
+    for (const el of arr2) {
         if (!countMap[el]) {
             return false;
         }

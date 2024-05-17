@@ -89,7 +89,7 @@ export class ClickUpParser {
         return this.parser.parse(expression);
     }
 
-    setVariable(name: FieldName, value: any) {
+    setVariable(name: FieldName, value: FieldValue) {
         if (isCustomFieldVariable(name)) {
             const customFieldVariable = getCustomFieldVariable(name, value);
             if (customFieldVariable) {
@@ -107,7 +107,7 @@ export class ClickUpParser {
         return this.parser.getVariable(name);
     }
 
-    setFunction(name: string, fn: Function) {
+    setFunction(name: string, fn: (...args: unknown[]) => unknown) {
         this.parser.setFunction(name, fn);
         return this;
     }
