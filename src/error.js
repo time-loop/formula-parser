@@ -6,6 +6,10 @@ export const ERROR_NULL = 'NULL';
 export const ERROR_NUM = 'NUM';
 export const ERROR_REF = 'REF';
 export const ERROR_VALUE = 'VALUE';
+export const ERROR_CYCLE = 'CYCLE';
+export const ERROR_LEVEL = 'LEVEL';
+export const ERROR_VARIABLE = 'VARIABLE';
+export const ERROR_MISSING = 'MISSING';
 
 const errors = {
     [ERROR]: '#ERROR!',
@@ -16,6 +20,10 @@ const errors = {
     [ERROR_NUM]: '#NUM!',
     [ERROR_REF]: '#REF!',
     [ERROR_VALUE]: '#VALUE!',
+    [ERROR_CYCLE]: '#CYCLE!',
+    [ERROR_LEVEL]: '#LEVEL!',
+    [ERROR_VARIABLE]: '#VARIABLE!',
+    [ERROR_MISSING]: '#MISSING!',
 };
 
 /**
