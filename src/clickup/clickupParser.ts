@@ -116,7 +116,7 @@ export class ClickUpParser {
         return this.parser.getFunction(name);
     }
 
-    on(eventName, callback, context = null) {
+    on(eventName: string, callback, context = null) {
         this.parser.on(eventName, callback, context);
         return this;
     }
