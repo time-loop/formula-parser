@@ -9,7 +9,6 @@ export const ERROR_VALUE = 'VALUE';
 export const ERROR_CYCLE = 'CYCLE';
 export const ERROR_LEVEL = 'LEVEL';
 export const ERROR_VARIABLE = 'VARIABLE';
-export const ERROR_MISSING = 'MISSING';
 
 const errors = {
     [ERROR]: '#ERROR!',
@@ -23,7 +22,6 @@ const errors = {
     [ERROR_CYCLE]: '#CYCLE!',
     [ERROR_LEVEL]: '#LEVEL!',
     [ERROR_VARIABLE]: '#VARIABLE!',
-    [ERROR_MISSING]: '#MISSING!',
 };
 
 /**

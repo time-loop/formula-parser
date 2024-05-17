@@ -1,4 +1,4 @@
-import { ERROR_CYCLE, ERROR_LEVEL, ERROR_MISSING, ERROR_VARIABLE, default as createError } from '../error';
+import { ERROR_CYCLE, ERROR_LEVEL, ERROR_VARIABLE, default as createError } from '../error';
 import Parser from '../parser';
 import {
     CustomFieldVariable,
@@ -72,7 +72,7 @@ export class ClickUpParser {
     private customFieldValueGet(name: FieldName): FieldValue {
         const fieldDefinition = this.customFieldVariables[name];
         if (!fieldDefinition) {
-            throw new Error(ERROR_MISSING);
+            return undefined;
         }
         if (fieldDefinition.type === 'formula') {
             return this.parser.parse(fieldDefinition.value);
