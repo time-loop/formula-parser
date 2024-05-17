@@ -27,11 +27,11 @@ describe('.parse() text formulas', () => {
         expect(parser.parse('CONCATENATE("a", 1, TRUE)')).toMatchObject({ error: null, result: 'a1TRUE' });
     });
 
-    it.skip('DOLLAR', () => {
-        expect(parser.parse('DOLLAR()')).toMatchObject({ error: '#VALUE!', result: null });
-        expect(parser.parse('DOLLAR(1100)')).toMatchObject({ error: null, result: '$1,100.00' });
-        expect(parser.parse('DOLLAR(1100, -2)')).toMatchObject({ error: null, result: '$1,100' });
-    });
+    // it.each([new Parser(), ClickUpParser.create()])('DOLLAR', (parser) => {
+    //     expect(parser.parse('DOLLAR()')).toMatchObject({ error: '#NAME?', result: null });
+    //     expect(parser.parse('DOLLAR(1100)')).toMatchObject({ error: null, result: '$1,100.00' });
+    //     expect(parser.parse('DOLLAR(1100, -2)')).toMatchObject({ error: null, result: '$1,100' });
+    // });
 
     it.each([new Parser(), ClickUpParser.create()])('EXACT', (parser) => {
         expect(parser.parse('EXACT()')).toMatchObject({ error: '#N/A', result: null });
@@ -48,7 +48,7 @@ describe('.parse() text formulas', () => {
         expect(parser.parse('FIND("O", "FooBar")')).toMatchObject({ error: null, result: 0 });
     });
 
-    it.skip('FIXED', () => {
+    it.skip.each([new Parser(), ClickUpParser.create()])('FIXED', (parser) => {
         expect(parser.parse('FIXED()')).toMatchObject({ error: '#VALUE!', result: null });
         expect(parser.parse('FIXED(12345.11, -1)')).toMatchObject({ error: null, result: '12,350' });
         expect(parser.parse('FIXED(12345.11, 0)')).toMatchObject({ error: null, result: '12,345' });
@@ -176,12 +176,12 @@ describe('.parse() text formulas', () => {
         expect(parser.parse('T("foo bar baz")')).toMatchObject({ error: null, result: 'foo bar baz' });
     });
 
-    it.skip('TEXT', () => {
-        expect(parser.parse('TEXT()')).toMatchObject({ error: '#N/A', result: null });
-        expect(parser.parse('TEXT(1234.99)')).toMatchObject({ error: null, result: '1,235' });
-        expect(parser.parse('TEXT(1234.99, "####.#")')).toMatchObject({ error: null, result: '1235.0' });
-        expect(parser.parse('TEXT(1234.99, "####.###")')).toMatchObject({ error: null, result: '1234.990' });
-    });
+    // it.each([new Parser(), ClickUpParser.create()])('TEXT', (parser) => {
+    //     expect(parser.parse('TEXT()')).toMatchObject({ error: '#NAME?', result: null });
+    //     expect(parser.parse('TEXT(1234.99)')).toMatchObject({ error: null, result: '1,235' });
+    //     expect(parser.parse('TEXT(1234.99, "####.#")')).toMatchObject({ error: null, result: '1235.0' });
+    //     expect(parser.parse('TEXT(1234.99, "####.###")')).toMatchObject({ error: null, result: '1234.990' });
+    // });
 
     it.each([new Parser(), ClickUpParser.create()])('TRIM', (parser) => {
         expect(parser.parse('TRIM()')).toMatchObject({ error: '#VALUE!', result: null });
@@ -205,10 +205,10 @@ describe('.parse() text formulas', () => {
         expect(parser.parse('UPPER("foo Bar")')).toMatchObject({ error: null, result: 'FOO BAR' });
     });
 
-    it.skip('VALUE', () => {
-        expect(parser.parse('VALUE()')).toMatchObject({ error: '#VALUE!', result: null });
-        expect(parser.parse('VALUE("$1,000")')).toMatchObject({ error: null, result: 1000 });
-        expect(parser.parse('VALUE("01:00:00")')).toMatchObject({ error: null, result: 3600 });
-        expect(parser.parse('VALUE("foo Bar")')).toMatchObject({ error: null, result: 0 });
-    });
+    // it.each([new Parser(), ClickUpParser.create()])('VALUE', (parser) => {
+    //     expect(parser.parse('VALUE()')).toMatchObject({ error: '#NAME?', result: null });
+    //     expect(parser.parse('VALUE("$1,000")')).toMatchObject({ error: null, result: 1000 });
+    //     expect(parser.parse('VALUE("01:00:00")')).toMatchObject({ error: null, result: 3600 });
+    //     expect(parser.parse('VALUE("foo Bar")')).toMatchObject({ error: null, result: 0 });
+    // });
 });

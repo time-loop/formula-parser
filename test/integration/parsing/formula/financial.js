@@ -274,21 +274,21 @@ describe('.parse() financial formulas', () => {
     });
 
     // TODO: Not supported yet
-    it.skip('XIRR', (parser) => {
-        parser.on('callRangeValue', (a, b, done) => {
-            let values;
+    // it.each([new Parser(), ClickUpParser.create()])('XIRR', (parser) => {
+    //     parser.on('callRangeValue', (a, b, done) => {
+    //         let values;
 
-            if (a.label === 'A1' && b.label === 'C1') {
-                values = [[-10000, 2750, 4250, 3250, 2750]];
-            } else if (a.label === 'A2' && b.label === 'C2') {
-                values = [['01/jan/08', '01/mar/08', '30/oct/08', '15/feb/09', '01/apr/09']];
-            }
+    //         if (a.label === 'A1' && b.label === 'C1') {
+    //             values = [[-10000, 2750, 4250, 3250, 2750]];
+    //         } else if (a.label === 'A2' && b.label === 'C2') {
+    //             values = [['01/jan/08', '01/mar/08', '30/oct/08', '15/feb/09', '01/apr/09']];
+    //         }
 
-            done(values);
-        });
+    //         done(values);
+    //     });
 
-        expect(parser.parse('XIRR(A1:C1, A2:C2, 0.1)')).toBeMatchCloseTo({ error: null, result: 0.373374019797564 });
-    });
+    //     expect(parser.parse('XIRR(A1:C1, A2:C2, 0.1)')).toBeMatchCloseTo({ error: null, result: 0.373374019797564 });
+    // });
 
     it.each([new Parser(), ClickUpParser.create()])('XNPV', (parser) => {
         parser.on('callRangeValue', (a, b, done) => {
