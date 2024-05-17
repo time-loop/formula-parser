@@ -14,6 +14,9 @@ const addDependency = (fieldId: FieldId) => (graph: ReverseDependencyGraph, depe
     return graph;
 };
 
+const hasDependencies = (v: CustomFieldVariable): boolean =>
+    v.type === 'formula' && typeof v.value === 'string' && getCustomFieldRegex().test(v.value);
+
 function extractDependencies(variable: CustomFieldVariable): FieldId[] {
     if (hasDependencies(variable)) {
         const dependencies = Array.from(
@@ -25,19 +28,9 @@ function extractDependencies(variable: CustomFieldVariable): FieldId[] {
     return [];
 }
 
-const hasDependencies = (v: CustomFieldVariable): boolean =>
-    v.type === 'formula' && typeof v.value === 'string' && getCustomFieldRegex().test(v.value);
-
 const addNodeToGraph = (graph: ReverseDependencyGraph, v: CustomFieldVariable): ReverseDependencyGraph => {
     const dependencies = extractDependencies(v);
     return dependencies.reduce(addDependency(v.id), graph);
-    // dependencies.forEach((dep) => {
-    //     if (!graph[dep]) {
-    //         graph[dep] = [];
-    //     }
-    //     graph[dep].push(v.id);
-    // });
-    // return graph;
 };
 
 function createReverseDependencyGraph(variables: CustomFieldVariable[]): ReverseDependencyGraph {
@@ -85,4 +78,34 @@ export function createDependencyDetector(variables: CustomFieldVariable[]) {
         getDependents: (fieldId: FieldId) => getDependents(graph, fieldId),
         hasCycle,
     };
+}
+
+function arraysEqual(arr1, arr2) {
+    if (arr1.length !== arr2.length) {
+        return false;
+    }
+
+    const countMap = {};
+
+    // Count elements in the first array
+    for (let el of arr1) {
+        countMap[el] = (countMap[el] || 0) + 1;
+    }
+
+    // Subtract count for elements in the second array
+    for (let el of arr2) {
+        if (!countMap[el]) {
+            return false;
+        }
+        countMap[el]--;
+    }
+    const hasNonZeroCount = (countMap) => (key) => countMap[key] !== 0;
+    const not = (v: boolean) => !v;
+    return not(Object.keys(countMap).some(hasNonZeroCount(countMap)));
+}
+
+export function haveSameDependencies(a: CustomFieldVariable, b: CustomFieldVariable): boolean {
+    const aDeps = extractDependencies(a);
+    const bDeps = extractDependencies(b);
+    return arraysEqual(aDeps, bDeps);
 }
