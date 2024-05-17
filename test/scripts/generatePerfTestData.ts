@@ -1,6 +1,6 @@
 import fs from 'fs';
 import path from 'path';
-import { CustomFieldVariable, FieldId } from '../../src/clickup/customField';
+import { CustomFieldVariable, FieldName } from '../../src/clickup/customField';
 
 class CustomFieldsSet {
     private customFields: CustomFieldVariable[] = [];
@@ -34,7 +34,7 @@ function generateCustomFields(
     dependenciesPerFormula: number,
     formulaDependencyRatio: number
 ): CustomFieldVariable[] {
-    const fieldIds: FieldId[] = Array.from({ length: numFields }, (_, i) => `FIELD_${i}`);
+    const fieldIds: FieldName[] = Array.from({ length: numFields }, (_, i) => `FIELD_${i}`);
     const customFields = new CustomFieldsSet();
 
     // Generate regular (non-formula) fields
@@ -43,7 +43,7 @@ function generateCustomFields(
 
     for (let i = 0; i < numRegularFields; i++) {
         customFields.addCustomField({
-            id: fieldIds[i],
+            name: fieldIds[i],
             type: 'regular',
             value: `Value for ${fieldIds[i]}`,
         });
@@ -56,12 +56,12 @@ function generateCustomFields(
             const dependencyType = isFormulaDependency && i !== numFormulas ? 'formula' : 'regular';
             const dependencyPool = customFields.getCustomFields(dependencyType);
             const randomDependency = dependencyPool[Math.floor(Math.random() * dependencyPool.length)];
-            return randomDependency.id;
+            return randomDependency.name;
         });
         const formulaValue = dependencies.map((dep) => `CUSTOM_FIELD_${dep}`).join(' + ');
 
         customFields.addCustomField({
-            id: fieldIds[i],
+            name: fieldIds[i],
             type: 'formula',
             value: formulaValue,
         });
