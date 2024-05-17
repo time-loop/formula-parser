@@ -43,10 +43,7 @@ export function isCustomFieldVariable(name: string): boolean {
 }
 
 export function getCustomFieldVariable(name: string, value: unknown): CustomFieldVariable | undefined {
-    const match = getCustomFieldRegex().exec(name);
-    if (match && isCustomFieldVariableValue(value)) {
-        const [name] = match;
-        return createCustomFieldVariable(name, value.type, value.value);
-    }
-    return undefined;
+    return isCustomFieldVariable(name) && isCustomFieldVariableValue(value)
+        ? createCustomFieldVariable(name, value.type, value.value)
+        : undefined;
 }
