@@ -10,9 +10,14 @@ export interface CustomFieldVariable extends CustomFieldVariableValue {
     id: FieldId;
 }
 
-export function getCustomFieldRegex() {
-    return new RegExp(/CUSTOM_FIELD_([a-zA-Z0-9_]+)/, 'g');
-}
+export const getCustomFieldRegex = (function () {
+    const CUSTOM_FIELD_REGEX = /CUSTOM_FIELD_([a-zA-Z0-9_]+)/g;
+    return () => {
+        // make sure we start fresh for each call
+        CUSTOM_FIELD_REGEX.lastIndex = 0;
+        return CUSTOM_FIELD_REGEX;
+    };
+})();
 
 function createCustomFieldVariable(id: string, type: string, value: FieldValue): CustomFieldVariable {
     return {
