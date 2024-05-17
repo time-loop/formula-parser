@@ -13,7 +13,7 @@ describe('custom field functions', () => {
             'value is correct',
             'CUSTOM_FIELD_123',
             { type: 'number', value: 10 },
-            { id: '123', type: 'number', value: 10 },
+            { name: 'CUSTOM_FIELD_123', type: 'number', value: 10 },
         ],
         ['variable is missing the type', 'CUSTOM_FIELD_123', { value: 10 }, undefined],
         ['variable is missing the value', 'CUSTOM_FIELD_123', { type: 'number' }, undefined],

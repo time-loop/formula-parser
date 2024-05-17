@@ -1,18 +1,24 @@
 import { ERROR_CYCLE, ERROR_LEVEL, ERROR_MISSING, ERROR_VARIABLE, default as createError } from '../error';
 import Parser from '../parser';
-import { CustomFieldVariable, FieldId, FieldValue, getCustomFieldVariable, isCustomFieldVariable } from './customField';
+import {
+    CustomFieldVariable,
+    FieldName,
+    FieldValue,
+    getCustomFieldVariable,
+    isCustomFieldVariable,
+} from './customField';
 
 import { ParseResult } from './parseResult';
 
 interface EvaluationContext {
-    evaluating: Set<FieldId>;
+    evaluating: Set<FieldName>;
     level: number;
     maxLevels: number;
 }
 
 function createEvaluationContext(maxLevels: number): EvaluationContext {
     return {
-        evaluating: new Set<FieldId>(),
+        evaluating: new Set<FieldName>(),
         level: 0,
         maxLevels,
     };
@@ -24,7 +30,7 @@ interface ClickUpParserConfig {
 
 export class ClickUpParser {
     private parser = new Parser();
-    private customFieldVariables: Record<string, CustomFieldVariable> = {};
+    private customFieldVariables: Record<FieldName, CustomFieldVariable> = {};
     private config: ClickUpParserConfig;
     private evaluationContext: EvaluationContext;
 
@@ -36,8 +42,8 @@ export class ClickUpParser {
         this.parser.on('callVariable', this.getCustomFieldVariableValueRetriever(this.customFieldValueGet.bind(this)));
     }
 
-    private getCustomFieldVariableValueRetriever(evaluate: (name: string) => FieldValue) {
-        return (name: string, done: (newValue: unknown) => void) => {
+    private getCustomFieldVariableValueRetriever(evaluate: (name: FieldName) => FieldValue) {
+        return (name: FieldName, done: (newValue: unknown) => void) => {
             // check if we are not in a cycle
             if (this.evaluationContext.evaluating.has(name)) {
                 throw new Error(ERROR_CYCLE);
@@ -63,7 +69,7 @@ export class ClickUpParser {
         };
     }
 
-    private customFieldValueGet(name: string): FieldValue {
+    private customFieldValueGet(name: FieldName): FieldValue {
         const fieldDefinition = this.customFieldVariables[name];
         if (!fieldDefinition) {
             throw new Error(ERROR_MISSING);
@@ -83,7 +89,7 @@ export class ClickUpParser {
         return this.parser.parse(expression);
     }
 
-    setVariable(name: string, value: any) {
+    setVariable(name: FieldName, value: any) {
         if (isCustomFieldVariable(name)) {
             const customFieldVariable = getCustomFieldVariable(name, value);
             if (customFieldVariable) {
@@ -97,7 +103,7 @@ export class ClickUpParser {
         return this;
     }
 
-    getVariable(name: string) {
+    getVariable(name: FieldName) {
         return this.parser.getVariable(name);
     }
 

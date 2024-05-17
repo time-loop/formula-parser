@@ -1,5 +1,5 @@
 export type FieldValue = any;
-export type FieldId = string;
+export type FieldName = string;
 
 export interface CustomFieldVariableValue {
     type: string;
@@ -7,11 +7,11 @@ export interface CustomFieldVariableValue {
 }
 
 export interface CustomFieldVariable extends CustomFieldVariableValue {
-    id: FieldId;
+    name: FieldName;
 }
 
 export const getCustomFieldRegex = (function () {
-    const CUSTOM_FIELD_REGEX = /CUSTOM_FIELD_([a-zA-Z0-9_]+)/g;
+    const CUSTOM_FIELD_REGEX = /CUSTOM_FIELD_[a-zA-Z0-9_]+/g;
     return () => {
         // make sure we start fresh for each call
         CUSTOM_FIELD_REGEX.lastIndex = 0;
@@ -19,9 +19,9 @@ export const getCustomFieldRegex = (function () {
     };
 })();
 
-function createCustomFieldVariable(id: string, type: string, value: FieldValue): CustomFieldVariable {
+function createCustomFieldVariable(name: string, type: string, value: FieldValue): CustomFieldVariable {
     return {
-        id,
+        name,
         type,
         value,
     };
@@ -45,7 +45,8 @@ export function isCustomFieldVariable(name: string): boolean {
 export function getCustomFieldVariable(name: string, value: unknown): CustomFieldVariable | undefined {
     const match = getCustomFieldRegex().exec(name);
     if (match && isCustomFieldVariableValue(value)) {
-        return createCustomFieldVariable(match[1], value.type, value.value);
+        const [name] = match;
+        return createCustomFieldVariable(name, value.type, value.value);
     }
     return undefined;
 }

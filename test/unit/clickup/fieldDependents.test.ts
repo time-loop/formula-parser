@@ -2,14 +2,14 @@ import fs from 'fs';
 import path from 'path';
 
 import { createDependencyDetector, haveSameDependencies } from '../../../src/clickup/fieldDependents';
-import perfTestVariables from '../../data/test_custom_fields.json';
 
 describe('field dependents graph', () => {
-    const CF_1_ID = '100';
-    const CF_2_ID = '200';
-    const CF_3_ID = '300';
-    const CF_4_ID = '400';
-    const CF_5_ID = '500';
+    const createName = (id: string) => `CUSTOM_FIELD_${id}`;
+    const CF_1_NAME = createName('100');
+    const CF_2_NAME = createName('200');
+    const CF_3_NAME = createName('300');
+    const CF_4_NAME = createName('400');
+    const CF_5_NAME = createName('500');
 
     it('should create a reverse dependency graph', () => {
         /**
@@ -21,21 +21,20 @@ describe('field dependents graph', () => {
          *     -> CF_2
          *     -> CF_3*
          */
-        const createName = (id: string) => `CUSTOM_FIELD_${id}`;
         const variables = [
-            { id: CF_1_ID, type: 'number', value: 10 },
-            { id: CF_2_ID, type: 'number', value: 20 },
-            { id: CF_3_ID, type: 'formula', value: `${createName(CF_1_ID)} + ${createName(CF_2_ID)}` },
-            { id: CF_4_ID, type: 'formula', value: `${createName(CF_2_ID)} + ${createName(CF_3_ID)}` },
-            { id: CF_5_ID, type: 'formula', value: `${createName(CF_3_ID)} + ${createName(CF_4_ID)}` },
+            { name: CF_1_NAME, type: 'number', value: 10 },
+            { name: CF_2_NAME, type: 'number', value: 20 },
+            { name: CF_3_NAME, type: 'formula', value: `${CF_1_NAME} + ${CF_2_NAME}` },
+            { name: CF_4_NAME, type: 'formula', value: `${CF_2_NAME} + ${CF_3_NAME}` },
+            { name: CF_5_NAME, type: 'formula', value: `${CF_3_NAME} + ${CF_4_NAME}` },
         ];
         const depsDetector = createDependencyDetector(variables);
 
-        expect(depsDetector.getDependents(CF_1_ID)).toEqual([CF_3_ID]);
-        expect(depsDetector.getDependents(CF_2_ID)).toEqual([CF_3_ID, CF_4_ID]);
-        expect(depsDetector.getDependents(CF_3_ID)).toEqual([CF_4_ID, CF_5_ID]);
-        expect(depsDetector.getDependents(CF_4_ID)).toEqual([CF_5_ID]);
-        expect(depsDetector.getDependents(CF_5_ID)).toEqual([]);
+        expect(depsDetector.getDependents(CF_1_NAME)).toEqual([CF_3_NAME]);
+        expect(depsDetector.getDependents(CF_2_NAME)).toEqual([CF_3_NAME, CF_4_NAME]);
+        expect(depsDetector.getDependents(CF_3_NAME)).toEqual([CF_4_NAME, CF_5_NAME]);
+        expect(depsDetector.getDependents(CF_4_NAME)).toEqual([CF_5_NAME]);
+        expect(depsDetector.getDependents(CF_5_NAME)).toEqual([]);
         expect(depsDetector.hasCycle()).toBe(false);
     });
 
@@ -49,33 +48,32 @@ describe('field dependents graph', () => {
          *     -> CF_2
          *     -> CF_3*
          */
-        const createName = (id: string) => `CUSTOM_FIELD_${id}`;
         const variables = [
-            { id: CF_1_ID, type: 'number', value: 10 },
-            { id: CF_2_ID, type: 'number', value: 20 },
-            { id: CF_3_ID, type: 'formula', value: `${createName(CF_1_ID)} + ${createName(CF_5_ID)}` },
-            { id: CF_4_ID, type: 'formula', value: `${createName(CF_2_ID)} + ${createName(CF_3_ID)}` },
-            { id: CF_5_ID, type: 'formula', value: `${createName(CF_3_ID)} + ${createName(CF_4_ID)}` },
+            { name: CF_1_NAME, type: 'number', value: 10 },
+            { name: CF_2_NAME, type: 'number', value: 20 },
+            { name: CF_3_NAME, type: 'formula', value: `${CF_1_NAME} + ${CF_5_NAME}` },
+            { name: CF_4_NAME, type: 'formula', value: `${CF_2_NAME} + ${CF_3_NAME}` },
+            { name: CF_5_NAME, type: 'formula', value: `${CF_3_NAME} + ${CF_4_NAME}` },
         ];
         const depsDetector = createDependencyDetector(variables);
 
-        expect(depsDetector.getDependents(CF_1_ID)).toEqual([CF_3_ID]);
-        expect(depsDetector.getDependents(CF_2_ID)).toEqual([CF_4_ID]);
-        expect(depsDetector.getDependents(CF_3_ID)).toEqual([CF_4_ID, CF_5_ID]);
-        expect(depsDetector.getDependents(CF_4_ID)).toEqual([CF_5_ID]);
-        expect(depsDetector.getDependents(CF_5_ID)).toEqual([CF_3_ID]);
+        expect(depsDetector.getDependents(CF_1_NAME)).toEqual([CF_3_NAME]);
+        expect(depsDetector.getDependents(CF_2_NAME)).toEqual([CF_4_NAME]);
+        expect(depsDetector.getDependents(CF_3_NAME)).toEqual([CF_4_NAME, CF_5_NAME]);
+        expect(depsDetector.getDependents(CF_4_NAME)).toEqual([CF_5_NAME]);
+        expect(depsDetector.getDependents(CF_5_NAME)).toEqual([CF_3_NAME]);
         expect(depsDetector.hasCycle()).toBe(true);
     });
 
     it('should detect that two formulas have the same dependencies', () => {
-        const cf1 = { id: '100', type: 'formula', value: 'CUSTOM_FIELD_1 + CUSTOM_FIELD_2' };
-        const cf2 = { id: '200', type: 'formula', value: 'CUSTOM_FIELD_2 + CUSTOM_FIELD_1' };
+        const cf1 = { name: CF_1_NAME, type: 'formula', value: 'CUSTOM_FIELD_1 + CUSTOM_FIELD_2' };
+        const cf2 = { name: CF_2_NAME, type: 'formula', value: 'CUSTOM_FIELD_2 + CUSTOM_FIELD_1' };
         expect(haveSameDependencies(cf1, cf2)).toBe(true);
     });
 
     it('should detect that two formulas have different dependencies', () => {
-        const cf1 = { id: '100', type: 'formula', value: 'CUSTOM_FIELD_1 + CUSTOM_FIELD_2' };
-        const cf2 = { id: '200', type: 'formula', value: 'CUSTOM_FIELD_2 + CUSTOM_FIELD_3' };
+        const cf1 = { name: CF_1_NAME, type: 'formula', value: 'CUSTOM_FIELD_1 + CUSTOM_FIELD_2' };
+        const cf2 = { name: CF_2_NAME, type: 'formula', value: 'CUSTOM_FIELD_2 + CUSTOM_FIELD_3' };
         expect(haveSameDependencies(cf1, cf2)).toBe(false);
     });
 
@@ -87,15 +85,11 @@ describe('field dependents graph', () => {
         const iterations = 10;
         for (let i = 0; i < iterations; i++) {
             const depsDetector = createDependencyDetector(variables);
-            if (depsDetector.hasCycle()) {
-                console.log('Cycle detected');
-            }
+            const hasCycle = depsDetector.hasCycle();
+            // test data don't have cycles
+            expect(hasCycle).toBe(false);
         }
-        const end = Date.now();
-        const time = end - start;
-        const timeAverage = time / iterations;
-        console.log(`Time: ${time}ms`);
-        console.log(`Mean time per iteration: ${timeAverage}ms`);
-        expect(timeAverage).toBeLessThan(500);
+        const timeAverage = (Date.now() - start) / iterations;
+        expect(timeAverage).toBeLessThan(250);
     });
 });

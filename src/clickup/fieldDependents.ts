@@ -1,57 +1,64 @@
-import { CustomFieldVariable, getCustomFieldRegex } from './customField';
-
-type FieldId = string;
+import { CustomFieldVariable, FieldName, getCustomFieldRegex } from './customField';
 
 interface ReverseDependencyGraph {
-    [fieldId: FieldId]: Set<FieldId>;
+    [fieldName: FieldName]: Set<FieldName>;
 }
 
-function addDependency(fieldId: FieldId) {
-    return (graph: ReverseDependencyGraph, dependency: FieldId) => {
-        if (!graph[dependency]) {
-            graph[dependency] = new Set();
-        }
-        graph[dependency].add(fieldId);
-        return graph;
+export function createDependencyDetector(variables: CustomFieldVariable[]) {
+    const graph = createReverseDependencyGraph(variables);
+    const hasCycle = () => {
+        const visited = new Set<FieldName>();
+        const recStack = new Set<FieldName>();
+        return Object.keys(graph).some((fieldName) => detectCycle(graph, fieldName, visited, recStack));
+    };
+
+    return {
+        getDependents: (fieldId: FieldName) => getDependents(graph, fieldId),
+        hasCycle,
     };
 }
-
-function hasDependencies(v: CustomFieldVariable): boolean {
-    return v.type === 'formula' && typeof v.value === 'string' && getCustomFieldRegex().test(v.value);
-}
-
-function extractDependencies(variable: CustomFieldVariable): FieldId[] {
-    if (hasDependencies(variable)) {
-        const dependencies = Array.from(
-            variable.value.matchAll(getCustomFieldRegex()),
-            (m: FieldId[]) => m[1] as FieldId
-        );
-        return dependencies;
-    }
-    return [];
-}
-
-const addNodeToGraph = (graph: ReverseDependencyGraph, v: CustomFieldVariable): ReverseDependencyGraph => {
-    const dependencies = extractDependencies(v);
-    return dependencies.reduce(addDependency(v.id), graph);
-};
 
 function createReverseDependencyGraph(variables: CustomFieldVariable[]): ReverseDependencyGraph {
     const reverseGraph: ReverseDependencyGraph = {};
     return variables.reduce(addNodeToGraph, reverseGraph);
 }
 
+function addNodeToGraph(graph: ReverseDependencyGraph, v: CustomFieldVariable): ReverseDependencyGraph {
+    const dependencies = extractDependencies(v);
+    return dependencies.reduce(addDependency(v.name), graph);
+}
+
+function extractDependencies(variable: CustomFieldVariable): FieldName[] {
+    return hasDependencies(variable)
+        ? Array.from(variable.value.matchAll(getCustomFieldRegex()), (m: FieldName[]) => m[0])
+        : [];
+}
+
+function hasDependencies(v: CustomFieldVariable): boolean {
+    return v.type === 'formula' && typeof v.value === 'string' && getCustomFieldRegex().test(v.value);
+}
+
+function addDependency(fieldName: FieldName) {
+    return (graph: ReverseDependencyGraph, dependency: FieldName) => {
+        if (!graph[dependency]) {
+            graph[dependency] = new Set();
+        }
+        graph[dependency].add(fieldName);
+        return graph;
+    };
+}
+
 function detectCycle(
     graph: ReverseDependencyGraph,
-    fieldId: FieldId,
-    visited: Set<FieldId>,
-    recStack: Set<FieldId>
+    fieldName: FieldName,
+    visited: Set<FieldName>,
+    recStack: Set<FieldName>
 ): boolean {
-    if (!visited.has(fieldId)) {
-        visited.add(fieldId);
-        recStack.add(fieldId);
+    if (!visited.has(fieldName)) {
+        visited.add(fieldName);
+        recStack.add(fieldName);
 
-        const neighbors = getDependents(graph, fieldId);
+        const neighbors = getDependents(graph, fieldName);
         for (const neighbor of neighbors) {
             if (!visited.has(neighbor) && detectCycle(graph, neighbor, visited, recStack)) {
                 return true;
@@ -60,27 +67,19 @@ function detectCycle(
             }
         }
     }
-    recStack.delete(fieldId);
+    recStack.delete(fieldName);
     return false;
 }
 
-function getDependents(reverseGraph: ReverseDependencyGraph, fieldId: FieldId): FieldId[] {
-    const dependencies = reverseGraph[fieldId];
+function getDependents(reverseGraph: ReverseDependencyGraph, fieldName: FieldName): FieldName[] {
+    const dependencies = reverseGraph[fieldName];
     return dependencies ? Array.from(dependencies) : [];
 }
 
-export function createDependencyDetector(variables: CustomFieldVariable[]) {
-    const graph = createReverseDependencyGraph(variables);
-    const hasCycle = () => {
-        const visited = new Set<FieldId>();
-        const recStack = new Set<FieldId>();
-        return Object.keys(graph).some((fieldId) => detectCycle(graph, fieldId, visited, recStack));
-    };
-
-    return {
-        getDependents: (fieldId: FieldId) => getDependents(graph, fieldId),
-        hasCycle,
-    };
+export function haveSameDependencies(a: CustomFieldVariable, b: CustomFieldVariable): boolean {
+    const aDeps = extractDependencies(a);
+    const bDeps = extractDependencies(b);
+    return arraysEqual(aDeps, bDeps);
 }
 
 function arraysEqual(arr1, arr2) {
@@ -105,10 +104,4 @@ function arraysEqual(arr1, arr2) {
     const hasNonZeroCount = (countMap) => (key) => countMap[key] !== 0;
     const not = (v: boolean) => !v;
     return not(Object.keys(countMap).some(hasNonZeroCount(countMap)));
-}
-
-export function haveSameDependencies(a: CustomFieldVariable, b: CustomFieldVariable): boolean {
-    const aDeps = extractDependencies(a);
-    const bDeps = extractDependencies(b);
-    return arraysEqual(aDeps, bDeps);
 }
