@@ -12,16 +12,7 @@ describe('field dependents graph', () => {
     const CF_4_NAME = createName('400');
     const CF_5_NAME = createName('500');
 
-    it('should create a reverse dependency graph', () => {
-        /**
-         * CF_5
-         *   -> CF_3
-         *     -> CF_1
-         *     -> CF_2
-         *   -> CF_4
-         *     -> CF_2
-         *     -> CF_3*
-         */
+    it('should detect direct ald full dependants', () => {
         const variables = [
             createCustomFieldVariable(CF_1_NAME, 'number', '10'),
             createCustomFieldVariable(CF_2_NAME, 20, 'number'),
@@ -31,24 +22,20 @@ describe('field dependents graph', () => {
         ];
         const depsDetector = createDependencyDetector(variables);
 
-        expect(depsDetector.getDependents(CF_1_NAME)).toEqual([CF_3_NAME]);
-        expect(depsDetector.getDependents(CF_2_NAME)).toEqual([CF_3_NAME, CF_4_NAME]);
-        expect(depsDetector.getDependents(CF_3_NAME)).toEqual([CF_4_NAME, CF_5_NAME]);
-        expect(depsDetector.getDependents(CF_4_NAME)).toEqual([CF_5_NAME]);
-        expect(depsDetector.getDependents(CF_5_NAME)).toEqual([]);
+        expect(depsDetector.getDirectDependents(CF_1_NAME)).toEqual([CF_3_NAME]);
+        expect(depsDetector.getAllDependents(CF_1_NAME)).toEqual([CF_3_NAME, CF_4_NAME, CF_5_NAME]);
+        expect(depsDetector.getDirectDependents(CF_2_NAME)).toEqual([CF_3_NAME, CF_4_NAME]);
+        expect(depsDetector.getAllDependents(CF_2_NAME)).toEqual([CF_3_NAME, CF_4_NAME, CF_5_NAME]);
+        expect(depsDetector.getDirectDependents(CF_3_NAME)).toEqual([CF_4_NAME, CF_5_NAME]);
+        expect(depsDetector.getAllDependents(CF_3_NAME)).toEqual([CF_4_NAME, CF_5_NAME]);
+        expect(depsDetector.getDirectDependents(CF_4_NAME)).toEqual([CF_5_NAME]);
+        expect(depsDetector.getAllDependents(CF_4_NAME)).toEqual([CF_5_NAME]);
+        expect(depsDetector.getDirectDependents(CF_5_NAME)).toEqual([]);
+        expect(depsDetector.getAllDependents(CF_5_NAME)).toEqual([]);
         expect(depsDetector.hasCycle()).toBe(false);
     });
 
-    it('should detect circular dependencies', () => {
-        /**
-         * CF_5
-         *   -> CF_3
-         *     -> CF_1
-         *     -> CF_2
-         *   -> CF_4
-         *     -> CF_2
-         *     -> CF_3*
-         */
+    it('should detect cycle and still provide dependencies', () => {
         const variables = [
             createCustomFieldVariable(CF_1_NAME, 10, 'number'),
             createCustomFieldVariable(CF_2_NAME, 20, 'number'),
@@ -58,11 +45,17 @@ describe('field dependents graph', () => {
         ];
         const depsDetector = createDependencyDetector(variables);
 
-        expect(depsDetector.getDependents(CF_1_NAME)).toEqual([CF_3_NAME]);
-        expect(depsDetector.getDependents(CF_2_NAME)).toEqual([CF_4_NAME]);
-        expect(depsDetector.getDependents(CF_3_NAME)).toEqual([CF_4_NAME, CF_5_NAME]);
-        expect(depsDetector.getDependents(CF_4_NAME)).toEqual([CF_5_NAME]);
-        expect(depsDetector.getDependents(CF_5_NAME)).toEqual([CF_3_NAME]);
+        expect(depsDetector.getDirectDependents(CF_1_NAME)).toEqual([CF_3_NAME]);
+        expect(depsDetector.getAllDependents(CF_1_NAME)).toEqual([CF_3_NAME, CF_4_NAME, CF_5_NAME]);
+        expect(depsDetector.getDirectDependents(CF_2_NAME)).toEqual([CF_4_NAME]);
+        expect(depsDetector.getAllDependents(CF_2_NAME)).toEqual([CF_4_NAME, CF_5_NAME, CF_3_NAME]);
+        expect(depsDetector.getDirectDependents(CF_3_NAME)).toEqual([CF_4_NAME, CF_5_NAME]);
+        expect(depsDetector.getAllDependents(CF_3_NAME)).toEqual([CF_4_NAME, CF_5_NAME]);
+        expect(depsDetector.getDirectDependents(CF_4_NAME)).toEqual([CF_5_NAME]);
+        expect(depsDetector.getAllDependents(CF_4_NAME)).toEqual([CF_5_NAME, CF_3_NAME]);
+        expect(depsDetector.getDirectDependents(CF_5_NAME)).toEqual([CF_3_NAME]);
+        expect(depsDetector.getAllDependents(CF_5_NAME)).toEqual([CF_3_NAME, CF_4_NAME]);
+
         expect(depsDetector.hasCycle()).toBe(true);
     });
 
