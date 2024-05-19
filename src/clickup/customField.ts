@@ -3,11 +3,8 @@ export type FieldValue = any;
 export type FieldName = string;
 
 export interface CustomFieldVariableValue {
-    // discriminator property to allow plain objects to be treated like
-    // plain Parser variables
-    __isCustomFieldVariableValue: true;
     type: string;
-    value: FieldValue;
+    value?: FieldValue | null;
 }
 
 export interface CustomFieldVariable extends CustomFieldVariableValue {
@@ -24,7 +21,7 @@ export const getCustomFieldRegex = (function () {
 })();
 
 function isCustomFieldVariableValue(value: unknown): value is CustomFieldVariableValue {
-    return typeof value === 'object' && value !== null && '__isCustomFieldVariableValue' in value;
+    return typeof value === 'object' && value !== null && 'type' in value && typeof value.type === 'string';
 }
 
 export function createCustomFieldVariable(
@@ -33,7 +30,6 @@ export function createCustomFieldVariable(
     type: string = 'unknown'
 ): CustomFieldVariable {
     return {
-        __isCustomFieldVariableValue: true,
         name,
         type,
         value,
