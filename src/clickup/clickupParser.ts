@@ -5,7 +5,7 @@ import {
     FieldName,
     FieldValue,
     getCustomFieldVariable,
-    isCustomFieldVariable,
+    isCustomFieldVariableName,
 } from './customField';
 
 import { ParseResult } from './parseResult';
@@ -35,9 +35,6 @@ export class ClickUpParser {
     private evaluationContext: EvaluationContext;
 
     private constructor(config: ClickUpParserConfig) {
-        this.parser.setVariable('true', true);
-        this.parser.setVariable('false', false);
-        this.parser.setVariable('null', null);
         this.config = config;
         this.parser.on('callVariable', this.getCustomFieldVariableValueRetriever(this.customFieldValueGet.bind(this)));
     }
@@ -81,7 +78,11 @@ export class ClickUpParser {
     }
 
     static create(maxLevels: number = 1) {
-        return new ClickUpParser({ maxLevels });
+        const parser = new ClickUpParser({ maxLevels });
+        parser.setVariable('true', true);
+        parser.setVariable('false', false);
+        parser.setVariable('null', null);
+        return parser;
     }
 
     parse(expression: string): ParseResult {
@@ -90,13 +91,8 @@ export class ClickUpParser {
     }
 
     setVariable(name: FieldName, value: FieldValue) {
-        if (isCustomFieldVariable(name)) {
-            const customFieldVariable = getCustomFieldVariable(name, value);
-            if (customFieldVariable) {
-                this.customFieldVariables[name] = customFieldVariable;
-            } else {
-                throw new Error(String(createError(ERROR_VARIABLE)));
-            }
+        if (isCustomFieldVariableName(name)) {
+            this.customFieldVariables[name] = getCustomFieldVariable(name, value);
         } else {
             this.parser.setVariable(name, value);
         }

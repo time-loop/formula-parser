@@ -2,6 +2,7 @@ import fs from 'fs';
 import path from 'path';
 
 import { createDependencyDetector, haveSameDependencies } from '../../../src/clickup/fieldDependents';
+import { createCustomFieldVariable } from '../../../src/clickup/customField';
 
 describe('field dependents graph', () => {
     const createName = (id: string) => `CUSTOM_FIELD_${id}`;
@@ -22,11 +23,11 @@ describe('field dependents graph', () => {
          *     -> CF_3*
          */
         const variables = [
-            { name: CF_1_NAME, type: 'number', value: 10 },
-            { name: CF_2_NAME, type: 'number', value: 20 },
-            { name: CF_3_NAME, type: 'formula', value: `${CF_1_NAME} + ${CF_2_NAME}` },
-            { name: CF_4_NAME, type: 'formula', value: `${CF_2_NAME} + ${CF_3_NAME}` },
-            { name: CF_5_NAME, type: 'formula', value: `${CF_3_NAME} + ${CF_4_NAME}` },
+            createCustomFieldVariable(CF_1_NAME, 'number', '10'),
+            createCustomFieldVariable(CF_2_NAME, 20, 'number'),
+            createCustomFieldVariable(CF_3_NAME, `${CF_1_NAME} + ${CF_2_NAME}`, 'formula'),
+            createCustomFieldVariable(CF_4_NAME, `${CF_2_NAME} + ${CF_3_NAME}`, 'formula'),
+            createCustomFieldVariable(CF_5_NAME, `${CF_3_NAME} + ${CF_4_NAME}`, 'formula'),
         ];
         const depsDetector = createDependencyDetector(variables);
 
@@ -49,11 +50,11 @@ describe('field dependents graph', () => {
          *     -> CF_3*
          */
         const variables = [
-            { name: CF_1_NAME, type: 'number', value: 10 },
-            { name: CF_2_NAME, type: 'number', value: 20 },
-            { name: CF_3_NAME, type: 'formula', value: `${CF_1_NAME} + ${CF_5_NAME}` },
-            { name: CF_4_NAME, type: 'formula', value: `${CF_2_NAME} + ${CF_3_NAME}` },
-            { name: CF_5_NAME, type: 'formula', value: `${CF_3_NAME} + ${CF_4_NAME}` },
+            createCustomFieldVariable(CF_1_NAME, 10, 'number'),
+            createCustomFieldVariable(CF_2_NAME, 20, 'number'),
+            createCustomFieldVariable(CF_3_NAME, `${CF_1_NAME} + ${CF_5_NAME}`, 'formula'),
+            createCustomFieldVariable(CF_4_NAME, `${CF_2_NAME} + ${CF_3_NAME}`, 'formula'),
+            createCustomFieldVariable(CF_5_NAME, `${CF_3_NAME} + ${CF_4_NAME}`, 'formula'),
         ];
         const depsDetector = createDependencyDetector(variables);
 
@@ -66,14 +67,14 @@ describe('field dependents graph', () => {
     });
 
     it('should detect that two formulas have the same dependencies', () => {
-        const cf1 = { name: CF_1_NAME, type: 'formula', value: 'CUSTOM_FIELD_1 + CUSTOM_FIELD_2' };
-        const cf2 = { name: CF_2_NAME, type: 'formula', value: 'CUSTOM_FIELD_2 + CUSTOM_FIELD_1' };
+        const cf1 = createCustomFieldVariable(CF_1_NAME, 'CUSTOM_FIELD_1 + CUSTOM_FIELD_2', 'formula');
+        const cf2 = createCustomFieldVariable(CF_2_NAME, 'CUSTOM_FIELD_2 + CUSTOM_FIELD_1', 'formula');
         expect(haveSameDependencies(cf1, cf2)).toBe(true);
     });
 
     it('should detect that two formulas have different dependencies', () => {
-        const cf1 = { name: CF_1_NAME, type: 'formula', value: 'CUSTOM_FIELD_1 + CUSTOM_FIELD_2' };
-        const cf2 = { name: CF_2_NAME, type: 'formula', value: 'CUSTOM_FIELD_2 + CUSTOM_FIELD_3' };
+        const cf1 = createCustomFieldVariable(CF_1_NAME, 'CUSTOM_FIELD_1 + CUSTOM_FIELD_2', 'formula');
+        const cf2 = createCustomFieldVariable(CF_2_NAME, 'CUSTOM_FIELD_2 + CUSTOM_FIELD_3', 'formula');
         expect(haveSameDependencies(cf1, cf2)).toBe(false);
     });
 
