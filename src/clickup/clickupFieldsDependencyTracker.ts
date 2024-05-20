@@ -61,7 +61,7 @@ function addDependencyToGraph(fieldName: FieldName) {
     };
 }
 
-export class ClickUpFieldsValidator {
+export class ClickUpFieldsDependencyTracker {
     private variables: CustomFieldVariable[];
     private maxLevels: number;
     private graph: DependencyGraph;

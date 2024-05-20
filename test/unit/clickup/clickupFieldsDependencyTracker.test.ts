@@ -1,7 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 import { createCustomFieldVariable } from '../../../src/clickup/customField';
-import { ClickUpFieldsValidator } from '../../../src/clickup/clickupFieldsValidator';
+import { ClickUpFieldsDependencyTracker } from '../../../src/clickup/clickupFieldsDependencyTracker';
 
 describe('clickupFieldsValidator', () => {
     const createName = (id: string) => `CUSTOM_FIELD_${id}`;
@@ -20,7 +20,7 @@ describe('clickupFieldsValidator', () => {
             createCustomFieldVariable(CF_5_NAME, `${CF_3_NAME} + ${CF_4_NAME}`, 'formula'),
         ];
 
-        const validator = new ClickUpFieldsValidator(variables);
+        const validator = new ClickUpFieldsDependencyTracker(variables);
         expect(validator.getDependentFields(CF_1_NAME)).toEqual([CF_3_NAME, CF_4_NAME, CF_5_NAME]);
         expect(validator.getDependentFields(CF_2_NAME)).toEqual([CF_3_NAME, CF_4_NAME, CF_5_NAME]);
         expect(validator.getDependentFields(CF_3_NAME)).toEqual([CF_4_NAME, CF_5_NAME]);
@@ -37,7 +37,7 @@ describe('clickupFieldsValidator', () => {
             createCustomFieldVariable(CF_4_NAME, `${CF_2_NAME} + ${CF_3_NAME}`, 'formula'),
             createCustomFieldVariable(CF_5_NAME, `${CF_3_NAME} + ${CF_4_NAME}`, 'formula'),
         ];
-        const validator = new ClickUpFieldsValidator(variables);
+        const validator = new ClickUpFieldsDependencyTracker(variables);
 
         expect(() => validator.validate()).toThrow('Circular dependency detected');
     });
@@ -50,7 +50,7 @@ describe('clickupFieldsValidator', () => {
             createCustomFieldVariable(CF_4_NAME, `${CF_2_NAME} + ${CF_3_NAME}`, 'formula'),
             createCustomFieldVariable(CF_5_NAME, `${CF_3_NAME} + ${CF_4_NAME}`, 'formula'),
         ];
-        const validator = new ClickUpFieldsValidator(variables, 2);
+        const validator = new ClickUpFieldsDependencyTracker(variables, 2);
 
         expect(() => validator.validate()).toThrow('Nesting is too deep');
     });
@@ -62,7 +62,7 @@ describe('clickupFieldsValidator', () => {
         const start = performance.now();
         const iterations = 100;
         for (let i = 0; i < iterations; i++) {
-            new ClickUpFieldsValidator(variables);
+            new ClickUpFieldsDependencyTracker(variables);
         }
         const timeAverage = (performance.now() - start) / iterations;
         expect(timeAverage).toBeLessThan(250);
@@ -73,7 +73,7 @@ describe('clickupFieldsValidator', () => {
         const filePath = path.join(process.cwd(), 'test', 'data', 'test_custom_fields.json');
         const data = fs.readFileSync(filePath, 'utf-8');
         const variables = JSON.parse(data);
-        const validator = new ClickUpFieldsValidator(variables);
+        const validator = new ClickUpFieldsDependencyTracker(variables);
         const start = performance.now();
         const iterations = 10;
         for (let i = 0; i < iterations; i++) {
@@ -82,5 +82,19 @@ describe('clickupFieldsValidator', () => {
         const timeAverage = (performance.now() - start) / iterations;
         expect(timeAverage).toBeLessThan(250);
         console.log(`Dependencies validation for ${variables.length} variables (average time): ${timeAverage} ms`);
+    });
+
+    it('fetching dependants should be fast enough', () => {
+        const filePath = path.join(process.cwd(), 'test', 'data', 'test_custom_fields.json');
+        const data = fs.readFileSync(filePath, 'utf-8');
+        const variables = JSON.parse(data);
+        const validator = new ClickUpFieldsDependencyTracker(variables);
+        const start = performance.now();
+        for (const variable of variables) {
+            validator.getDependentFields(variable.name);
+        }
+        const timeAverage = (performance.now() - start) / variables.length;
+        expect(timeAverage).toBeLessThan(1);
+        console.log(`Fetching dependants for ${variables.length} variables (average time): ${timeAverage} ms`);
     });
 });
