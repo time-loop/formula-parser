@@ -92,4 +92,14 @@ describe('ClickUpParser', () => {
 
         expect(result.result).toBe(120);
     });
+
+    it('should accept null as a value', () => {
+        const parser = ClickUpParser.create();
+        parser.setVariable(CF_1, null);
+        const formula = `${CF_1} + 20`;
+
+        const result = parser.parse(formula);
+
+        expect(result).toEqual({ error: '#VALUE!', result: null });
+    });
 });
