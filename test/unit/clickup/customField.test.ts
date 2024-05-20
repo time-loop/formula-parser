@@ -43,6 +43,12 @@ describe('custom field functions', () => {
             null,
             { name: 'CUSTOM_FIELD_5', type: 'unknown', value: null },
         ],
+        [
+            'variable is a formula',
+            'CUSTOM_FIELD_6',
+            { type: 'formula', value: '10 + 20' },
+            { name: 'CUSTOM_FIELD_6', type: 'formula', value: '10 + 20' },
+        ],
     ])('correctly extracts field value when %s', (_, variable, value, expected) => {
         const result = getCustomFieldVariable(variable, value);
         expect(result).toEqual(expected);
