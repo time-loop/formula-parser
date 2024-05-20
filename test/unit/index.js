@@ -1,87 +1,109 @@
-import * as lib from '../../src/index';
+import {
+    Parser,
+    ClickUpParser,
+    SUPPORTED_FORMULAS,
+    ERROR,
+    ERROR_DIV_ZERO,
+    ERROR_NAME,
+    ERROR_NOT_AVAILABLE,
+    ERROR_NULL,
+    ERROR_NUM,
+    ERROR_REF,
+    ERROR_VALUE,
+    ERROR_CYCLE,
+    ERROR_LEVEL,
+    ERROR_VARIABLE,
+    error,
+    extractLabel,
+    toLabel,
+    columnIndexToLabel,
+    columnLabelToIndex,
+    rowIndexToLabel,
+    rowLabelToIndex,
+} from '../../src/index';
 
 describe('Public API', () => {
     it('Parser should be defined', () => {
-        expect(lib.Parser).toBeInstanceOf(Function);
+        expect(Parser).toBeInstanceOf(Function);
     });
 
     it('ClickUpParser should be defined', () => {
-        expect(lib.ClickUpParser).toBeInstanceOf(Function);
+        expect(ClickUpParser).toBeInstanceOf(Function);
     });
 
     it('SUPPORTED_FORMULAS should be defined', () => {
-        expect(lib.SUPPORTED_FORMULAS).toBeInstanceOf(Array);
+        expect(SUPPORTED_FORMULAS).toBeInstanceOf(Array);
     });
 
     it('ERROR should be defined', () => {
-        expect(lib.ERROR).toBeDefined();
+        expect(ERROR).toBeDefined();
     });
 
     it('ERROR_DIV_ZERO should be defined', () => {
-        expect(lib.ERROR_DIV_ZERO).toBeDefined();
+        expect(ERROR_DIV_ZERO).toBeDefined();
     });
 
     it('ERROR_NAME should be defined', () => {
-        expect(lib.ERROR_NAME).toBeDefined();
+        expect(ERROR_NAME).toBeDefined();
     });
 
     it('ERROR_NOT_AVAILABLE should be defined', () => {
-        expect(lib.ERROR_NOT_AVAILABLE).toBeDefined();
+        expect(ERROR_NOT_AVAILABLE).toBeDefined();
     });
 
     it('ERROR_NULL should be defined', () => {
-        expect(lib.ERROR_NULL).toBeDefined();
+        expect(ERROR_NULL).toBeDefined();
     });
 
     it('ERROR_NUM should be defined', () => {
-        expect(lib.ERROR_NUM).toBeDefined();
+        expect(ERROR_NUM).toBeDefined();
     });
 
     it('ERROR_REF should be defined', () => {
-        expect(lib.ERROR_REF).toBeDefined();
+        expect(ERROR_REF).toBeDefined();
     });
 
     it('ERROR_VALUE should be defined', () => {
-        expect(lib.ERROR_VALUE).toBeDefined();
+        expect(ERROR_VALUE).toBeDefined();
     });
 
     it('ERROR_CYCLE should be defined', () => {
-        expect(lib.ERROR_CYCLE).toBeDefined();
+        expect(ERROR_CYCLE).toBeDefined();
     });
 
     it('ERROR_LEVEL should be defined', () => {
-        expect(lib.ERROR_LEVEL).toBeDefined();
+        expect(ERROR_LEVEL).toBeDefined();
     });
 
     it('ERROR_VARIABLE should be defined', () => {
-        expect(lib.ERROR_VARIABLE).toBeDefined();
+        expect(ERROR_VARIABLE).toBeDefined();
     });
 
     it('error should be defined', () => {
-        expect(lib.error).toBeDefined();
+        expect(error).toBeDefined();
     });
 
     it('extractLabel should be defined', () => {
-        expect(lib.extractLabel).toBeDefined();
+        expect(extractLabel).toBeDefined();
     });
 
     it('toLabel should be defined', () => {
-        expect(lib.toLabel).toBeDefined();
+        expect(toLabel).toBeDefined();
     });
 
     it('columnIndexToLabel should be defined', () => {
-        expect(lib.columnIndexToLabel).toBeDefined();
+        expect(columnIndexToLabel).toBeDefined();
     });
 
     it('columnLabelToIndex should be defined', () => {
-        expect(lib.columnLabelToIndex).toBeDefined();
+        expect(columnLabelToIndex).toBeDefined();
     });
 
     it('rowIndexToLabel should be defined', () => {
-        expect(lib.rowIndexToLabel).toBeDefined();
+        expect(rowIndexToLabel).toBeDefined();
     });
 
     it('rowLabelToIndex should be defined', () => {
-        expect(lib.rowLabelToIndex).toBeDefined();
+        expect(rowLabelToIndex).toBeDefined();
     });
 });

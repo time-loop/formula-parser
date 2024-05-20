@@ -1,5 +1,5 @@
 import { ClickUpParser } from '../../../src/clickup/clickupParser';
-import { CustomFieldVariableValue, createCustomFieldVariable } from '../../../src/clickup/customField';
+import { createCustomFieldVariable } from '../../../src/clickup/customField';
 
 describe('ClickUpParser', () => {
     const CF_1 = 'CUSTOM_FIELD_fd1a4b4d_2ca6_4be0_8c64_3beff02edeb2';

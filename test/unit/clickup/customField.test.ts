@@ -1,8 +1,4 @@
-import {
-    createCustomFieldVariable,
-    getCustomFieldVariable,
-    isCustomFieldVariableName,
-} from '../../../src/clickup/customField';
+import { getCustomFieldVariable, isCustomFieldVariableName } from '../../../src/clickup/customField';
 
 describe('custom field functions', () => {
     it.each([
