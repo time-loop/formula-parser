@@ -12,7 +12,6 @@ import {
     ERROR_VALUE,
     ERROR_CYCLE,
     ERROR_LEVEL,
-    ERROR_VARIABLE,
     error,
     extractLabel,
     toLabel,
@@ -73,10 +72,6 @@ describe('Public API', () => {
 
     it('ERROR_LEVEL should be defined', () => {
         expect(ERROR_LEVEL).toBeDefined();
-    });
-
-    it('ERROR_VARIABLE should be defined', () => {
-        expect(ERROR_VARIABLE).toBeDefined();
     });
 
     it('error should be defined', () => {

@@ -12,7 +12,6 @@ import error, {
     ERROR_VALUE,
     ERROR_CYCLE,
     ERROR_LEVEL,
-    ERROR_VARIABLE,
 } from './error';
 import {
     extractLabel,
@@ -35,7 +34,6 @@ export {
     ERROR_VALUE,
     ERROR_CYCLE,
     ERROR_LEVEL,
-    ERROR_VARIABLE,
     Parser,
     ClickUpParser,
     error,
