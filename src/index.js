@@ -1,6 +1,5 @@
 import Parser from './parser';
 import { ClickUpParser } from './clickup/clickupParser';
-import { createDependencyDetector, haveSameDependencies } from './clickup/fieldDependents';
 import SUPPORTED_FORMULAS from './supported-formulas';
 import error, {
     ERROR,
@@ -13,7 +12,6 @@ import error, {
     ERROR_VALUE,
     ERROR_CYCLE,
     ERROR_LEVEL,
-    ERROR_VARIABLE,
 } from './error';
 import {
     extractLabel,
@@ -36,7 +34,6 @@ export {
     ERROR_VALUE,
     ERROR_CYCLE,
     ERROR_LEVEL,
-    ERROR_VARIABLE,
     Parser,
     ClickUpParser,
     error,
@@ -46,6 +43,4 @@ export {
     columnLabelToIndex,
     rowIndexToLabel,
     rowLabelToIndex,
-    createDependencyDetector,
-    haveSameDependencies,
 };

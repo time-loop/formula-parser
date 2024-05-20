@@ -1,4 +1,4 @@
-import { ERROR_CYCLE, ERROR_LEVEL, ERROR_VARIABLE, default as createError } from '../error';
+import { ERROR_CYCLE, ERROR_LEVEL } from '../error';
 import Parser from '../parser';
 import {
     CustomFieldVariable,
