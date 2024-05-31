@@ -14,3 +14,5 @@ dist
 dev.html
 .git-branches.toml
 .vscode
+
+test/data/test_custom_fields.json
