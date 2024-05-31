@@ -10,13 +10,13 @@ describe('add operator', () => {
         expect(func('2', 8.8)).toBe(10.8);
         expect(func('2', '8.8')).toBe(10.8);
         expect(func('2', '-8.8', 6, 0.4)).toBe(-0.4000000000000007);
+        expect(func(2, null)).toBe(2);
+        expect(func(2, undefined)).toBe(2);
+        expect(func(null, 2)).toBe(2);
+        expect(func(undefined, 2)).toBe(2);
         expect(() => func('foo', ' ', 'bar', ' baz')).toThrow('VALUE');
         expect(() => func('foo', 2)).toThrow('VALUE');
-        expect(() => func(2, null)).toThrow('VALUE');
-        expect(() => func(2, undefined)).toThrow('VALUE');
         expect(() => func(2, '')).toThrow('VALUE');
-        expect(() => func(null, 2)).toThrow('VALUE');
-        expect(() => func(undefined, 2)).toThrow('VALUE');
         expect(() => func('', 2)).toThrow('VALUE');
     });
 
