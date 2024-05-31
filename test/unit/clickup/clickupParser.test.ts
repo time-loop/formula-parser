@@ -100,6 +100,6 @@ describe('ClickUpParser', () => {
 
         const result = parser.parse(formula);
 
-        expect(result).toEqual({ error: '#VALUE!', result: null });
+        expect(result).toEqual({ error: null, result: 20 });
     });
 });
