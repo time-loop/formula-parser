@@ -18,8 +18,8 @@ export function toNumber(
         convertFormulasInNumbers: false,
     }
 ) {
-    if (value === null || value === undefined || value === '') {
-        return undefined;
+    if (value === null || value === undefined) {
+        return 0;
     }
 
     if (typeof value === 'number') {
