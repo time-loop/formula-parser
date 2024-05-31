@@ -1,0 +1,27 @@
+{
+    "parser": "@typescript-eslint/parser",
+    "parserOptions": {
+        "ecmaVersion": 2020,
+        "sourceType": "module"
+    },
+    "env": {
+        "browser": true,
+        "es6": true,
+        "node": true,
+        "jest": true
+    },
+    "plugins": ["@typescript-eslint"],
+    "extends": ["eslint:recommended", "plugin:@typescript-eslint/recommended"],
+    "rules": {
+        // Your custom rules
+    },
+    "overrides": [
+        {
+            "files": ["test/**/*"],
+            "rules": {
+                "@typescript-eslint/no-namespace": "off",
+                "@typescript-eslint/no-explicit-any": "off"
+            }
+        }
+    ]
+}

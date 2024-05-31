@@ -112,9 +112,15 @@ export default class Parser {
      */
     _callVariable(name) {
         let value = this.getVariable(name);
-
+        const isFormulaResult = (value) =>
+            value !== null && typeof value === 'object' && 'result' in value && 'error' in value;
         this.emitter.emit('callVariable', name, (newValue) => {
-            if (newValue !== void 0) {
+            if (isFormulaResult(newValue)) {
+                if (newValue.error !== null) {
+                    throw Error(newValue.error);
+                }
+                value = newValue.result;
+            } else if (newValue !== undefined) {
                 value = newValue;
             }
         });

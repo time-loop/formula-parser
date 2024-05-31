@@ -7,7 +7,7 @@
         "target": "ES2022",
         "outDir": "./dist",
         "sourceMap": true,
-        "declaration": false,
+        "declaration": true,
         "strictNullChecks": true,
         "moduleResolution": "node",
         "experimentalDecorators": true,

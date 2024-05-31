@@ -1,4 +1,5 @@
 import Parser from './parser';
+import { ClickUpParser } from './clickup/clickupParser';
 import SUPPORTED_FORMULAS from './supported-formulas';
 import error, {
     ERROR,
@@ -9,6 +10,8 @@ import error, {
     ERROR_NUM,
     ERROR_REF,
     ERROR_VALUE,
+    ERROR_CYCLE,
+    ERROR_LEVEL,
 } from './error';
 import {
     extractLabel,
@@ -29,7 +32,10 @@ export {
     ERROR_NUM,
     ERROR_REF,
     ERROR_VALUE,
+    ERROR_CYCLE,
+    ERROR_LEVEL,
     Parser,
+    ClickUpParser,
     error,
     extractLabel,
     toLabel,

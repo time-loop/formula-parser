@@ -1,32 +1,32 @@
+import { ClickUpParser } from '../../../src/clickup/clickupParser';
 import Parser from '../../../src/parser';
 
 describe('.parse()', () => {
-    let parser;
+    it.each([new Parser(), ClickUpParser.create()])(
+        'should return error when number of arguments is not valid',
+        (parser) => {
+            /* eslint-disable */
+            expect(parser.parse('ACOTH("foo")')).toMatchObject({ error: '#VALUE!', result: null });
+            expect(parser.parse("ACOTH('foo')")).toMatchObject({ error: '#VALUE!', result: null });
+            /* eslint-enable */
+        }
+    );
 
-    beforeEach(() => {
-        parser = new Parser();
-    });
+    it.each([new Parser(), ClickUpParser.create()])(
+        'should return error when used variable is not defined',
+        (parser) => {
+            expect(parser.parse('ACOTH(foo)')).toMatchObject({ error: '#NAME?', result: null });
+        }
+    );
 
-    afterEach(() => {
-        parser = null;
-    });
+    it.each([new Parser(), ClickUpParser.create()])(
+        'should evaluate formula expression provided in lower case',
+        (parser) => {
+            parser.setVariable('foo', [7, 3.5, 3.5, 1, 2]);
 
-    it('should return error when number of arguments is not valid', () => {
-        /* eslint-disable */
-        expect(parser.parse('ACOTH("foo")')).toMatchObject({ error: '#VALUE!', result: null });
-        expect(parser.parse("ACOTH('foo')")).toMatchObject({ error: '#VALUE!', result: null });
-        /* eslint-enable */
-    });
-
-    it('should return error when used variable is not defined', () => {
-        expect(parser.parse('ACOTH(foo)')).toMatchObject({ error: '#NAME?', result: null });
-    });
-
-    it('should evaluate formula expression provided in lower case', () => {
-        parser.setVariable('foo', [7, 3.5, 3.5, 1, 2]);
-
-        expect(parser.parse('sum(2, 3, Rank.eq(2, foo))')).toMatchObject({ error: null, result: 9 });
-    });
+            expect(parser.parse('sum(2, 3, Rank.eq(2, foo))')).toMatchObject({ error: null, result: 9 });
+        }
+    );
 
     describe('ClickUp Overrides', () => {
         const dateTestCases = [
@@ -41,16 +41,21 @@ describe('.parse()', () => {
             ],
         ];
 
+        const testCases = [
+            ...dateTestCases.map((formula) => [...formula, new Parser()]),
+            ...dateTestCases.map((formula) => [...formula, ClickUpParser.create()]),
+        ];
+
         // eslint-disable-next-line max-len
-        it.each(dateTestCases)(
+        it.each(testCases)(
             // eslint-disable-next-line max-len
             'if flags "CONVERT_FORMULAS_IN_NUMBERS" and "CONVERT_DATES_TO_NUMBERS" are off, it should not calculate date subtraction',
-            (formula) => {
+            (formula, _, parser) => {
                 expect(parser.parse(formula)).toMatchObject({ error: '#VALUE!', result: null });
             }
         );
 
-        it.each(dateTestCases)('should calculate date subtraction', (formula, expectedResult) => {
+        it.each(testCases)('should calculate date subtraction', (formula, expectedResult, parser) => {
             parser.setVariable('', true).setVariable('CONVERT_DATES_TO_NUMBERS', true);
 
             expect(parser.parse(formula)).toMatchObject({ error: null, result: expectedResult });

@@ -3,6 +3,8 @@ coverage
 *.tgz
 *.log
 .idea
+.vscode
+
 tmp/
 lib
 es
@@ -12,3 +14,5 @@ dist
 dev.html
 .git-branches.toml
 .vscode
+
+test/data/test_custom_fields.json
