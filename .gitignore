@@ -13,3 +13,4 @@ dist
 
 dev.html
 .git-branches.toml
+.vscode
