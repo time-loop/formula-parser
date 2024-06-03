@@ -25,10 +25,6 @@ interface DependentsLookupContext {
     result: VariableName[];
 }
 
-type VariableNameMatch = {
-    [index: number]: string;
-};
-
 export class DependencyValidationError extends Error {
     constructor(message: string) {
         super(message);
@@ -48,7 +44,6 @@ function addNodeToGraph(graph: DependencyGraph, v: ClickUpParserVariable) {
 function extractDependencies(variable: ClickUpParserVariable): VariableName[] {
     if (isFormula(variable)) {
         const matches = (variable.value as string).matchAll(CUSTOM_FIELD_REGEX);
-        // return matches ? Array.from(matches, (match) => match[0]) : [];
         return matchesToVariableNames(matches);
     }
     return [];
@@ -59,7 +54,7 @@ function isFormula(v: ClickUpParserVariable): boolean {
 }
 
 function matchesToVariableNames(matches: IterableIterator<RegExpExecArray>): VariableName[] {
-    const foundVariables = Array.from(matches, (match: VariableNameMatch) => match[0]);
+    const foundVariables = Array.from(matches, (match) => match[0]);
     // ensure uniqueness
     return Array.from(new Set(foundVariables));
 }
