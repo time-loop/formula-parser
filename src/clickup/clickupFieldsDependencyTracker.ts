@@ -1,4 +1,4 @@
-import { ClickUpParserVariable, VariableName } from './clickupParserVariable';
+import { CUSTOM_FIELD_REGEX, ClickUpParserVariable, VariableName } from './clickupParserVariable';
 
 export interface ValidationResult {
     hasCycle: boolean;
@@ -25,6 +25,10 @@ interface DependentsLookupContext {
     result: VariableName[];
 }
 
+type VariableNameMatch = {
+    [index: number]: string;
+};
+
 export class DependencyValidationError extends Error {
     constructor(message: string) {
         super(message);
@@ -33,33 +37,31 @@ export class DependencyValidationError extends Error {
 
 function createDependencyGraph(variables: ClickUpParserVariable[]): DependencyGraph {
     const graph: DependencyGraph = {};
-    return variables.reduce(addNodeToGraph(variables), graph);
+    return variables.reduce(addNodeToGraph, graph);
 }
 
-function addNodeToGraph(variables: ClickUpParserVariable[]) {
-    const varNames = Array.from(new Set(variables.map((v) => v.name)));
-    const regexPattern = varNames.join('|');
-    const regexp = new RegExp(`\\b(${regexPattern})\\b`, 'g');
-    const getVarsRegExp = () => {
-        regexp.lastIndex = 0;
-        return regexp;
-    };
-    return (graph: DependencyGraph, v: ClickUpParserVariable) => {
-        const dependencies = extractDependencies(v, getVarsRegExp);
-        return dependencies.reduce(addDependencyToGraph(v.name), graph);
-    };
+function addNodeToGraph(graph: DependencyGraph, v: ClickUpParserVariable) {
+    const dependencies = extractDependencies(v);
+    return dependencies.reduce(addDependencyToGraph(v.name), graph);
 }
 
-function extractDependencies(variable: ClickUpParserVariable, getVarsRegExp: () => RegExp): VariableName[] {
+function extractDependencies(variable: ClickUpParserVariable): VariableName[] {
     if (isFormula(variable)) {
-        const matches = variable.value.match(getVarsRegExp());
-        return matches ? Array.from(new Set(matches)) : [];
+        const matches = (variable.value as string).matchAll(CUSTOM_FIELD_REGEX);
+        // return matches ? Array.from(matches, (match) => match[0]) : [];
+        return matchesToVariableNames(matches);
     }
     return [];
 }
 
 function isFormula(v: ClickUpParserVariable): boolean {
     return v.type === 'formula' && typeof v.value === 'string';
+}
+
+function matchesToVariableNames(matches: IterableIterator<RegExpExecArray>): VariableName[] {
+    const foundVariables = Array.from(matches, (match: VariableNameMatch) => match[0]);
+    // ensure uniqueness
+    return Array.from(new Set(foundVariables));
 }
 
 function addDependencyToGraph(fieldName: VariableName) {

@@ -11,14 +11,7 @@ export interface ClickUpParserVariable extends ClickUpParserVariableValue {
     name: VariableName;
 }
 
-// export const getCustomFieldRegex = (function () {
-//     const CUSTOM_FIELD_REGEX = /CUSTOM_FIELD_[a-zA-Z0-9_]+/g;
-//     return () => {
-//         // make sure we start fresh for each call
-//         CUSTOM_FIELD_REGEX.lastIndex = 0;
-//         return CUSTOM_FIELD_REGEX;
-//     };
-// })();
+export const CUSTOM_FIELD_REGEX = /CUSTOM_FIELD_[a-zA-Z0-9_]+/g;
 
 function isClickUpParserVariableValue(value: unknown): value is ClickUpParserVariableValue {
     return typeof value === 'object' && value !== null && 'type' in value && typeof value.type === 'string';
