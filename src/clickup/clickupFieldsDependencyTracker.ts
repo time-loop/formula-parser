@@ -1,4 +1,4 @@
-import { CustomFieldVariable, FieldName, getCustomFieldRegex } from './customField';
+import { ClickUpParserVariable, VariableName } from './clickupParserVariable';
 
 export interface ValidationResult {
     hasCycle: boolean;
@@ -6,23 +6,23 @@ export interface ValidationResult {
 }
 
 interface DependencyGraph {
-    [fieldName: FieldName]: DependencyGraphNode;
+    [fieldName: VariableName]: DependencyGraphNode;
 }
 
 interface DependencyGraphNode {
-    dependents: FieldName[];
-    dependencies: FieldName[];
+    dependents: VariableName[];
+    dependencies: VariableName[];
 }
 
 interface ValidationContext {
     maxLevels: number;
-    recStack: Set<FieldName>;
-    depthByNode: Record<FieldName, number>;
+    recStack: Set<VariableName>;
+    depthByNode: Record<VariableName, number>;
 }
 
 interface DependentsLookupContext {
-    visited: Set<FieldName>;
-    result: FieldName[];
+    visited: Set<VariableName>;
+    result: VariableName[];
 }
 
 export class DependencyValidationError extends Error {
@@ -31,28 +31,39 @@ export class DependencyValidationError extends Error {
     }
 }
 
-function createDependencyGraph(variables: CustomFieldVariable[]): DependencyGraph {
+function createDependencyGraph(variables: ClickUpParserVariable[]): DependencyGraph {
     const graph: DependencyGraph = {};
-    return variables.reduce(addNodeToGraph, graph);
+    return variables.reduce(addNodeToGraph(variables), graph);
 }
 
-function addNodeToGraph(graph: DependencyGraph, v: CustomFieldVariable): DependencyGraph {
-    const dependencies = extractDependencies(v);
-    return dependencies.reduce(addDependencyToGraph(v.name), graph);
+function addNodeToGraph(variables: ClickUpParserVariable[]) {
+    const varNames = Array.from(new Set(variables.map((v) => v.name)));
+    const regexPattern = varNames.join('|');
+    const regexp = new RegExp(`\\b(${regexPattern})\\b`, 'g');
+    const getVarsRegExp = () => {
+        regexp.lastIndex = 0;
+        return regexp;
+    };
+    return (graph: DependencyGraph, v: ClickUpParserVariable) => {
+        const dependencies = extractDependencies(v, getVarsRegExp);
+        return dependencies.reduce(addDependencyToGraph(v.name), graph);
+    };
 }
 
-function extractDependencies(variable: CustomFieldVariable): FieldName[] {
-    return hasDependencies(variable)
-        ? Array.from(variable.value.matchAll(getCustomFieldRegex()), (m: FieldName[]) => m[0])
-        : [];
+function extractDependencies(variable: ClickUpParserVariable, getVarsRegExp: () => RegExp): VariableName[] {
+    if (isFormula(variable)) {
+        const matches = variable.value.match(getVarsRegExp());
+        return matches ? Array.from(new Set(matches)) : [];
+    }
+    return [];
 }
 
-function hasDependencies(v: CustomFieldVariable): boolean {
-    return v.type === 'formula' && typeof v.value === 'string' && getCustomFieldRegex().test(v.value);
+function isFormula(v: ClickUpParserVariable): boolean {
+    return v.type === 'formula' && typeof v.value === 'string';
 }
 
-function addDependencyToGraph(fieldName: FieldName) {
-    return (graph: DependencyGraph, dependency: FieldName) => {
+function addDependencyToGraph(fieldName: VariableName) {
+    return (graph: DependencyGraph, dependency: VariableName) => {
         graph[dependency] = graph[dependency] || { dependents: [], dependencies: [] };
         graph[fieldName] = graph[fieldName] || { dependents: [], dependencies: [] };
         graph[dependency].dependents.push(fieldName);
@@ -62,11 +73,11 @@ function addDependencyToGraph(fieldName: FieldName) {
 }
 
 export class ClickUpFieldsDependencyTracker {
-    private variables: CustomFieldVariable[];
+    private variables: ClickUpParserVariable[];
     private maxLevels: number;
     private graph: DependencyGraph;
 
-    constructor(variables: CustomFieldVariable[], maxLevels: number = Number.MAX_SAFE_INTEGER) {
+    constructor(variables: ClickUpParserVariable[], maxLevels: number = Number.MAX_SAFE_INTEGER) {
         this.variables = variables;
         this.maxLevels = maxLevels;
     }
@@ -83,14 +94,14 @@ export class ClickUpFieldsDependencyTracker {
 
         const context: ValidationContext = {
             maxLevels: this.maxLevels,
-            recStack: new Set<FieldName>(),
+            recStack: new Set<VariableName>(),
             depthByNode: {},
         };
 
-        const sameFieldInPath = (context: ValidationContext, fieldName: FieldName): boolean =>
+        const sameFieldInPath = (context: ValidationContext, fieldName: VariableName): boolean =>
             context.recStack.has(fieldName);
 
-        function traverseNode(fieldName: FieldName, context: ValidationContext) {
+        function traverseNode(fieldName: VariableName, context: ValidationContext) {
             if (sameFieldInPath(context, fieldName)) {
                 throw new DependencyValidationError('Circular dependency detected');
             }
@@ -120,11 +131,11 @@ export class ClickUpFieldsDependencyTracker {
         }
     }
 
-    public getDependentFields(fieldName: FieldName): FieldName[] {
+    public getDependentFields(fieldName: VariableName): VariableName[] {
         const graph = this.getDependencyGraph();
-        const getNeighbours = (name: FieldName) => graph[name]?.dependents || [];
+        const getNeighbours = (name: VariableName) => graph[name]?.dependents || [];
 
-        function traverseNode(graph: DependencyGraph, current: FieldName, context: DependentsLookupContext) {
+        function traverseNode(graph: DependencyGraph, current: VariableName, context: DependentsLookupContext) {
             if (!context.visited.has(current)) {
                 context.visited.add(current);
                 const neighbours = getNeighbours(current);
@@ -135,8 +146,8 @@ export class ClickUpFieldsDependencyTracker {
             }
         }
 
-        const visited = new Set<FieldName>();
-        const result: FieldName[] = [];
+        const visited = new Set<VariableName>();
+        const result: VariableName[] = [];
         for (const neighbour of getNeighbours(fieldName)) {
             traverseNode(graph, neighbour, { visited, result });
         }
