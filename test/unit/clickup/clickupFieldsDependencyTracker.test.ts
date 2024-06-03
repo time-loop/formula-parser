@@ -4,7 +4,7 @@ import { ClickUpFieldsDependencyTracker } from '../../../src/clickup/clickupFiel
 import { ClickUpParserVariable, createClickUpParserVariable } from '../../../src/clickup/clickupParserVariable';
 
 describe('clickupFieldsValidator', () => {
-    const createName = (id: string) => `VARIABLE_${id}`;
+    const createName = (id: string) => `CUSTOM_FIELD_${id}`;
     const CF_1_NAME = createName('100');
     const CF_2_NAME = createName('200');
     const CF_3_NAME = createName('300');
@@ -55,51 +55,65 @@ describe('clickupFieldsValidator', () => {
         expect(() => validator.validate()).toThrow('Nesting is too deep');
     });
 
-    it('validation should be fast enough', () => {
+    describe('performance tests', () => {
         const filePath = path.join(process.cwd(), 'test', 'data', 'test_custom_fields.json');
         const data = fs.readFileSync(filePath, 'utf-8');
         const variables = JSON.parse(data);
-        const start = performance.now();
-        const iterations = 10;
-        for (let i = 0; i < iterations; i++) {
+
+        function getVariables(): ClickUpParserVariable[] {
+            return [...variables];
+        }
+
+        it('graph creation should be fast enough', () => {
+            interface AugmentedTracker {
+                getDependencyGraph(): unknown;
+            }
+
+            const start = performance.now();
+            const iterations = 100;
+            for (let i = 0; i < iterations; i++) {
+                const variables = getVariables();
+                const tracker = new ClickUpFieldsDependencyTracker(variables) as unknown as AugmentedTracker;
+                const graph = tracker.getDependencyGraph();
+                expect(graph).toBeDefined();
+            }
+            const timeAverage = (performance.now() - start) / iterations;
+
+            expect(timeAverage).toBeLessThan(250);
+            console.log(
+                `Graph creation for ${variables.length} variables (average time in ${iterations} iterations): ${timeAverage} ms`
+            );
+        });
+
+        it('dependencies validation should be fast enough', () => {
+            const variables = getVariables();
             const validator = new ClickUpFieldsDependencyTracker(variables);
-            validator.validate();
-        }
-        const timeAverage = (performance.now() - start) / iterations;
-        expect(timeAverage).toBeLessThan(250);
-        console.log(`Dependencies validation for ${variables.length} variables (average time): ${timeAverage} ms`);
-    });
 
-    it('fetching dependants should be fast enough', () => {
-        function getRandomSample<T>(arr: T[], sampleSize: number): T[] {
-            if (sampleSize > arr.length) {
-                throw new Error('Sample size cannot be larger than the array size.');
+            const start = performance.now();
+            const iterations = 1000;
+            for (let i = 0; i < iterations; i++) {
+                validator.validate();
             }
+            const time = performance.now() - start;
 
-            // Create a copy of the array to avoid modifying the original array
-            const arrayCopy = arr.slice();
+            expect(time).toBeLessThan(250);
+            console.log(
+                `Dependencies validation for ${variables.length} variables (${iterations} iterations): ${time} ms`
+            );
+        });
 
-            // Fisher-Yates shuffle, optimized to shuffle only up to sampleSize
-            for (let i = 0; i < sampleSize; i++) {
-                const j = Math.floor(Math.random() * (arr.length - i)) + i;
-                [arrayCopy[i], arrayCopy[j]] = [arrayCopy[j], arrayCopy[i]];
+        it('fetching dependants should be fast enough', () => {
+            const variables = getVariables();
+            const validator = new ClickUpFieldsDependencyTracker(variables);
+
+            const start = performance.now();
+            for (const variable of variables) {
+                validator.getDependentFields(variable.name);
             }
-            // Return the first N elements of the shuffled array
-            return arrayCopy.slice(0, sampleSize);
-        }
+            const time = performance.now() - start;
 
-        const filePath = path.join(process.cwd(), 'test', 'data', 'test_custom_fields.json');
-        const data = fs.readFileSync(filePath, 'utf-8');
-        const variables = JSON.parse(data) as ClickUpParserVariable[];
-        const sampleSize = 1000;
-        const varsToCheck = getRandomSample(variables, sampleSize);
-        const validator = new ClickUpFieldsDependencyTracker(variables);
-        const start = performance.now();
-        for (const variable of varsToCheck) {
-            validator.getDependentFields(variable.name);
-        }
-        const timeAverage = (performance.now() - start) / variables.length;
-        expect(timeAverage).toBeLessThan(1);
-        console.log(`Fetching dependants for ${variables.length} variables (average time): ${timeAverage} ms`);
+            expect(time).toBeLessThan(250);
+            console.log(`Fetching dependants for ${variables.length} variables (each variable): ${time} ms`);
+        });
     });
 });
