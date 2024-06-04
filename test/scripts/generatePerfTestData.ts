@@ -34,7 +34,7 @@ function generateCustomFields(
     dependenciesPerFormula: number,
     formulaDependencyRatio: number
 ): ClickUpParserVariable[] {
-    const makeVariableName = (id: number) => `VAR_${id}`;
+    const makeVariableName = (id: number) => `CUSTOM_FIELD_${id}`;
     const variableIds: VariableName[] = Array.from({ length: numFields }, (_, i) => makeVariableName(i));
     const variables = new VariablesSet();
 
