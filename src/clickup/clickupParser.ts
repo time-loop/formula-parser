@@ -1,24 +1,18 @@
 import { ERROR_CYCLE, ERROR_LEVEL } from '../error';
 import Parser from '../parser';
-import {
-    CustomFieldVariable,
-    FieldName,
-    FieldValue,
-    getCustomFieldVariable,
-    isCustomFieldVariableName,
-} from './customField';
+import { VariableName, VariableValue, getClickUpParserVariable } from './clickupParserVariable';
 
 import { ParseResult } from './parseResult';
 
 interface EvaluationContext {
-    evaluating: Set<FieldName>;
+    evaluating: Set<VariableName>;
     level: number;
     maxLevels: number;
 }
 
 function createEvaluationContext(maxLevels: number): EvaluationContext {
     return {
-        evaluating: new Set<FieldName>(),
+        evaluating: new Set<VariableName>(),
         level: 0,
         maxLevels,
     };
@@ -30,7 +24,6 @@ interface ClickUpParserConfig {
 
 export class ClickUpParser {
     private parser = new Parser();
-    private customFieldVariables: Record<FieldName, CustomFieldVariable> = {};
     private config: ClickUpParserConfig;
     private evaluationContext: EvaluationContext;
 
@@ -39,8 +32,8 @@ export class ClickUpParser {
         this.parser.on('callVariable', this.getCustomFieldVariableValueRetriever(this.customFieldValueGet.bind(this)));
     }
 
-    private getCustomFieldVariableValueRetriever(evaluate: (name: FieldName) => FieldValue) {
-        return (name: FieldName, done: (newValue: unknown) => void) => {
+    private getCustomFieldVariableValueRetriever(evaluate: (name: VariableName) => VariableValue) {
+        return (name: VariableName, done: (newValue: unknown) => void) => {
             // check if we are not in a cycle
             if (this.evaluationContext.evaluating.has(name)) {
                 throw new Error(ERROR_CYCLE);
@@ -66,8 +59,8 @@ export class ClickUpParser {
         };
     }
 
-    private customFieldValueGet(name: FieldName): FieldValue {
-        const fieldDefinition = this.customFieldVariables[name];
+    private customFieldValueGet(name: VariableName): VariableValue {
+        const fieldDefinition = this.parser.getVariable(name);
         if (!fieldDefinition) {
             return undefined;
         }
@@ -90,16 +83,20 @@ export class ClickUpParser {
         return this.parser.parse(expression);
     }
 
-    setVariable(name: FieldName, value: FieldValue) {
-        if (isCustomFieldVariableName(name)) {
-            this.customFieldVariables[name] = getCustomFieldVariable(name, value);
-        } else {
-            this.parser.setVariable(name, value);
+    setVariable(name: VariableName, value: VariableValue) {
+        const parserVariable = getClickUpParserVariable(name, value);
+        this.parser.setVariable(name, parserVariable);
+        return this;
+    }
+
+    setVariables(variables: Record<VariableName, VariableValue>) {
+        for (const [name, value] of Object.entries(variables)) {
+            this.setVariable(name, value);
         }
         return this;
     }
 
-    getVariable(name: FieldName) {
+    getVariable(name: VariableName) {
         return this.parser.getVariable(name);
     }
 

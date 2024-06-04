@@ -1,29 +1,29 @@
 import fs from 'fs';
 import path from 'path';
-import { CustomFieldVariable, FieldName } from '../../src/clickup/customField';
+import { ClickUpParserVariable, VariableName } from '../../src/clickup/clickupParserVariable';
 
-class CustomFieldsSet {
-    private customFields: CustomFieldVariable[] = [];
-    private functionCustomFields: CustomFieldVariable[] = [];
-    private regularCustomFields: CustomFieldVariable[] = [];
+class VariablesSet {
+    private variables: ClickUpParserVariable[] = [];
+    private functionVariables: ClickUpParserVariable[] = [];
+    private regularVariables: ClickUpParserVariable[] = [];
 
-    addCustomField(customField: CustomFieldVariable) {
-        this.customFields.push(customField);
-        if (customField.type === 'formula') {
-            this.functionCustomFields.push(customField);
+    addVariable(variable: ClickUpParserVariable) {
+        this.variables.push(variable);
+        if (variable.type === 'formula') {
+            this.functionVariables.push(variable);
         } else {
-            this.regularCustomFields.push(customField);
+            this.regularVariables.push(variable);
         }
     }
 
-    getCustomFields(type?: string): CustomFieldVariable[] {
+    getVariables(type?: string): ClickUpParserVariable[] {
         switch (type) {
             case 'formula':
-                return this.functionCustomFields;
+                return this.functionVariables;
             case 'regular':
-                return this.regularCustomFields;
+                return this.regularVariables;
             default:
-                return this.customFields;
+                return this.variables;
         }
     }
 }
@@ -33,41 +33,42 @@ function generateCustomFields(
     formulaRatio: number,
     dependenciesPerFormula: number,
     formulaDependencyRatio: number
-): CustomFieldVariable[] {
-    const fieldIds: FieldName[] = Array.from({ length: numFields }, (_, i) => `FIELD_${i}`);
-    const customFields = new CustomFieldsSet();
+): ClickUpParserVariable[] {
+    const makeVariableName = (id: number) => `CUSTOM_FIELD_${id}`;
+    const variableIds: VariableName[] = Array.from({ length: numFields }, (_, i) => makeVariableName(i));
+    const variables = new VariablesSet();
 
     // Generate regular (non-formula) fields
     const numFormulas = Math.floor(numFields * formulaRatio);
-    const numRegularFields = numFields - numFormulas;
+    const numRegularVars = numFields - numFormulas;
 
-    for (let i = 0; i < numRegularFields; i++) {
-        customFields.addCustomField({
-            name: fieldIds[i],
+    for (let i = 0; i < numRegularVars; i++) {
+        variables.addVariable({
+            name: variableIds[i],
             type: 'regular',
-            value: `Value for ${fieldIds[i]}`,
+            value: `Value for ${variableIds[i]}`,
         });
     }
 
     // Generate formula fields
-    for (let i = numRegularFields; i < numFields; i++) {
+    for (let i = numRegularVars; i < numFields; i++) {
         const dependencies = Array.from({ length: dependenciesPerFormula }, () => {
             const isFormulaDependency = Math.random() < formulaDependencyRatio;
-            const dependencyType = isFormulaDependency && i !== numRegularFields ? 'formula' : 'regular';
-            const dependencyPool = customFields.getCustomFields(dependencyType);
+            const dependencyType = isFormulaDependency && i !== numRegularVars ? 'formula' : 'regular';
+            const dependencyPool = variables.getVariables(dependencyType);
             const randomDependency = dependencyPool[Math.floor(Math.random() * dependencyPool.length)];
             return randomDependency.name;
         });
-        const formulaValue = dependencies.map((dep) => `CUSTOM_FIELD_${dep}`).join(' + ');
+        const formulaValue = dependencies.join(' + ');
 
-        customFields.addCustomField({
-            name: fieldIds[i],
+        variables.addVariable({
+            name: variableIds[i],
             type: 'formula',
             value: formulaValue,
         });
     }
 
-    return customFields.getCustomFields();
+    return variables.getVariables();
 }
 
 function main() {

@@ -1,4 +1,4 @@
-import { CustomFieldVariable, FieldName, getCustomFieldRegex } from './customField';
+import { CUSTOM_FIELD_REGEX, ClickUpParserVariable, VariableName } from './clickupParserVariable';
 
 export interface ValidationResult {
     hasCycle: boolean;
@@ -6,23 +6,23 @@ export interface ValidationResult {
 }
 
 interface DependencyGraph {
-    [fieldName: FieldName]: DependencyGraphNode;
+    [fieldName: VariableName]: DependencyGraphNode;
 }
 
 interface DependencyGraphNode {
-    dependents: FieldName[];
-    dependencies: FieldName[];
+    dependents: VariableName[];
+    dependencies: VariableName[];
 }
 
 interface ValidationContext {
     maxLevels: number;
-    recStack: Set<FieldName>;
-    depthByNode: Record<FieldName, number>;
+    recStack: Set<VariableName>;
+    depthByNode: Record<VariableName, number>;
 }
 
 interface DependentsLookupContext {
-    visited: Set<FieldName>;
-    result: FieldName[];
+    visited: Set<VariableName>;
+    result: VariableName[];
 }
 
 export class DependencyValidationError extends Error {
@@ -31,42 +31,50 @@ export class DependencyValidationError extends Error {
     }
 }
 
-function createDependencyGraph(variables: CustomFieldVariable[]): DependencyGraph {
+function createDependencyGraph(variables: ClickUpParserVariable[]): DependencyGraph {
     const graph: DependencyGraph = {};
     return variables.reduce(addNodeToGraph, graph);
 }
 
-function addNodeToGraph(graph: DependencyGraph, v: CustomFieldVariable): DependencyGraph {
+function addNodeToGraph(graph: DependencyGraph, v: ClickUpParserVariable) {
     const dependencies = extractDependencies(v);
     return dependencies.reduce(addDependencyToGraph(v.name), graph);
 }
 
-function extractDependencies(variable: CustomFieldVariable): FieldName[] {
-    return hasDependencies(variable)
-        ? Array.from(variable.value.matchAll(getCustomFieldRegex()), (m: FieldName[]) => m[0])
-        : [];
+function extractDependencies(variable: ClickUpParserVariable): VariableName[] {
+    if (isFormula(variable)) {
+        const matches = (variable.value as string).matchAll(CUSTOM_FIELD_REGEX);
+        return matchesToVariableNames(matches);
+    }
+    return [];
 }
 
-function hasDependencies(v: CustomFieldVariable): boolean {
-    return v.type === 'formula' && typeof v.value === 'string' && getCustomFieldRegex().test(v.value);
+function isFormula(v: ClickUpParserVariable): boolean {
+    return v.type === 'formula' && typeof v.value === 'string';
 }
 
-function addDependencyToGraph(fieldName: FieldName) {
-    return (graph: DependencyGraph, dependency: FieldName) => {
+function matchesToVariableNames(matches: IterableIterator<RegExpExecArray>): VariableName[] {
+    const foundVariables = Array.from(matches, (match) => match[0]);
+    // ensure uniqueness
+    return Array.from(new Set(foundVariables));
+}
+
+function addDependencyToGraph(variableName: VariableName) {
+    return (graph: DependencyGraph, dependency: VariableName) => {
         graph[dependency] = graph[dependency] || { dependents: [], dependencies: [] };
-        graph[fieldName] = graph[fieldName] || { dependents: [], dependencies: [] };
-        graph[dependency].dependents.push(fieldName);
-        graph[fieldName].dependencies.push(dependency);
+        graph[variableName] = graph[variableName] || { dependents: [], dependencies: [] };
+        graph[dependency].dependents.push(variableName);
+        graph[variableName].dependencies.push(dependency);
         return graph;
     };
 }
 
 export class ClickUpFieldsDependencyTracker {
-    private variables: CustomFieldVariable[];
+    private variables: ClickUpParserVariable[];
     private maxLevels: number;
     private graph: DependencyGraph;
 
-    constructor(variables: CustomFieldVariable[], maxLevels: number = Number.MAX_SAFE_INTEGER) {
+    constructor(variables: ClickUpParserVariable[], maxLevels: number = Number.MAX_SAFE_INTEGER) {
         this.variables = variables;
         this.maxLevels = maxLevels;
     }
@@ -83,48 +91,48 @@ export class ClickUpFieldsDependencyTracker {
 
         const context: ValidationContext = {
             maxLevels: this.maxLevels,
-            recStack: new Set<FieldName>(),
+            recStack: new Set<VariableName>(),
             depthByNode: {},
         };
 
-        const sameFieldInPath = (context: ValidationContext, fieldName: FieldName): boolean =>
-            context.recStack.has(fieldName);
+        const sameVarInPath = (context: ValidationContext, variableName: VariableName): boolean =>
+            context.recStack.has(variableName);
 
-        function traverseNode(fieldName: FieldName, context: ValidationContext) {
-            if (sameFieldInPath(context, fieldName)) {
+        function traverseNode(variableName: VariableName, context: ValidationContext) {
+            if (sameVarInPath(context, variableName)) {
                 throw new DependencyValidationError('Circular dependency detected');
             }
 
-            if (context.depthByNode[fieldName] !== undefined) {
-                return context.depthByNode[fieldName];
+            if (context.depthByNode[variableName] !== undefined) {
+                return context.depthByNode[variableName];
             }
 
-            context.recStack.add(fieldName);
+            context.recStack.add(variableName);
 
             let maxDepth = 0;
-            for (const dependency of graph[fieldName].dependencies) {
+            for (const dependency of graph[variableName].dependencies) {
                 maxDepth = Math.max(maxDepth, traverseNode(dependency, context) + 1);
                 if (maxDepth > context.maxLevels) {
-                    throw new DependencyValidationError(`Nesting is too deep at node: ${fieldName}`);
+                    throw new DependencyValidationError(`Nesting is too deep at node: ${variableName}`);
                 }
             }
 
-            context.recStack.delete(fieldName);
-            context.depthByNode[fieldName] = maxDepth;
+            context.recStack.delete(variableName);
+            context.depthByNode[variableName] = maxDepth;
 
             return maxDepth;
         }
 
-        for (const fieldName in graph) {
-            traverseNode(fieldName, context);
+        for (const varName in graph) {
+            traverseNode(varName, context);
         }
     }
 
-    public getDependentFields(fieldName: FieldName): FieldName[] {
+    public getDependentFields(variableName: VariableName): VariableName[] {
         const graph = this.getDependencyGraph();
-        const getNeighbours = (name: FieldName) => graph[name]?.dependents || [];
+        const getNeighbours = (name: VariableName) => graph[name]?.dependents || [];
 
-        function traverseNode(graph: DependencyGraph, current: FieldName, context: DependentsLookupContext) {
+        function traverseNode(graph: DependencyGraph, current: VariableName, context: DependentsLookupContext) {
             if (!context.visited.has(current)) {
                 context.visited.add(current);
                 const neighbours = getNeighbours(current);
@@ -135,9 +143,9 @@ export class ClickUpFieldsDependencyTracker {
             }
         }
 
-        const visited = new Set<FieldName>();
-        const result: FieldName[] = [];
-        for (const neighbour of getNeighbours(fieldName)) {
+        const visited = new Set<VariableName>();
+        const result: VariableName[] = [];
+        for (const neighbour of getNeighbours(variableName)) {
             traverseNode(graph, neighbour, { visited, result });
         }
 

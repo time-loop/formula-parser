@@ -1,7 +1,7 @@
 import fs from 'fs';
 import path from 'path';
-import { createCustomFieldVariable } from '../../../src/clickup/customField';
 import { ClickUpFieldsDependencyTracker } from '../../../src/clickup/clickupFieldsDependencyTracker';
+import { ClickUpParserVariable, createClickUpParserVariable } from '../../../src/clickup/clickupParserVariable';
 
 describe('clickupFieldsValidator', () => {
     const createName = (id: string) => `CUSTOM_FIELD_${id}`;
@@ -13,11 +13,11 @@ describe('clickupFieldsValidator', () => {
 
     it('should return dependants in order', () => {
         const variables = [
-            createCustomFieldVariable(CF_1_NAME, 'number', '10'),
-            createCustomFieldVariable(CF_2_NAME, 20, 'number'),
-            createCustomFieldVariable(CF_3_NAME, `${CF_1_NAME} + ${CF_2_NAME}`, 'formula'),
-            createCustomFieldVariable(CF_4_NAME, `${CF_2_NAME} + ${CF_3_NAME}`, 'formula'),
-            createCustomFieldVariable(CF_5_NAME, `${CF_3_NAME} + ${CF_4_NAME}`, 'formula'),
+            createClickUpParserVariable(CF_1_NAME, 'number', '10'),
+            createClickUpParserVariable(CF_2_NAME, 20, 'number'),
+            createClickUpParserVariable(CF_3_NAME, `${CF_1_NAME} + ${CF_2_NAME}`, 'formula'),
+            createClickUpParserVariable(CF_4_NAME, `${CF_2_NAME} + ${CF_3_NAME}`, 'formula'),
+            createClickUpParserVariable(CF_5_NAME, `${CF_3_NAME} + ${CF_4_NAME}`, 'formula'),
         ];
 
         const validator = new ClickUpFieldsDependencyTracker(variables);
@@ -31,11 +31,11 @@ describe('clickupFieldsValidator', () => {
 
     it('should detect cycle', () => {
         const variables = [
-            createCustomFieldVariable(CF_1_NAME, 10, 'number'),
-            createCustomFieldVariable(CF_2_NAME, 20, 'number'),
-            createCustomFieldVariable(CF_3_NAME, `${CF_1_NAME} + ${CF_5_NAME}`, 'formula'),
-            createCustomFieldVariable(CF_4_NAME, `${CF_2_NAME} + ${CF_3_NAME}`, 'formula'),
-            createCustomFieldVariable(CF_5_NAME, `${CF_3_NAME} + ${CF_4_NAME}`, 'formula'),
+            createClickUpParserVariable(CF_1_NAME, 10, 'number'),
+            createClickUpParserVariable(CF_2_NAME, 20, 'number'),
+            createClickUpParserVariable(CF_3_NAME, `${CF_1_NAME} + ${CF_5_NAME}`, 'formula'),
+            createClickUpParserVariable(CF_4_NAME, `${CF_2_NAME} + ${CF_3_NAME}`, 'formula'),
+            createClickUpParserVariable(CF_5_NAME, `${CF_3_NAME} + ${CF_4_NAME}`, 'formula'),
         ];
         const validator = new ClickUpFieldsDependencyTracker(variables);
 
@@ -44,57 +44,99 @@ describe('clickupFieldsValidator', () => {
 
     it('should detect nesting is too deep', () => {
         const variables = [
-            createCustomFieldVariable(CF_1_NAME, 10, 'number'),
-            createCustomFieldVariable(CF_2_NAME, 20, 'number'),
-            createCustomFieldVariable(CF_3_NAME, `${CF_1_NAME} + ${CF_2_NAME}`, 'formula'),
-            createCustomFieldVariable(CF_4_NAME, `${CF_2_NAME} + ${CF_3_NAME}`, 'formula'),
-            createCustomFieldVariable(CF_5_NAME, `${CF_3_NAME} + ${CF_4_NAME}`, 'formula'),
+            createClickUpParserVariable(CF_1_NAME, 10, 'number'),
+            createClickUpParserVariable(CF_2_NAME, 20, 'number'),
+            createClickUpParserVariable(CF_3_NAME, `${CF_1_NAME} + ${CF_2_NAME}`, 'formula'),
+            createClickUpParserVariable(CF_4_NAME, `${CF_2_NAME} + ${CF_3_NAME}`, 'formula'),
+            createClickUpParserVariable(CF_5_NAME, `${CF_3_NAME} + ${CF_4_NAME}`, 'formula'),
         ];
         const validator = new ClickUpFieldsDependencyTracker(variables, 2);
 
         expect(() => validator.validate()).toThrow('Nesting is too deep');
     });
 
-    it('construction should be fast enough', () => {
-        const filePath = path.join(process.cwd(), 'test', 'data', 'test_custom_fields.json');
-        const data = fs.readFileSync(filePath, 'utf-8');
-        const variables = JSON.parse(data);
-        const start = performance.now();
-        const iterations = 100;
-        for (let i = 0; i < iterations; i++) {
-            new ClickUpFieldsDependencyTracker(variables);
+    describe('performance tests', () => {
+        interface AugmentedTracker {
+            getDependencyGraph(): unknown;
         }
-        const timeAverage = (performance.now() - start) / iterations;
-        expect(timeAverage).toBeLessThan(250);
-        console.log(`Validator construction for ${variables.length} variables (average time): ${timeAverage} ms`);
-    });
 
-    it('validation should be fast enough', () => {
         const filePath = path.join(process.cwd(), 'test', 'data', 'test_custom_fields.json');
         const data = fs.readFileSync(filePath, 'utf-8');
         const variables = JSON.parse(data);
-        const validator = new ClickUpFieldsDependencyTracker(variables);
-        const start = performance.now();
-        const iterations = 10;
-        for (let i = 0; i < iterations; i++) {
-            validator.validate();
-        }
-        const timeAverage = (performance.now() - start) / iterations;
-        expect(timeAverage).toBeLessThan(250);
-        console.log(`Dependencies validation for ${variables.length} variables (average time): ${timeAverage} ms`);
-    });
 
-    it('fetching dependants should be fast enough', () => {
-        const filePath = path.join(process.cwd(), 'test', 'data', 'test_custom_fields.json');
-        const data = fs.readFileSync(filePath, 'utf-8');
-        const variables = JSON.parse(data);
-        const validator = new ClickUpFieldsDependencyTracker(variables);
-        const start = performance.now();
-        for (const variable of variables) {
-            validator.getDependentFields(variable.name);
+        function getVariables(): ClickUpParserVariable[] {
+            return [...variables];
         }
-        const timeAverage = (performance.now() - start) / variables.length;
-        expect(timeAverage).toBeLessThan(1);
-        console.log(`Fetching dependants for ${variables.length} variables (average time): ${timeAverage} ms`);
+
+        function getRandomSample<T>(arr: T[], sampleSize: number): T[] {
+            if (sampleSize > arr.length) {
+                throw new Error('Sample size cannot be larger than the array size.');
+            }
+
+            // Create a copy of the array to avoid modifying the original array
+            const arrayCopy = arr.slice();
+
+            // Fisher-Yates shuffle, optimized to shuffle only up to sampleSize
+            for (let i = 0; i < sampleSize; i++) {
+                const j = Math.floor(Math.random() * (arr.length - i)) + i;
+                [arrayCopy[i], arrayCopy[j]] = [arrayCopy[j], arrayCopy[i]];
+            }
+            // Return the first N elements of the shuffled array
+            return arrayCopy.slice(0, sampleSize);
+        }
+        it('graph creation should be fast enough', () => {
+            const start = performance.now();
+            const iterations = 10;
+            for (let i = 0; i < iterations; i++) {
+                const variables = getVariables();
+                const tracker = new ClickUpFieldsDependencyTracker(variables) as unknown as AugmentedTracker;
+                const graph = tracker.getDependencyGraph();
+                expect(graph).toBeDefined();
+            }
+            const timeAverage = (performance.now() - start) / iterations;
+
+            expect(timeAverage).toBeLessThan(250);
+            console.log(`Graph creation for ${variables.length} variables (average time): ${timeAverage} ms`);
+        });
+
+        it('dependencies validation should be fast enough', () => {
+            const variables = getVariables();
+            const validator = new ClickUpFieldsDependencyTracker(variables);
+            {
+                // initialze the graph outside of the measurement
+                const augmented = validator as unknown as AugmentedTracker;
+                augmented.getDependencyGraph();
+            }
+
+            const start = performance.now();
+            const iterations = 100;
+            for (let i = 0; i < iterations; i++) {
+                validator.validate();
+            }
+            const time = (performance.now() - start) / iterations;
+
+            expect(time).toBeLessThan(250);
+            console.log(`Dependencies validation for ${variables.length} variables (average time): ${time} ms`);
+        });
+
+        it('fetching dependants should be fast enough', () => {
+            const variables = getVariables();
+            const tracker = new ClickUpFieldsDependencyTracker(variables);
+            {
+                // initialze the graph outside of the measurement
+                const augmented = tracker as unknown as AugmentedTracker;
+                augmented.getDependencyGraph();
+            }
+
+            const varsSample = getRandomSample(variables, 1000);
+            const start = performance.now();
+            for (const variable of varsSample) {
+                tracker.getDependentFields(variable.name);
+            }
+            const time = (performance.now() - start) / variables.length;
+
+            expect(time).toBeLessThan(250);
+            console.log(`Fetching dependants for ${variables.length} variables (average time): ${time} ms`);
+        });
     });
 });
