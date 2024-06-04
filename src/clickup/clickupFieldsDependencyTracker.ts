@@ -59,12 +59,12 @@ function matchesToVariableNames(matches: IterableIterator<RegExpExecArray>): Var
     return Array.from(new Set(foundVariables));
 }
 
-function addDependencyToGraph(fieldName: VariableName) {
+function addDependencyToGraph(variableName: VariableName) {
     return (graph: DependencyGraph, dependency: VariableName) => {
         graph[dependency] = graph[dependency] || { dependents: [], dependencies: [] };
-        graph[fieldName] = graph[fieldName] || { dependents: [], dependencies: [] };
-        graph[dependency].dependents.push(fieldName);
-        graph[fieldName].dependencies.push(dependency);
+        graph[variableName] = graph[variableName] || { dependents: [], dependencies: [] };
+        graph[dependency].dependents.push(variableName);
+        graph[variableName].dependencies.push(dependency);
         return graph;
     };
 }
@@ -95,40 +95,40 @@ export class ClickUpFieldsDependencyTracker {
             depthByNode: {},
         };
 
-        const sameFieldInPath = (context: ValidationContext, fieldName: VariableName): boolean =>
-            context.recStack.has(fieldName);
+        const sameVarInPath = (context: ValidationContext, variableName: VariableName): boolean =>
+            context.recStack.has(variableName);
 
-        function traverseNode(fieldName: VariableName, context: ValidationContext) {
-            if (sameFieldInPath(context, fieldName)) {
+        function traverseNode(variableName: VariableName, context: ValidationContext) {
+            if (sameVarInPath(context, variableName)) {
                 throw new DependencyValidationError('Circular dependency detected');
             }
 
-            if (context.depthByNode[fieldName] !== undefined) {
-                return context.depthByNode[fieldName];
+            if (context.depthByNode[variableName] !== undefined) {
+                return context.depthByNode[variableName];
             }
 
-            context.recStack.add(fieldName);
+            context.recStack.add(variableName);
 
             let maxDepth = 0;
-            for (const dependency of graph[fieldName].dependencies) {
+            for (const dependency of graph[variableName].dependencies) {
                 maxDepth = Math.max(maxDepth, traverseNode(dependency, context) + 1);
                 if (maxDepth > context.maxLevels) {
-                    throw new DependencyValidationError(`Nesting is too deep at node: ${fieldName}`);
+                    throw new DependencyValidationError(`Nesting is too deep at node: ${variableName}`);
                 }
             }
 
-            context.recStack.delete(fieldName);
-            context.depthByNode[fieldName] = maxDepth;
+            context.recStack.delete(variableName);
+            context.depthByNode[variableName] = maxDepth;
 
             return maxDepth;
         }
 
-        for (const fieldName in graph) {
-            traverseNode(fieldName, context);
+        for (const varName in graph) {
+            traverseNode(varName, context);
         }
     }
 
-    public getDependentFields(fieldName: VariableName): VariableName[] {
+    public getDependentFields(variableName: VariableName): VariableName[] {
         const graph = this.getDependencyGraph();
         const getNeighbours = (name: VariableName) => graph[name]?.dependents || [];
 
@@ -145,7 +145,7 @@ export class ClickUpFieldsDependencyTracker {
 
         const visited = new Set<VariableName>();
         const result: VariableName[] = [];
-        for (const neighbour of getNeighbours(fieldName)) {
+        for (const neighbour of getNeighbours(variableName)) {
             traverseNode(graph, neighbour, { visited, result });
         }
 
