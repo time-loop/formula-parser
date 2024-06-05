@@ -43,10 +43,10 @@ describe('ClickUpParser', () => {
     });
 
     it('should return error if dependent formula is invalid', () => {
-        const parser = ClickUpParser.create(10);
-        parser.setVariable(CF_1, `SUM(${CF_2}, ${CF_3})`, true);
-        parser.setVariable(CF_2, '100/0', true);
-        parser.setVariable(CF_3, 30);
+        const parser = ClickUpParser.create();
+        parser.setVariable(CF_1, `${CF_2} / ${CF_3}`, true);
+        parser.setVariable(CF_2, 100);
+        parser.setVariable(CF_3, 0);
 
         const formula = `SUM(${CF_1}, ${CF_2}, ${CF_3})`;
 

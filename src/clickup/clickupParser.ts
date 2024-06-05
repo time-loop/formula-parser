@@ -30,40 +30,43 @@ export class ClickUpParser {
 
     private constructor(config: ClickUpParserConfig) {
         this.config = config;
-        this.parser.on('callVariable', this.getVariableValueRetriever(this.variableValueGet.bind(this)));
+        this.parser.on('callVariable', this.variableValueGet.bind(this));
     }
 
-    private getVariableValueRetriever(evaluate: (name: VariableName) => VariableValue) {
-        return (name: VariableName, done: (newValue: unknown) => void) => {
-            // check if we are not in a cycle
-            if (this.evaluationContext.evaluating.has(name)) {
-                throw new Error(ERROR_CYCLE);
-            }
-
-            // change context
-            this.evaluationContext.evaluating.add(name);
-            this.evaluationContext.level++;
-
-            // check if we are not exceeding the max levels
-            if (this.evaluationContext.level > this.evaluationContext.maxLevels) {
-                throw new Error(ERROR_LEVEL);
-            }
-
-            // evalue the variable
-            const value = evaluate(name);
-
-            // restore context
-            this.evaluationContext.evaluating.delete(name);
-            this.evaluationContext.level--;
-
-            done(value);
-        };
-    }
-
-    private variableValueGet(name: VariableName): VariableValue {
-        const variableValue = this.parser.getVariable(name);
+    private variableValueGet(name: VariableName, done: (newValue?: unknown) => void) {
         // if the variable is a formula, we evaluate it
-        return this.formulaVariables.has(name) ? this.parser.parse(variableValue) : variableValue;
+        if (this.formulaVariables.has(name)) {
+            const variableValue = this.parser.getVariable(name);
+            const result = this.evaluateFormulaVariable(name, variableValue);
+            done(result);
+            return;
+        }
+        done();
+    }
+
+    private evaluateFormulaVariable(name: VariableName, variableValue: VariableValue) {
+        // check if we are not in a cycle
+        if (this.evaluationContext.evaluating.has(name)) {
+            throw new Error(ERROR_CYCLE);
+        }
+        // update context
+        this.evaluationContext.evaluating.add(name);
+        this.evaluationContext.level++;
+        // check if we are not exceeding the max levels
+        if (this.evaluationContext.level > this.evaluationContext.maxLevels) {
+            throw new Error(ERROR_LEVEL);
+        }
+
+        const { error, result } = this.parser.parse(variableValue);
+
+        // restore context
+        this.evaluationContext.evaluating.delete(name);
+        this.evaluationContext.level--;
+
+        if (error) {
+            throw new Error(error);
+        }
+        return result;
     }
 
     static create(maxLevels: number = 1) {
