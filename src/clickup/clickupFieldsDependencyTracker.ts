@@ -50,7 +50,7 @@ function extractDependencies(variable: ClickUpParserVariable): VariableName[] {
 }
 
 function isFormula(v: ClickUpParserVariable): boolean {
-    return v.type === 'formula' && typeof v.value === 'string';
+    return v.isFormula === true && typeof v.value === 'string';
 }
 
 function matchesToVariableNames(matches: IterableIterator<RegExpExecArray>): VariableName[] {

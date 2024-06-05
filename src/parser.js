@@ -30,7 +30,12 @@ export default class Parser {
         this.variables = Object.create(null);
         this.functions = Object.create(null);
 
-        this.setVariable('TRUE', true).setVariable('FALSE', false).setVariable('NULL', null);
+        this.setVariable('TRUE', true)
+            .setVariable('true', true)
+            .setVariable('FALSE', false)
+            .setVariable('false', false)
+            .setVariable('NULL', null)
+            .setVariable('null', null);
     }
 
     /**
