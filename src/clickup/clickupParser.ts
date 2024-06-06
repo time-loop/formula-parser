@@ -1,6 +1,6 @@
 import { ERROR_CYCLE, ERROR_LEVEL } from '../error';
 import Parser from '../parser';
-import { VariableName, VariableValue, getClickUpParserVariable } from './clickupParserVariable';
+import { VariableName, VariableValue } from './clickupParserVariable';
 
 import { ParseResult } from './parseResult';
 
@@ -26,56 +26,51 @@ export class ClickUpParser {
     private parser = new Parser();
     private config: ClickUpParserConfig;
     private evaluationContext: EvaluationContext;
+    private formulaVariables = new Set<VariableName>();
 
     private constructor(config: ClickUpParserConfig) {
         this.config = config;
-        this.parser.on('callVariable', this.getCustomFieldVariableValueRetriever(this.customFieldValueGet.bind(this)));
+        this.parser.on('callVariable', this.variableValueGet.bind(this));
     }
 
-    private getCustomFieldVariableValueRetriever(evaluate: (name: VariableName) => VariableValue) {
-        return (name: VariableName, done: (newValue: unknown) => void) => {
-            // check if we are not in a cycle
-            if (this.evaluationContext.evaluating.has(name)) {
-                throw new Error(ERROR_CYCLE);
-            }
-
-            // change context
-            this.evaluationContext.evaluating.add(name);
-            this.evaluationContext.level++;
-
-            // check if we are not exceeding the max levels
-            if (this.evaluationContext.level > this.evaluationContext.maxLevels) {
-                throw new Error(ERROR_LEVEL);
-            }
-
-            // evalue the variable
-            const value = evaluate(name);
-
-            // restore context
-            this.evaluationContext.evaluating.delete(name);
-            this.evaluationContext.level--;
-
-            done(value);
-        };
+    private variableValueGet(name: VariableName, done: (newValue?: unknown) => void) {
+        // if the variable is a formula, we evaluate it
+        if (this.formulaVariables.has(name)) {
+            const variableValue = this.parser.getVariable(name);
+            const result = this.evaluateFormulaVariable(name, variableValue);
+            done(result);
+            return;
+        }
+        done();
     }
 
-    private customFieldValueGet(name: VariableName): VariableValue {
-        const fieldDefinition = this.parser.getVariable(name);
-        if (!fieldDefinition) {
-            return undefined;
+    private evaluateFormulaVariable(name: VariableName, variableValue: VariableValue) {
+        // check if we are not in a cycle
+        if (this.evaluationContext.evaluating.has(name)) {
+            throw new Error(ERROR_CYCLE);
         }
-        if (fieldDefinition.type === 'formula') {
-            return this.parser.parse(fieldDefinition.value);
+        // update context
+        this.evaluationContext.evaluating.add(name);
+        this.evaluationContext.level++;
+        // check if we are not exceeding the max levels
+        if (this.evaluationContext.level > this.evaluationContext.maxLevels) {
+            throw new Error(ERROR_LEVEL);
         }
-        return fieldDefinition.value;
+
+        const { error, result } = this.parser.parse(variableValue);
+
+        // restore context
+        this.evaluationContext.evaluating.delete(name);
+        this.evaluationContext.level--;
+
+        if (error) {
+            throw new Error(error);
+        }
+        return result;
     }
 
     static create(maxLevels: number = 1) {
-        const parser = new ClickUpParser({ maxLevels });
-        parser.setVariable('true', true);
-        parser.setVariable('false', false);
-        parser.setVariable('null', null);
-        return parser;
+        return new ClickUpParser({ maxLevels });
     }
 
     parse(expression: string): ParseResult {
@@ -83,16 +78,11 @@ export class ClickUpParser {
         return this.parser.parse(expression);
     }
 
-    setVariable(name: VariableName, value: VariableValue) {
-        const parserVariable = getClickUpParserVariable(name, value);
-        this.parser.setVariable(name, parserVariable);
-        return this;
-    }
-
-    setVariables(variables: Record<VariableName, VariableValue>) {
-        for (const [name, value] of Object.entries(variables)) {
-            this.setVariable(name, value);
+    setVariable(name: VariableName, value: VariableValue, isFormula = false) {
+        if (isFormula) {
+            this.formulaVariables.add(name);
         }
+        this.parser.setVariable(name, value);
         return this;
     }
 

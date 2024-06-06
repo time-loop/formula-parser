@@ -13,11 +13,11 @@ describe('clickupFieldsValidator', () => {
 
     it('should return dependants in order', () => {
         const variables = [
-            createClickUpParserVariable(CF_1_NAME, 'number', '10'),
-            createClickUpParserVariable(CF_2_NAME, 20, 'number'),
-            createClickUpParserVariable(CF_3_NAME, `${CF_1_NAME} + ${CF_2_NAME}`, 'formula'),
-            createClickUpParserVariable(CF_4_NAME, `${CF_2_NAME} + ${CF_3_NAME}`, 'formula'),
-            createClickUpParserVariable(CF_5_NAME, `${CF_3_NAME} + ${CF_4_NAME}`, 'formula'),
+            createClickUpParserVariable(CF_1_NAME, 10),
+            createClickUpParserVariable(CF_2_NAME, 20),
+            createClickUpParserVariable(CF_3_NAME, `${CF_1_NAME} + ${CF_2_NAME}`, true),
+            createClickUpParserVariable(CF_4_NAME, `${CF_2_NAME} + ${CF_3_NAME}`, true),
+            createClickUpParserVariable(CF_5_NAME, `${CF_3_NAME} + ${CF_4_NAME}`, true),
         ];
 
         const validator = new ClickUpFieldsDependencyTracker(variables);
@@ -31,11 +31,11 @@ describe('clickupFieldsValidator', () => {
 
     it('should detect cycle', () => {
         const variables = [
-            createClickUpParserVariable(CF_1_NAME, 10, 'number'),
-            createClickUpParserVariable(CF_2_NAME, 20, 'number'),
-            createClickUpParserVariable(CF_3_NAME, `${CF_1_NAME} + ${CF_5_NAME}`, 'formula'),
-            createClickUpParserVariable(CF_4_NAME, `${CF_2_NAME} + ${CF_3_NAME}`, 'formula'),
-            createClickUpParserVariable(CF_5_NAME, `${CF_3_NAME} + ${CF_4_NAME}`, 'formula'),
+            createClickUpParserVariable(CF_1_NAME, 10),
+            createClickUpParserVariable(CF_2_NAME, 20),
+            createClickUpParserVariable(CF_3_NAME, `${CF_1_NAME} + ${CF_5_NAME}`, true),
+            createClickUpParserVariable(CF_4_NAME, `${CF_2_NAME} + ${CF_3_NAME}`, true),
+            createClickUpParserVariable(CF_5_NAME, `${CF_3_NAME} + ${CF_4_NAME}`, true),
         ];
         const validator = new ClickUpFieldsDependencyTracker(variables);
 
@@ -44,11 +44,11 @@ describe('clickupFieldsValidator', () => {
 
     it('should detect nesting is too deep', () => {
         const variables = [
-            createClickUpParserVariable(CF_1_NAME, 10, 'number'),
-            createClickUpParserVariable(CF_2_NAME, 20, 'number'),
-            createClickUpParserVariable(CF_3_NAME, `${CF_1_NAME} + ${CF_2_NAME}`, 'formula'),
-            createClickUpParserVariable(CF_4_NAME, `${CF_2_NAME} + ${CF_3_NAME}`, 'formula'),
-            createClickUpParserVariable(CF_5_NAME, `${CF_3_NAME} + ${CF_4_NAME}`, 'formula'),
+            createClickUpParserVariable(CF_1_NAME, 10),
+            createClickUpParserVariable(CF_2_NAME, 20),
+            createClickUpParserVariable(CF_3_NAME, `${CF_1_NAME} + ${CF_2_NAME}`, true),
+            createClickUpParserVariable(CF_4_NAME, `${CF_2_NAME} + ${CF_3_NAME}`, true),
+            createClickUpParserVariable(CF_5_NAME, `${CF_3_NAME} + ${CF_4_NAME}`, true),
         ];
         const validator = new ClickUpFieldsDependencyTracker(variables, 2);
 

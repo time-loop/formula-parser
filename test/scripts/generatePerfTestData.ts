@@ -9,7 +9,7 @@ class VariablesSet {
 
     addVariable(variable: ClickUpParserVariable) {
         this.variables.push(variable);
-        if (variable.type === 'formula') {
+        if (variable.isFormula === true) {
             this.functionVariables.push(variable);
         } else {
             this.regularVariables.push(variable);
@@ -45,7 +45,6 @@ function generateCustomFields(
     for (let i = 0; i < numRegularVars; i++) {
         variables.addVariable({
             name: variableIds[i],
-            type: 'regular',
             value: `Value for ${variableIds[i]}`,
         });
     }
@@ -63,8 +62,8 @@ function generateCustomFields(
 
         variables.addVariable({
             name: variableIds[i],
-            type: 'formula',
             value: formulaValue,
+            isFormula: true,
         });
     }
 

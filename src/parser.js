@@ -30,7 +30,12 @@ export default class Parser {
         this.variables = Object.create(null);
         this.functions = Object.create(null);
 
-        this.setVariable('TRUE', true).setVariable('FALSE', false).setVariable('NULL', null);
+        this.setVariable('TRUE', true)
+            .setVariable('true', true)
+            .setVariable('FALSE', false)
+            .setVariable('false', false)
+            .setVariable('NULL', null)
+            .setVariable('null', null);
     }
 
     /**
@@ -112,20 +117,14 @@ export default class Parser {
      */
     _callVariable(name) {
         let value = this.getVariable(name);
-        const isFormulaResult = (value) =>
-            value !== null && typeof value === 'object' && 'result' in value && 'error' in value;
+
         this.emitter.emit('callVariable', name, (newValue) => {
-            if (isFormulaResult(newValue)) {
-                if (newValue.error !== null) {
-                    throw Error(newValue.error);
-                }
-                value = newValue.result;
-            } else if (newValue !== undefined) {
+            if (newValue !== undefined) {
                 value = newValue;
             }
         });
 
-        if (value === void 0) {
+        if (value === undefined) {
             throw Error(ERROR_NAME);
         }
 
