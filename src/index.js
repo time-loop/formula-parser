@@ -4,24 +4,25 @@ import { ParseResult } from './clickup/parseResult';
 import SUPPORTED_FORMULAS from './supported-formulas';
 import error, {
     ERROR,
+    ERROR_CYCLE,
     ERROR_DIV_ZERO,
+    ERROR_LEVEL,
     ERROR_NAME,
     ERROR_NOT_AVAILABLE,
     ERROR_NULL,
     ERROR_NUM,
     ERROR_REF,
     ERROR_VALUE,
-    ERROR_CYCLE,
-    ERROR_LEVEL,
 } from './error';
 import {
-    extractLabel,
-    toLabel,
     columnIndexToLabel,
     columnLabelToIndex,
+    extractLabel,
     rowIndexToLabel,
     rowLabelToIndex,
+    toLabel,
 } from './helper/cell';
+import { ClickUpFieldsDependencyTracker } from './clickup/clickupFieldsDependencyTracker';
 
 export {
     SUPPORTED_FORMULAS,
@@ -38,6 +39,7 @@ export {
     Parser,
     ClickUpParser,
     ParseResult,
+    ClickUpFieldsDependencyTracker,
     error,
     extractLabel,
     toLabel,
