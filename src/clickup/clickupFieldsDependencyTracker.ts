@@ -71,11 +71,13 @@ function addDependencyToGraph(variableName: VariableName) {
 
 export class ClickUpFieldsDependencyTracker {
     private variables: ClickUpParserVariable[];
+    private formulaVariables: Set<VariableName>;
     private maxLevels: number;
     private graph: DependencyGraph;
 
     constructor(variables: ClickUpParserVariable[], maxLevels: number = Number.MAX_SAFE_INTEGER) {
         this.variables = variables;
+        this.formulaVariables = new Set(variables.filter(isFormula).map((v) => v.name));
         this.maxLevels = maxLevels;
     }
 
@@ -98,6 +100,8 @@ export class ClickUpFieldsDependencyTracker {
         const sameVarInPath = (context: ValidationContext, variableName: VariableName): boolean =>
             context.recStack.has(variableName);
 
+        const isFormulaVariable = (variableName: VariableName): boolean => this.formulaVariables.has(variableName);
+
         function traverseNode(variableName: VariableName, context: ValidationContext) {
             if (sameVarInPath(context, variableName)) {
                 throw new DependencyValidationError('Circular dependency detected');
@@ -111,7 +115,9 @@ export class ClickUpFieldsDependencyTracker {
 
             let maxDepth = 0;
             for (const dependency of graph[variableName].dependencies) {
-                maxDepth = Math.max(maxDepth, traverseNode(dependency, context) + 1);
+                const dependencyDepth = traverseNode(dependency, context);
+                // Only increment depth if the dependency is a formula
+                maxDepth = Math.max(maxDepth, dependencyDepth + (isFormulaVariable(dependency) ? 1 : 0));
                 if (maxDepth > context.maxLevels) {
                     throw new DependencyValidationError(`Nesting is too deep at node: ${variableName}`);
                 }
