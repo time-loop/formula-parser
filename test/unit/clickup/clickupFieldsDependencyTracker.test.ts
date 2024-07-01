@@ -45,14 +45,24 @@ describe('clickupFieldsValidator', () => {
     it('should detect nesting is too deep', () => {
         const variables = [
             createClickUpParserVariable(CF_1_NAME, 10),
-            createClickUpParserVariable(CF_2_NAME, 20),
-            createClickUpParserVariable(CF_3_NAME, `${CF_1_NAME} + ${CF_2_NAME}`, true),
+            createClickUpParserVariable(CF_2_NAME, `${CF_1_NAME} * ${CF_1_NAME}`, true),
+            createClickUpParserVariable(CF_3_NAME, `${CF_2_NAME} * ${CF_2_NAME}`, true),
             createClickUpParserVariable(CF_4_NAME, `${CF_2_NAME} + ${CF_3_NAME}`, true),
-            createClickUpParserVariable(CF_5_NAME, `${CF_3_NAME} + ${CF_4_NAME}`, true),
         ];
-        const validator = new ClickUpFieldsDependencyTracker(variables, 2);
+        const validator = new ClickUpFieldsDependencyTracker(variables, 1);
 
         expect(() => validator.validate()).toThrow('Nesting is too deep');
+    });
+
+    it('should pass if nesting equal to max level', () => {
+        const variables = [
+            createClickUpParserVariable(CF_1_NAME, 4),
+            createClickUpParserVariable(CF_2_NAME, `${CF_1_NAME} * ${CF_1_NAME}`, true),
+            createClickUpParserVariable(CF_3_NAME, `3 * ${CF_2_NAME}`, true),
+        ];
+        const validator = new ClickUpFieldsDependencyTracker(variables, 1);
+
+        expect(() => validator.validate()).not.toThrow();
     });
 
     describe('performance tests', () => {
