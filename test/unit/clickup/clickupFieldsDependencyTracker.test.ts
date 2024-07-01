@@ -54,7 +54,7 @@ describe('clickupFieldsValidator', () => {
         expect(() => validator.validate()).toThrow('Nesting is too deep');
     });
 
-    it('should pass if nesting equal to max level', () => {
+    it('should pass if nesting is equal to max level', () => {
         const variables = [
             createClickUpParserVariable(CF_1_NAME, 4),
             createClickUpParserVariable(CF_2_NAME, `${CF_1_NAME} * ${CF_1_NAME}`, true),
