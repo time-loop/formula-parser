@@ -2,7 +2,8 @@ import { CUSTOM_FIELD_REGEX, ClickUpParserVariable, VariableName } from './click
 
 export interface ValidationResult {
     hasCycle: boolean;
-    isNestingTooDeep: boolean;
+    circularDependencies: VariableName[];
+    nestingByNode: Record<VariableName, number>;
 }
 
 interface DependencyGraph {
@@ -15,20 +16,14 @@ interface DependencyGraphNode {
 }
 
 interface ValidationContext {
-    maxLevels: number;
     recStack: Set<VariableName>;
-    depthByNode: Record<VariableName, number>;
+    depthByNode: Map<VariableName, number>;
+    circularDeps: Set<VariableName>;
 }
 
 interface DependentsLookupContext {
     visited: Set<VariableName>;
     result: VariableName[];
-}
-
-export class DependencyValidationError extends Error {
-    constructor(message: string) {
-        super(message);
-    }
 }
 
 function createDependencyGraph(variables: ClickUpParserVariable[]): DependencyGraph {
@@ -72,13 +67,11 @@ function addDependencyToGraph(variableName: VariableName) {
 export class ClickUpFieldsDependencyTracker {
     private variables: ClickUpParserVariable[];
     private formulaVariables: Set<VariableName>;
-    private maxLevels: number;
     private graph: DependencyGraph;
 
-    constructor(variables: ClickUpParserVariable[], maxLevels: number = Number.MAX_SAFE_INTEGER) {
+    constructor(variables: ClickUpParserVariable[]) {
         this.variables = variables;
         this.formulaVariables = new Set(variables.filter(isFormula).map((v) => v.name));
-        this.maxLevels = maxLevels;
     }
 
     private getDependencyGraph(): DependencyGraph {
@@ -88,50 +81,56 @@ export class ClickUpFieldsDependencyTracker {
         return this.graph;
     }
 
-    public validate() {
+    public validate(): ValidationResult {
         const graph = this.getDependencyGraph();
-
-        const context: ValidationContext = {
-            maxLevels: this.maxLevels,
-            recStack: new Set<VariableName>(),
-            depthByNode: {},
-        };
 
         const sameVarInPath = (context: ValidationContext, variableName: VariableName): boolean =>
             context.recStack.has(variableName);
 
         const isFormulaVariable = (variableName: VariableName): boolean => this.formulaVariables.has(variableName);
 
-        function traverseNode(variableName: VariableName, context: ValidationContext) {
+        function traverseNodeForValidation(variableName: VariableName, context: ValidationContext): number {
             if (sameVarInPath(context, variableName)) {
-                throw new DependencyValidationError('Circular dependency detected');
+                for (const varName of context.recStack) {
+                    context.circularDeps.add(varName);
+                }
+                return 0;
             }
 
-            if (context.depthByNode[variableName] !== undefined) {
-                return context.depthByNode[variableName];
+            if (context.depthByNode.has(variableName)) {
+                return context.depthByNode.get(variableName) ?? 0; // should never happen, but TS can't infer that
             }
 
             context.recStack.add(variableName);
 
             let maxDepth = 0;
             for (const dependency of graph[variableName].dependencies) {
-                const dependencyDepth = traverseNode(dependency, context);
+                const dependencyDepth = traverseNodeForValidation(dependency, context);
                 // Only increment depth if the dependency is a formula
                 maxDepth = Math.max(maxDepth, dependencyDepth + (isFormulaVariable(dependency) ? 1 : 0));
-                if (maxDepth > context.maxLevels) {
-                    throw new DependencyValidationError(`Nesting is too deep at node: ${variableName}`);
-                }
             }
 
             context.recStack.delete(variableName);
-            context.depthByNode[variableName] = maxDepth;
+            context.depthByNode.set(variableName, maxDepth);
 
             return maxDepth;
         }
 
+        const context: ValidationContext = {
+            recStack: new Set<VariableName>(),
+            depthByNode: new Map<VariableName, number>(),
+            circularDeps: new Set<VariableName>(),
+        };
+
         for (const varName in graph) {
-            traverseNode(varName, context);
+            traverseNodeForValidation(varName, context);
         }
+
+        return {
+            hasCycle: context.circularDeps.size > 0,
+            circularDependencies: Array.from(context.circularDeps),
+            nestingByNode: Object.fromEntries(context.depthByNode),
+        };
     }
 
     public getDependentFields(variableName: VariableName): VariableName[] {
