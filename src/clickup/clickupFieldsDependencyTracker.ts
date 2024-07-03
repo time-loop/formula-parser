@@ -64,6 +64,40 @@ function addDependencyToGraph(variableName: VariableName) {
     };
 }
 
+function getDependents(graph: DependencyGraph, variableName: VariableName): VariableName[] {
+    return graph[variableName]?.dependents || [];
+}
+
+function getDependencies(graph: DependencyGraph, variableName: VariableName): VariableName[] {
+    return graph[variableName]?.dependencies || [];
+}
+
+function traverseNodeForPath(
+    graph: DependencyGraph,
+    variableName: VariableName,
+    getNeighbours: (graph: DependencyGraph, name: VariableName) => VariableName[]
+): VariableName[] {
+    const visited = new Set<VariableName>();
+    const result: VariableName[] = [];
+
+    function traverseNodeInternal(graph: DependencyGraph, current: VariableName, context: DependentsLookupContext) {
+        if (!context.visited.has(current)) {
+            context.visited.add(current);
+            const neighbours = getNeighbours(graph, current);
+            for (const neighbour of neighbours) {
+                traverseNodeInternal(graph, neighbour, context);
+            }
+            context.result.push(current);
+        }
+    }
+
+    for (const neighbour of getNeighbours(graph, variableName)) {
+        traverseNodeInternal(graph, neighbour, { visited, result });
+    }
+
+    return result;
+}
+
 export class ClickUpFieldsDependencyTracker {
     private variables: ClickUpParserVariable[];
     private formulaVariables: Set<VariableName>;
@@ -134,26 +168,10 @@ export class ClickUpFieldsDependencyTracker {
     }
 
     public getDependentFields(variableName: VariableName): VariableName[] {
-        const graph = this.getDependencyGraph();
-        const getNeighbours = (name: VariableName) => graph[name]?.dependents || [];
+        return traverseNodeForPath(this.getDependencyGraph(), variableName, getDependents).reverse();
+    }
 
-        function traverseNode(graph: DependencyGraph, current: VariableName, context: DependentsLookupContext) {
-            if (!context.visited.has(current)) {
-                context.visited.add(current);
-                const neighbours = getNeighbours(current);
-                for (const neighbour of neighbours) {
-                    traverseNode(graph, neighbour, context);
-                }
-                context.result.push(current);
-            }
-        }
-
-        const visited = new Set<VariableName>();
-        const result: VariableName[] = [];
-        for (const neighbour of getNeighbours(variableName)) {
-            traverseNode(graph, neighbour, { visited, result });
-        }
-
-        return result.reverse();
+    public getFieldDependencies(variableName: VariableName): VariableName[] {
+        return traverseNodeForPath(this.getDependencyGraph(), variableName, getDependencies);
     }
 }
