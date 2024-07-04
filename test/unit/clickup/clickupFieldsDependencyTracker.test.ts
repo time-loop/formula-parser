@@ -13,8 +13,6 @@ describe('clickupFieldsValidator', () => {
 
     it('should return dependants in order', () => {
         const variables = [
-            createClickUpParserVariable(CF_1_NAME, 10),
-            createClickUpParserVariable(CF_2_NAME, 20),
             createClickUpParserVariable(CF_3_NAME, `${CF_1_NAME} + ${CF_2_NAME}`, true),
             createClickUpParserVariable(CF_4_NAME, `${CF_2_NAME} + ${CF_3_NAME}`, true),
             createClickUpParserVariable(CF_5_NAME, `${CF_3_NAME} + ${CF_4_NAME}`, true),
@@ -26,43 +24,68 @@ describe('clickupFieldsValidator', () => {
         expect(validator.getDependentFields(CF_3_NAME)).toEqual([CF_4_NAME, CF_5_NAME]);
         expect(validator.getDependentFields(CF_4_NAME)).toEqual([CF_5_NAME]);
         expect(validator.getDependentFields(CF_5_NAME)).toEqual([]);
-        expect(() => validator.validate()).not.toThrow();
+
+        expect(validator.getFieldDependencies(CF_1_NAME)).toEqual([]);
+        expect(validator.getFieldDependencies(CF_2_NAME)).toEqual([]);
+        expect(validator.getFieldDependencies(CF_3_NAME)).toEqual([CF_1_NAME, CF_2_NAME]);
+        expect(validator.getFieldDependencies(CF_4_NAME)).toEqual([CF_2_NAME, CF_1_NAME, CF_3_NAME]);
+        expect(validator.getFieldDependencies(CF_5_NAME)).toEqual([CF_1_NAME, CF_2_NAME, CF_3_NAME, CF_4_NAME]);
+
+        const result = validator.validate();
+        expect(result).toEqual({
+            hasCycle: false,
+            circularDependencies: [],
+            nestingByNode: expect.objectContaining({
+                [CF_1_NAME]: 0,
+                [CF_2_NAME]: 0,
+                [CF_3_NAME]: 0,
+                [CF_4_NAME]: 1,
+                [CF_5_NAME]: 2,
+            }),
+        });
     });
 
     it('should detect cycle', () => {
         const variables = [
-            createClickUpParserVariable(CF_1_NAME, 10),
-            createClickUpParserVariable(CF_2_NAME, 20),
             createClickUpParserVariable(CF_3_NAME, `${CF_1_NAME} + ${CF_5_NAME}`, true),
             createClickUpParserVariable(CF_4_NAME, `${CF_2_NAME} + ${CF_3_NAME}`, true),
             createClickUpParserVariable(CF_5_NAME, `${CF_3_NAME} + ${CF_4_NAME}`, true),
         ];
         const validator = new ClickUpFieldsDependencyTracker(variables);
 
-        expect(() => validator.validate()).toThrow('Circular dependency detected');
+        const result = validator.validate();
+        expect(result).toEqual({
+            hasCycle: true,
+            circularDependencies: expect.arrayContaining([CF_3_NAME, CF_4_NAME, CF_5_NAME]),
+            nestingByNode: expect.objectContaining({
+                [CF_1_NAME]: 0,
+                [CF_2_NAME]: 0,
+                [CF_3_NAME]: 3,
+                [CF_4_NAME]: 1,
+                [CF_5_NAME]: 2,
+            }),
+        });
     });
 
-    it('should detect nesting is too deep', () => {
+    it('should detect nesting correctly', () => {
         const variables = [
-            createClickUpParserVariable(CF_1_NAME, 10),
             createClickUpParserVariable(CF_2_NAME, `${CF_1_NAME} * ${CF_1_NAME}`, true),
             createClickUpParserVariable(CF_3_NAME, `${CF_2_NAME} * ${CF_2_NAME}`, true),
             createClickUpParserVariable(CF_4_NAME, `${CF_2_NAME} + ${CF_3_NAME}`, true),
         ];
-        const validator = new ClickUpFieldsDependencyTracker(variables, 1);
+        const validator = new ClickUpFieldsDependencyTracker(variables);
 
-        expect(() => validator.validate()).toThrow('Nesting is too deep');
-    });
+        const result = validator.validate();
 
-    it('should pass if nesting is equal to max level', () => {
-        const variables = [
-            createClickUpParserVariable(CF_1_NAME, 4),
-            createClickUpParserVariable(CF_2_NAME, `${CF_1_NAME} * ${CF_1_NAME}`, true),
-            createClickUpParserVariable(CF_3_NAME, `3 * ${CF_2_NAME}`, true),
-        ];
-        const validator = new ClickUpFieldsDependencyTracker(variables, 1);
-
-        expect(() => validator.validate()).not.toThrow();
+        expect(result).toEqual({
+            hasCycle: false,
+            circularDependencies: [],
+            nestingByNode: expect.objectContaining({
+                [CF_2_NAME]: 0,
+                [CF_3_NAME]: 1,
+                [CF_4_NAME]: 2,
+            }),
+        });
     });
 
     describe('performance tests', () => {

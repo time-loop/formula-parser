@@ -22,7 +22,7 @@ import {
     rowLabelToIndex,
     toLabel,
 } from './helper/cell';
-import { ClickUpFieldsDependencyTracker } from './clickup/clickupFieldsDependencyTracker';
+import { ClickUpFieldsDependencyTracker, ValidationResult } from './clickup/clickupFieldsDependencyTracker';
 
 export {
     SUPPORTED_FORMULAS,
@@ -40,6 +40,7 @@ export {
     ClickUpParser,
     ParseResult,
     ClickUpFieldsDependencyTracker,
+    ValidationResult,
     error,
     extractLabel,
     toLabel,
