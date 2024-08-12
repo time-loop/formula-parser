@@ -1,4 +1,4 @@
-Formula Parser [![Build Status](https://travis-ci.org/handsontable/formula-parser.png?branch=master)](https://travis-ci.org/handsontable/formula-parser) [![Test Coverage](https://codeclimate.com/github/handsontable/formula-parser/badges/coverage.svg)](https://codeclimate.com/github/handsontable/formula-parser/coverage) [![hot-formula-parser](https://img.shields.io/npm/v/hot-formula-parser.svg)](https://www.npmjs.com/package/hot-formula-parser)
+Formula Parser [![@time-loop/hot-formula-parser](https://img.shields.io/badge/npm-v4.1.0-blue)](https://github.com/time-loop/github-packages/pkgs/npm/hot-formula-parser)
 ==========
 Library provides a `Parser` class that evaluates excel and mathematical formulas.
 
@@ -9,26 +9,18 @@ Library provides a `Parser` class that evaluates excel and mathematical formulas
 A recommended way to install Formula Parser is through [NPM](https://www.npmjs.com/) using the following command:
 
 ```sh
-$ npm install hot-formula-parser --save
+$ npm install --save @time-loop/hot-formula-parser
 ```
 
-Node.js:
+Simple usage:
 ```js
-var FormulaParser = require('hot-formula-parser').Parser;
-var parser = new FormulaParser();
+import { Parser } from '@time-loop/hot-formula-parser';
+
+const parser = new Parser();
 
 parser.parse('SUM(1, 6, 7)'); // It returns `Object {error: null, result: 14}`
 ```
 
-Browser:
-```html
-<script src="/node_modules/hot-formula-parser/dist/formula-parser.min.js"></script>
-<script>
-var parser = new formulaParser.Parser();
-
-parser.parse('SUM(1, 6, 7)'); // It returns `Object {error: null, result: 14}`
-</script>
-```
 ## Features
 
 It supports:
@@ -49,7 +41,9 @@ It supports:
 ## API (methods)
 
 ```js
-var parser = new formulaParser.Parser();
+import { Parser } from '@time-loop/hot-formula-parser';
+
+const parser = new Parser();
 ```
 
 ### .parse(expression)
@@ -126,7 +120,7 @@ parser.getFunction('ADD_5')([1]); // returns `6`
 List of all supported formulas function.
 
 ```js
-require('hot-formula-parser').SUPPORTED_FORMULAS; // An array of formula names
+import { SUPPORTED_FORMULAS } from '@time-loop/hot-formula-parser'; // An array of formula names
 ```
 
 ## API (hooks)
