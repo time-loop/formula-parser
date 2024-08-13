@@ -5,10 +5,8 @@ describe('.parse()', () => {
     it.each([new Parser(), ClickUpParser.create()])(
         'should return error when number of arguments is not valid',
         (parser) => {
-            /* eslint-disable */
             expect(parser.parse('ACOTH("foo")')).toMatchObject({ error: '#VALUE!', result: null });
             expect(parser.parse("ACOTH('foo')")).toMatchObject({ error: '#VALUE!', result: null });
-            /* eslint-enable */
         }
     );
 
@@ -30,12 +28,11 @@ describe('.parse()', () => {
 
     describe('ClickUp Overrides', () => {
         const dateTestCases = [
-            ['SUM(DATE(2021,1,1) - 2)', 18625],
+            ['SUM(DATE(2021,1,1) - 2)', 18626],
             ['SUM(DATE(2021,1,1) - DATE(2021,1,2))', -1],
             ['SUM(DATE(2022,1,1) - DATE(2021,1,1))', 365],
             ['CONCATENATE(DATE(2022,1,1) - DATE(2021,1,1))', '365'],
             [
-                // eslint-disable-next-line max-len
                 "DATE(YEAR(EOMONTH('1/1/11', -3)), MONTH(EOMONTH('1/1/11', -3)), DAY(EOMONTH('1/1/11', -3))) - DATE(2010,10,30)",
                 1,
             ],
@@ -46,9 +43,7 @@ describe('.parse()', () => {
             ...dateTestCases.map((formula) => [...formula, ClickUpParser.create()]),
         ];
 
-        // eslint-disable-next-line max-len
         it.each(testCases)(
-            // eslint-disable-next-line max-len
             'if flags "CONVERT_FORMULAS_IN_NUMBERS" and "CONVERT_DATES_TO_NUMBERS" are off, it should not calculate date subtraction',
             (formula, _, parser) => {
                 expect(parser.parse(formula)).toMatchObject({ error: '#VALUE!', result: null });
