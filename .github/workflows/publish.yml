@@ -17,6 +17,12 @@ jobs:
                   cache: 'npm'
                   registry-url: 'https://npm.pkg.github.com'
             - run: npm ci
+            - name: Generate token
+              id: generate-token
+              uses: actions/create-github-app-token@31c86eb3b33c9b601a1f60f98dcbfd1d70f379b4 # v1.10.3
+              with:
+                  app-id: ${{ vars.CLICKUP_GITHUB_BOT_APP_ID }}
+                  private-key: ${{ secrets.CLICKUP_GITHUB_BOT_PRIVATE_KEY }}
             - run: npm publish
               env:
-                  NODE_AUTH_TOKEN: ${{ secrets.WRITE_PACKAGES_PAT }}
+                  NODE_AUTH_TOKEN: ${{ steps.generate-token.outputs.token }}
