@@ -40,28 +40,28 @@
         "node": ">=18.10.0"
     },
     "devDependencies": {
-        "@babel/core": "^7.24.5",
-        "@babel/eslint-parser": "^7.24.5",
-        "@eslint/js": "^9.2.0",
+        "@babel/core": "^7.25.2",
+        "@babel/eslint-parser": "^7.25.1",
+        "@eslint/eslintrc": "^3.1.0",
+        "@eslint/js": "^9.9.0",
         "@types/jest": "^29.5.12",
-        "eslint": "^8.57.0",
-        "eslint-config-airbnb-base": "^15.0.0",
-        "eslint-plugin-jest": "^28.5.0",
-        "generate-release": "^0.10.2",
+        "eslint": "^9.9.0",
+        "eslint-plugin-jest": "^28.8.0",
+        "generate-release": "^1.1.1",
+        "globals": "^15.9.0",
         "jest": "^29.7.0",
         "jest-cli": "^29.7.0",
-        "jison": "^0.4.17",
+        "jison": "^0.4.18",
         "jscs": "^3.0.7",
-        "rimraf": "^2.3.4",
-        "ts-jest": "^29.1.2",
+        "rimraf": "^6.0.1",
+        "ts-jest": "^29.2.4",
         "ts-node": "^10.9.2",
-        "tslib": "^2.6.2",
-        "typescript": "^5.4.5",
-        "typescript-eslint": "^7.9.0"
+        "tslib": "^2.6.3",
+        "typescript": "^5.5.4",
+        "typescript-eslint": "^8.1.0"
     },
     "dependencies": {
         "@formulajs/formulajs": "^2.3.0",
-        "eslint-plugin-import": "^2.29.1",
         "json5": "^2.2.3",
         "tiny-emitter": "^2.1.0"
     }
