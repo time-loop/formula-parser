@@ -1,0 +1,28 @@
+# Simple GitHub Packages publishing based on:
+# https://docs.github.com/en/actions/use-cases-and-examples/publishing-packages/publishing-nodejs-packages#example-workflow
+name: Publish
+
+on:
+    release:
+        types: [published]
+
+jobs:
+    publish:
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v4
+            - uses: actions/setup-node@v4
+              with:
+                  node-version-file: .nvmrc
+                  cache: 'npm'
+                  registry-url: 'https://npm.pkg.github.com'
+            - run: npm ci
+            - name: Generate token
+              id: generate-token
+              uses: actions/create-github-app-token@31c86eb3b33c9b601a1f60f98dcbfd1d70f379b4 # v1.10.3
+              with:
+                  app-id: ${{ vars.CLICKUP_GITHUB_BOT_APP_ID }}
+                  private-key: ${{ secrets.CLICKUP_GITHUB_BOT_PRIVATE_KEY }}
+            - run: npm publish
+              env:
+                  NODE_AUTH_TOKEN: ${{ steps.generate-token.outputs.token }}

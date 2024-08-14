@@ -14,9 +14,9 @@ $ npm install --save @time-loop/hot-formula-parser
 
 Simple usage:
 ```js
-import { Parser } from '@time-loop/hot-formula-parser';
+import { ClickUpParser } from '@time-loop/hot-formula-parser';
 
-const parser = new Parser();
+const parser = ClickUpParser.create();
 
 parser.parse('SUM(1, 6, 7)'); // It returns `Object {error: null, result: 14}`
 ```
@@ -41,9 +41,9 @@ It supports:
 ## API (methods)
 
 ```js
-import { Parser } from '@time-loop/hot-formula-parser';
+import { ClickUpParser } from '@time-loop/hot-formula-parser';
 
-const parser = new Parser();
+const parser = ClickUpParser.create();
 ```
 
 ### .parse(expression)
@@ -214,19 +214,3 @@ parser.parse('ROWS(A1:E2)'); // returns `2`
 parser.parse('COUNT(A1:E2)'); // returns `10`
 parser.parse('COUNTIF(A1:E2, ">5")'); // returns `5`
 ```
-
-### Want to help?
-
-Please see [CONTRIBUTING.md](CONTRIBUTING.md).
-
-### Changelog
-
-To see the list of recent changes, see [Releases section](https://github.com/handsontable/formula-parser/releases).
-
-### License
-
-The MIT License (see the [LICENSE](https://github.com/handsontable/formula-parser/blob/master/LICENSE) file for the full text).
-
-### Contact
-
-You can contact us at hello@handsontable.com.
