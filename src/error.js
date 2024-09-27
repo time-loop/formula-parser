@@ -49,7 +49,6 @@ export default function error(type) {
 export function isValidStrict(type) {
     let valid = false;
 
-    // eslint-disable-next-line no-restricted-syntax
     for (const i in errors) {
         if (Object.prototype.hasOwnProperty.call(errors, i) && errors[i] === type) {
             valid = true;
