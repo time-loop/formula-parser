@@ -93,8 +93,10 @@ export default class Parser {
      * @returns {Parser}
      */
     setVariable(name, value) {
+        if (typeof value === 'string') {
+            value = value.trim();
+        }
         this.variables[name] = value;
-
         return this;
     }
 
