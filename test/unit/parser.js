@@ -367,4 +367,22 @@ describe('Parser', () => {
             expect(() => parser._throwError('VALUE foo')).toThrow('ERROR');
         });
     });
+
+    describe('handling variables', () => {
+        it('should trim string variable values', () => {
+            parser.setVariable('CF_FOO', '  bar  ');
+            expect(parser.getVariable('CF_FOO')).toBe('bar');
+        });
+
+        it.each(['   bar   ', '  \tbar\n   ', '\n\n\nbar\n\n\n'])(
+            'IF formula with string variable should trim variable value',
+            (value) => {
+                parser.setVariable('CF_FOO', value);
+                expect(parser.parse('IF(EXACT(CF_FOO, "bar"), "yes", "no")')).toMatchObject({
+                    error: null,
+                    result: 'yes',
+                });
+            }
+        );
+    });
 });
