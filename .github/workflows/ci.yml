@@ -20,6 +20,5 @@ jobs:
               run: npm run lint
             - name: Build and Test
               run: |
-                  npm run test:generate
                   npm run test
                   npm run build
