@@ -6,16 +6,9 @@ const config = {
     transform: {
         '^.+\\.[tj]s$': 'ts-jest',
     },
-    testRegex: '(/test/.*.(t|j)s)$',
     transformIgnorePatterns: ['^.+/.js$'],
-    testPathIgnorePatterns: [
-        '/node_modules/',
-        '/dist/',
-        '/test/_utils/',
-        '/test/scripts',
-        '/test/jest.setup.js',
-        '/test/unit/clickup/clickupFieldsDependencyTracker.perf.test.ts',
-    ],
+    testRegex: '/test/unit/clickup/clickupFieldsDependencyTracker.perf.test.ts$',
+    testPathIgnorePatterns: ['/node_modules/', '/dist/', '/test/_utils/', '/test/scripts', '/test/jest.setup.js'],
     collectCoverageFrom: ['**/*.[tj]s', '!src/grammar-parser/**'],
 };
 
