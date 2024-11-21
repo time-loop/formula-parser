@@ -1,4 +1,4 @@
-import * as formulajs from '@formulajs/formulajs';
+import { formulajsProxy as formulajs } from '../clickup/formulajsProxy';
 import splitFormula from './formula';
 import { getNumberOfDaysSinceEpoch, isDate } from './date';
 

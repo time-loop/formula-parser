@@ -1,4 +1,4 @@
-import * as formulajs from '@formulajs/formulajs';
+import { formulajsProxy as formulajs } from '../../clickup/formulajsProxy';
 import SUPPORTED_FORMULAS from '../../supported-formulas';
 import { ERROR_NAME } from '../../error';
 
