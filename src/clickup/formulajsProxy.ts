@@ -1,6 +1,6 @@
 import * as formulajs from '@formulajs/formulajs';
 
-const isNil = (...args: unknown[]) =>
+const hasNil = (...args: unknown[]) =>
     args.some((arg) => arg === null || arg === undefined || arg === '' || arg === false);
 const nullToZero = (arg: unknown) => (isNil(arg) ? 0 : arg);
 
