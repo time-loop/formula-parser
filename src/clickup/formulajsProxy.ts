@@ -1,8 +1,5 @@
 import * as formulajs from '@formulajs/formulajs';
-
-const hasNil = (...args: unknown[]) =>
-    args.some((arg) => arg === null || arg === undefined || arg === '' || arg === false);
-const nullToZero = (arg: unknown) => (hasNil(arg) ? 0 : arg);
+import { hasNil, nullToZero } from './utils';
 
 const overrides = {
     DATE: (year: unknown, month: unknown, day: unknown) =>
