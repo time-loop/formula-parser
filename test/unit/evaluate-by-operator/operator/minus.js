@@ -13,6 +13,12 @@ describe('minus operator', () => {
         expect(func('2', '-8.8', 6, 0.4)).toBe(4.4);
         expect(() => func('foo', ' ', 'bar', ' baz')).toThrow('VALUE');
         expect(() => func('foo', 2)).toThrow('VALUE');
+        expect(func(null, null)).toBe(0);
+        expect(func(null, false)).toBe(Number.NaN);
+        expect(func(false, false)).toBe(Number.NaN);
+        expect(func(false, null)).toBe(Number.NaN);
+        expect(() => func(null, 'foo')).toThrow('VALUE');
+        expect(() => func('foo', null)).toThrow('VALUE');
     });
 
     describe('Dates subtraction', () => {
