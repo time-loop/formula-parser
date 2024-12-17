@@ -8,4 +8,4 @@ export const allNil = (...args: unknown[]) =>
 
 export const allNumber = (...args: unknown[]) => !args.map(toNumber).some(Number.isNaN);
 
-export const nullToZero = (arg: unknown) => (hasNil(arg) ? 0 : arg);
+export const nilToZero = (arg: unknown) => (hasNil(arg) ? 0 : arg);

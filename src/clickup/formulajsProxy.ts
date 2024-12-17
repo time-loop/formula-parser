@@ -1,5 +1,5 @@
 import * as formulajs from '@formulajs/formulajs';
-import { hasNil, nullToZero } from './utils';
+import { hasNil, nilToZero } from './utils';
 
 const overrides = {
     DATE: (year: unknown, month: unknown, day: unknown) =>
@@ -11,11 +11,11 @@ const overrides = {
     DAYS360: (startDate: unknown, endDate: unknown, method: unknown) =>
         hasNil(startDate, endDate) ? Number.NaN : formulajs.DAYS360(startDate, endDate, method),
     EDATE: (startDate: unknown, months: unknown) =>
-        hasNil(startDate) ? Number.NaN : formulajs.EDATE(startDate, nullToZero(months)),
+        hasNil(startDate) ? Number.NaN : formulajs.EDATE(startDate, nilToZero(months)),
     EOMONTH: (startDate: unknown, months: unknown) =>
-        hasNil(startDate) ? Number.NaN : formulajs.EOMONTH(startDate, nullToZero(months)),
+        hasNil(startDate) ? Number.NaN : formulajs.EOMONTH(startDate, nilToZero(months)),
     HOUR: (date: unknown) => (hasNil(date) ? Number.NaN : formulajs.HOUR(date)),
-    INTERVAL: (seconds: unknown) => formulajs.INTERVAL(nullToZero(seconds)),
+    INTERVAL: (seconds: unknown) => formulajs.INTERVAL(nilToZero(seconds)),
     ISOWEEKNUM: (date: unknown) => (hasNil(date) ? Number.NaN : formulajs.ISOWEEKNUM(date)),
     MINUTE: (serialNumber: unknown) => (hasNil(serialNumber) ? Number.NaN : formulajs.MINUTE(serialNumber)),
     MONTH: (date: unknown) => (hasNil(date) ? Number.NaN : formulajs.MONTH(date)),
@@ -31,7 +31,7 @@ const overrides = {
     YEARFRAC: (startDate: unknown, endDate: unknown, basis: unknown) =>
         hasNil(startDate, endDate) ? Number.NaN : formulajs.YEARFRAC(startDate, endDate, basis),
     WORKDAY: (startDate: unknown, days: unknown, holidays: unknown) =>
-        hasNil(startDate) ? Number.NaN : formulajs.WORKDAY(startDate, nullToZero(days), holidays),
+        hasNil(startDate) ? Number.NaN : formulajs.WORKDAY(startDate, nilToZero(days), holidays),
     NETWORKDAYS: (startDate: unknown, endDate: unknown, holidays: unknown) =>
         hasNil(startDate, endDate) ? Number.NaN : formulajs.NETWORKDAYS(startDate, endDate, holidays),
 };
