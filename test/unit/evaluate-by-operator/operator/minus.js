@@ -11,6 +11,12 @@ describe('minus operator', () => {
         expect(func('2', 8.8)).toBe(-6.800000000000001);
         expect(func('2', '8.8')).toBe(-6.800000000000001);
         expect(func('2', '-8.8', 6, 0.4)).toBe(4.4);
+        expect(func(null, null)).toBe(Number.NaN);
+        expect(func(null, false)).toBe(Number.NaN);
+        expect(func(false, false)).toBe(Number.NaN);
+        expect(func(false, null)).toBe(Number.NaN);
+        expect(func(null, 'foo')).toBe(Number.NaN);
+        expect(func('foo', null)).toBe(Number.NaN);
         expect(() => func('foo', ' ', 'bar', ' baz')).toThrow('VALUE');
         expect(() => func('foo', 2)).toThrow('VALUE');
     });

@@ -41,7 +41,7 @@ export function toNumber(
         return getNumberOfDaysSinceEpoch(value);
     }
 
-    return undefined;
+    return Number.NaN;
 }
 
 /**
