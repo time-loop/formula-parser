@@ -1,6 +1,7 @@
 import { toNumber } from '../../helper/number';
 import ClickUpConfiguration from '../../clickup.config';
 import { ERROR_VALUE } from '../../error';
+import { hasNil } from '../../clickup/utils';
 
 export const SYMBOL = '-';
 
@@ -10,7 +11,8 @@ export default function func(first, ...rest) {
         convertFormulasInNumbers: ClickUpConfiguration.ConvertFormulasInNumbers,
     };
 
-    if ([first, ...rest].some((v) => v === false)) {
+    if (hasNil(first, ...rest)) {
+        // some of the arguments are unset, return NaN
         return Number.NaN;
     }
 
