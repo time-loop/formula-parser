@@ -29,6 +29,22 @@ describe('ClickUpParser', () => {
         expect(result).toEqual({ error: null, result: 110 });
     });
 
+    it('should handle empty variables in internal formulas', () => {
+        const parser = ClickUpParser.create();
+        // empty variable
+        parser.setVariable(CF_1, null);
+        // formula using empty variable
+        // this formula would normally return NaN, but called from a formula
+        // we need to return null or we get #VALUE! error
+        parser.setVariable(CF_2, `${CF_1} * 2`, true);
+        // set variable
+        parser.setVariable(CF_3, 50);
+        // formula using set variable and a formula using empty variable
+        const formula = `${CF_3} - ${CF_2}`;
+        const result = parser.parse(formula);
+        expect(result).toEqual({ error: null, result: Number.NaN });
+    });
+
     it('should return error if formula variable is invalid', () => {
         const parser = ClickUpParser.create();
         parser.setVariable(CF_1, '100/0', true);

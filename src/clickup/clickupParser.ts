@@ -66,6 +66,13 @@ export class ClickUpParser {
         if (error) {
             throw new Error(error);
         }
+
+        if (Number.isNaN(result)) {
+            // this formula could not be calculated, but is used as a variable
+            // for another formula. Formulas do not accept NaN, so we need to
+            // map this to null
+            return null;
+        }
         return result;
     }
 
